@@ -109,7 +109,8 @@ svg{width:22px;height:22px;flex:0 0 auto}
 .sfield .clr{width:28px;height:28px;display:grid;place-items:center;color:var(--muted)}
 .sfield .clr svg{width:16px;height:16px}
 .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:18px}
-.toolbar .sfield{flex:1;margin:0}
+.toolbar .sfield{flex:1;min-width:0;margin:0}
+.toolbar .btn{flex:0 0 auto}
 .toolbar .btn{height:38px;padding:0 12px;font-size:14px;border-radius:10px}
 .chips{display:flex;gap:8px;overflow-x:auto;margin:0 calc(-1 * (var(--gut) + var(--sar))) 18px calc(-1 * (var(--gut) + var(--sal)));padding:0 calc(var(--gut) + var(--sar)) 2px calc(var(--gut) + var(--sal));scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
@@ -229,7 +230,65 @@ button.li:active,.li.tap:active{background:var(--s3)}
 .credits{font-size:13.5px;line-height:1.5;color:var(--muted);margin-top:14px}
 .credits b{color:var(--text2);font-weight:500;margin-right:6px}
 .credits span{display:block}
+.chrow,.ctile,.ggc{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+/* guida a griglia: canali in colonna, ore in riga */
+.gg{overflow:auto;-webkit-overflow-scrolling:touch;max-height:calc(100vh - var(--sat) - var(--barh) - var(--tabh) - var(--sab) - 56px);min-height:300px;margin:0 calc(-1 * (var(--gut) + var(--sar))) 0 calc(-1 * (var(--gut) + var(--sal)));background:var(--o1);overscroll-behavior:contain}
+.ggin{position:relative}
+.ggh{position:sticky;top:0;z-index:4;display:flex;height:32px;background:var(--o2)}
+.ggh .c0{position:sticky;left:0;z-index:5;flex:0 0 64px;width:64px;background:var(--o2);display:grid;place-items:center;font:600 11px var(--body);color:var(--muted)}
+.ggh .tl{position:relative;flex:1}
+.ggh .tl span{position:absolute;top:9px;font:700 13px var(--num);color:var(--text2);font-variant-numeric:tabular-nums;padding-left:6px;border-left:1px solid var(--line2);line-height:14px}
+.ggr{display:flex;height:62px;border-top:.5px solid var(--line)}
+.ggc{position:sticky;left:0;z-index:3;flex:0 0 64px;width:64px;background:var(--o1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;box-shadow:1px 0 0 var(--line)}
+.ggc .gl{position:relative;width:48px;height:32px;border-radius:7px;background:var(--s3);overflow:hidden;display:grid;place-items:center;font:800 11px var(--display);color:var(--faint)}
+.ggc .gl img{position:absolute;left:4px;top:3px;width:calc(100% - 8px);height:calc(100% - 6px);object-fit:contain}
+.ggc small{font:700 11px var(--num);color:var(--muted);max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ggt{position:relative;flex:1}
+.ggp{position:absolute;top:5px;bottom:5px;border-radius:9px;background:var(--s2);padding:7px 9px;overflow:hidden;text-align:left}
+.ggp:active{opacity:.6}
+.ggp b{display:block;font:600 13px/1.25 var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ggp small{display:block;font:500 11.5px var(--body);color:var(--muted);margin-top:3px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ggp.now{background:rgba(var(--accent-rgb),.24);box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.55)}
+.ggp.past{opacity:.55}
+.ggp.none{background:none;box-shadow:inset 0 0 0 1px var(--line);color:var(--faint);font-size:12.5px;display:flex;align-items:center}
+.ggp.wait{background:var(--s1)}
+.ggnow{position:absolute;top:32px;bottom:0;width:2px;background:var(--live);z-index:2;pointer-events:none}
+/* anteprima del canale */
+.pv{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000;margin-bottom:14px}
+.pv video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.pv .msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:18px;color:var(--text2);font-size:14px;line-height:1.4}
+.pvnow{text-align:center;color:var(--muted);font-size:14px;margin:-8px 0 16px;min-height:18px}
+/* filtri */
+.fgrp{margin:0 0 16px}
+.fgrp > b{display:block;font:600 13px var(--body);color:var(--muted);margin:0 2px 8px}
+.fgrp .chips{margin-bottom:0;flex-wrap:wrap;overflow:visible;margin-left:0;margin-right:0;padding-left:0;padding-right:0}
+.fbtn{position:relative}
+.fbtn.on{background:var(--accent);color:var(--on-accent)}
+.sheet .plot{margin:0 0 16px;font-size:14.5px}
 .eps{display:grid;gap:4px}
+.epdl{flex:0 0 auto;align-self:center;width:42px;height:42px;margin-right:-8px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.epdl svg{width:21px;height:21px}
+.epdl.on{color:var(--accent)}
+.epdl i{font:700 12px var(--num);font-style:normal;color:var(--accent)}
+.dls{display:grid;gap:10px}
+.dl{display:flex;align-items:center;gap:4px;padding:10px 6px 10px 10px;border-radius:16px;background:var(--s1);box-shadow:inset 0 0 0 .5px var(--line)}
+.dl .dmain{flex:1;min-width:0;display:flex;gap:12px;align-items:center;text-align:left}
+.dl .dmain:active{opacity:.6}
+.dl .dimg{position:relative;width:50px;aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:var(--s2);flex:0 0 auto}
+.dl .dimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.dl .dt{flex:1;min-width:0}
+.dl .dt b{display:block;font-weight:600;font-size:15px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl .dt small{display:block;font-size:13px;line-height:1.3;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl .dt small.st{color:var(--text2)}
+.dl .dt small.bad{color:var(--live)}
+.dl .dbar{display:block;height:3px;border-radius:2px;background:var(--s3);margin-top:8px;overflow:hidden}
+.dl .dbar i{display:block;height:100%;background:var(--accent)}
+.dl .ib{color:var(--muted);flex:0 0 auto}
+#offline{min-height:100vh;padding:calc(var(--sat) + 22px) calc(20px + var(--sar)) calc(var(--sab) + 34px) calc(20px + var(--sal));max-width:560px;margin:0 auto}
+#offline h1{font:800 31px/1.04 var(--display);letter-spacing:-.035em;margin:22px 0 8px}
+#offline .lead{font-size:15px;line-height:1.45;color:var(--muted);margin-bottom:18px}
+.offbtn{margin-top:10px}
+#login .splash .offbtn{margin-top:26px}
 .ep{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;padding:8px 0;border-radius:10px}
 .ep:active{opacity:.6}
 .eth{position:relative;flex:0 0 auto;width:132px;aspect-ratio:16/9;border-radius:8px;background:var(--s2);overflow:hidden}
@@ -469,7 +528,7 @@ html.scr #sb{opacity:1}
 <div id="sb" aria-hidden="true"></div>
 
 <section id="login">
-  <div class="splash" aria-live="polite"><div class="brand"><i></i>Xtream</div><span class="spinner"></span><span>Accesso in corso…</span></div>
+  <div class="splash" aria-live="polite"><div class="brand"><i></i>Xtream</div><span class="spinner"></span><span>Accesso in corso…</span><button type="button" class="btn gray offbtn hidden" data-off-open>Guarda i video scaricati</button></div>
   <form id="loginForm" autocomplete="on">
     <div class="brand"><i></i>Xtream</div>
     <h1 id="loginH">Accedi</h1>
@@ -487,8 +546,16 @@ html.scr #sb{opacity:1}
     <div class="group"><div class="li"><span class="lt"><b>Ricorda l'accesso</b></span><button type="button" class="tg on" id="fRemember" role="switch" aria-checked="true" aria-label="Ricorda l'accesso"></button></div></div>
     <button class="btn primary block" id="loginBtn">Accedi</button>
     <button type="button" class="btn gray block hidden" id="loginCancel">Annulla</button>
+    <button type="button" class="btn gray block offbtn hidden" data-off-open>Guarda i video scaricati</button>
     <div class="err" id="loginErr" role="alert"></div>
   </form>
+</section>
+
+<section id="offline" class="hidden">
+  <button type="button" class="btn gray small" data-off-close>Torna all'accesso</button>
+  <h1>Scaricati</h1>
+  <p class="lead">Questi video sono sul tuo iPhone: li puoi guardare anche senza connessione.</p>
+  <div class="dls" id="offList"></div>
 </section>
 
 <div id="app" class="hidden">
@@ -558,7 +625,9 @@ const ICON = {
   palette: ic('M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-1.3-1-1.6-1-2.6 0-.9.7-1.6 1.6-1.6H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3zM7.5 12h.01M9.5 7.5h.01M14.5 7.5h.01'),
   shield: ic('M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z'),
   info: ic('M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5.5M12 7.6v.01'),
-  multi: ic('M3.5 5h7.5v6H3.5zM13 5h7.5v6H13zM3.5 13h7.5v6H3.5zM13 13h7.5v6H13z')
+  multi: ic('M3.5 5h7.5v6H3.5zM13 5h7.5v6H13zM3.5 13h7.5v6H3.5zM13 13h7.5v6H13z'),
+  dl: ic('M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14'),
+  up: ic('M12 15V4M7.5 8.5 12 4l4.5 4.5M5 20h14')
 };
 const TYPES = {
   live:   {label:'TV',    full:'TV in diretta', noun:'canali', all:'Tutti i canali', cats:'get_live_categories',   items:'get_live_streams'},
@@ -890,9 +959,10 @@ async function login(c, remember, tries = 1){
     lsSet('xp_creds', remember ? cr : null);
     S.creds = cr; S.adding = false; S.backupCreds = null; S.acct = ui;
     favs = lsGet(ns('favs'), []); prog = lsGet(ns('progress'), {});
-    S.data = {}; S.ready = {}; S.byKey = {}; S.visCache = {}; S.featKeys = null; S.now = {}; S.epg = {}; S.unlocked = false; S.guideCat = null; S.multi = null; S.featAt = 0;
+    S.data = {}; S.ready = {}; S.byKey = {}; S.visCache = {}; S.featKeys = null; S.now = {}; S.epg = {}; S.gg = {}; S.unlocked = false; S.guideCat = null; S.multi = null; S.featAt = 0;
+    noteVisit();
     resetStacks();
-    $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+    $('#login').classList.add('hidden'); $('#offline').classList.add('hidden'); $('#app').classList.remove('hidden');
     buildTabs();
     renderRoute(false);
     maybeStartLast();
@@ -979,9 +1049,10 @@ addEventListener('scroll', onScroll, {passive:true});
 function renderRoute(){
   const r = cur(), tok = ++S.rt;
   nowObserver.disconnect(); moreObserver.disconnect();
+  if (S.ggObs) { S.ggObs.disconnect(); S.ggObs = null; }
   if (r.v !== 'home' && r.v !== 'detail') setAmb(null);
   const f = {multi:pMulti, home:pHome, live:pLive, livecat:pLiveCat, epg:pEpg, movie:pType, series:pType, cat:pCat, detail:pDetail,
-    list:pList, search:pSearch, settings:pSettings, cats:pCats, playlists:pPlaylists}[r.v];
+    list:pList, search:pSearch, settings:pSettings, cats:pCats, playlists:pPlaylists, downloads:pDownloads, news:pNews}[r.v];
   if (f) f(r, tok);
 }
 const live = tok => tok === S.rt;
@@ -1143,6 +1214,10 @@ async function pHome(r, tok){
   const cont = contList();
   if (last && okItem(last)) h += sec('Torna alla diretta', lastCard(last));
   if (cont.length) h += sec('Continua a guardare', hs(cont.map(contCard)));
+  const fresh = newSince(M, Se);
+  if (fresh.length) h += sec('Novità dall\'ultima visita', hs(fresh.slice(0, 24).map(poster)), {v:'news'});
+  const dls = dlList();
+  if (dls.length) h += sec('Scaricati', hs(dls.slice(0, 12).map(dlCard)), {v:'downloads'});
   const fl = favs.map(k => S.byKey[k]).filter(o => okItem(o) && o.type === 'live');
   if (fl.length) h += sec('Canali preferiti', hs(fl.slice(0, 30).map(ctile)), {v:'list', mode:'live'});
   const rc = recentLive().filter(o => okItem(o) && o !== last);
@@ -1214,13 +1289,119 @@ async function pLive(r, tok){
   }
   const cats = D.cats.filter(c => !c.locked || S.unlocked);
   if (!S.guideCat || !cats.some(c => c.id === S.guideCat)) S.guideCat = cats.length ? cats[0].id : null;
-  h += `<div class="chips">${cats.map(c => `<button class="chip${c.id === S.guideCat ? ' on' : ''}" data-guide-cat="${esc(c.id)}">${esc(c.name)}</button>`).join('')}</div><div class="chlist" id="glist"></div>`;
+  h += `<div class="chips">${cats.map(c => `<button class="chip${c.id === S.guideCat ? ' on' : ''}" data-guide-cat="${esc(c.id)}">${esc(c.name)}</button>`).join('')}</div><div id="ggbox"></div>`;
   V.innerHTML = page(h);
   const on = $('.chips .chip.on'); if (on) on.scrollIntoView({inline:'center', block:'nearest'});
   const list = S.guideCat ? (D.byCat[S.guideCat] || []).filter(okItem) : [];
-  if (!list.length) { $('#glist').outerHTML = `<div class="empty"><p>Nessun canale in questa categoria.</p></div>`; return; }
-  lazyList($('#glist'), list, o => chRow(o, true), 40);
+  if (!list.length) { $('#ggbox').innerHTML = `<div class="empty"><p>Nessun canale in questa categoria.</p></div>`; return; }
+  paintGrid($('#ggbox'), list, tok);
 }
+
+// ---------- guida a griglia ----------
+const GG = {pxm:4, hours:6.5, col:64};   // 4 punti al minuto: mezz'ora è larga 120
+// la guida delle prossime ore di un canale, con una piccola coda per non caricare troppo il server
+let ggActive = 0; const ggQueue = [], ggWait = {};
+function ggPump(){
+  while (ggActive < 4 && ggQueue.length) {
+    const j = ggQueue.shift();
+    if (!j.alive()) { j.done(null); continue; }
+    ggActive++;
+    api('get_short_epg', {stream_id:j.o.id, limit:12}).then(d => toArr(d && d.epg_listings).map(l => ({title:decB64(l.title) || 'Programma', desc:decB64(l.description),
+        start:Number(l.start_timestamp), end:Number(l.stop_timestamp || l.end_timestamp)})).filter(p => p.start && p.end > p.start).sort((a, b) => a.start - b.start))
+      .catch(() => []).then(list => {
+        const seen = new Set(); list = list.filter(p => !seen.has(p.start) && seen.add(p.start));
+        S.gg[j.o.id] = {at:Date.now(), list};
+        if (!S.now[j.o.id] || list.length) S.now[j.o.id] = {at:Date.now(), list};
+        ggActive--; j.done(list); ggPump();
+      });
+  }
+}
+function rowEpg(o, alive){
+  const c = S.gg[o.id];
+  if (c && Date.now() - c.at < 15 * 60000) return Promise.resolve(c.list);
+  if (ggWait[o.id]) return ggWait[o.id];
+  const pr = new Promise(res => { ggQueue.push({o, alive:alive || (() => true), done:res}); ggPump(); });
+  ggWait[o.id] = pr; pr.then(() => { delete ggWait[o.id]; });
+  return pr;
+}
+function paintGrid(box, list, tok){
+  const MAX = 150, rows = list.slice(0, MAX);
+  const now = Date.now() / 1000, t0 = Math.floor((now - 1800) / 1800) * 1800, t1 = t0 + GG.hours * 3600, W = (t1 - t0) / 60 * GG.pxm;
+  S.ggWin = {t0, t1};
+  let times = '';
+  for (let t = t0; t < t1; t += 1800) times += `<span style="left:${(t - t0) / 60 * GG.pxm}px">${hm(t)}</span>`;
+  box.innerHTML = `<div class="gg" id="gg"><div class="ggin" style="width:${GG.col + W}px"><div class="ggh"><span class="c0">Oggi</span><div class="tl">${times}</div></div>`
+    + rows.map(o => `<div class="ggr"><button class="ggc" data-k="${esc(o.key)}" aria-label="Guarda ${esc(o.name)}"><span class="gl">${initials(o.name)}${o.img ? `<img src="${esc(o.img)}" loading="lazy" alt="" onerror="this.remove()">` : ''}</span><small>${esc(o.raw.num || o.name)}</small></button>`
+      + `<div class="ggt" data-gg="${esc(o.key)}"><span class="ggp wait" style="left:0;width:${W - 3}px"></span></div></div>`).join('')
+    + `<i class="ggnow" style="left:${GG.col + (now - t0) / 60 * GG.pxm}px"></i></div></div>`
+    + `<p class="note" style="margin-top:12px">Tocca un programma per i dettagli, tocca il logo per guardare il canale.${list.length > MAX ? ` Mostro i primi ${MAX} canali di ${nf(list.length)}.` : ''}</p>`;
+  const obs = S.ggObs = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    obs.unobserve(e.target);
+    const o = S.byKey[e.target.dataset.gg]; if (!o) return;
+    rowEpg(o, () => live(tok)).then(l => { if (l && e.target.isConnected) paintGridRow(e.target, o, l); });
+  }), {root:$('#gg'), rootMargin:'240px 0px'});
+  $$('.ggt', box).forEach(el => obs.observe(el));
+}
+function paintGridRow(el, o, list){
+  const {t0, t1} = S.ggWin, now = Date.now() / 1000, W = (t1 - t0) / 60 * GG.pxm;
+  const h = list.filter(p => p.end > t0 && p.start < t1).map(p => {
+    const a = Math.max(p.start, t0), b = Math.min(p.end, t1), w = (b - a) / 60 * GG.pxm - 3;
+    if (w < 6) return '';
+    const st = p.end <= now ? ' past' : (p.start <= now ? ' now' : '');
+    return `<button class="ggp${st}" style="left:${(a - t0) / 60 * GG.pxm}px;width:${w}px" data-gp="${esc(o.key)}|${p.start}"><b>${esc(p.title)}</b><small>${hm(p.start)}${w > 110 ? '–' + hm(p.end) : ''}</small></button>`;
+  }).join('');
+  el.innerHTML = h || `<span class="ggp none" style="left:0;width:${W - 3}px">Guida non disponibile per questo canale</span>`;
+}
+const dayLbl = ts => { const d = new Date(ts * 1000), t = new Date(), k = x => x.getFullYear() * 400 + x.getMonth() * 32 + x.getDate(), n = k(d) - k(t);
+  return n === 0 ? 'oggi' : (n === 1 ? 'domani' : d.toLocaleDateString('it-IT', {weekday:'long'})); };
+function progSheet(key, start){
+  const o = S.byKey[key]; if (!o) return;
+  const p = ((S.gg[o.id] || {}).list || []).find(x => String(x.start) === String(start)); if (!p) return;
+  const now = Date.now() / 1000, on = p.start <= now && p.end > now;
+  openSheet(`<div class="grab"></div><h3>${esc(p.title)}</h3><p class="pvnow">${esc(o.name)}, ${dayLbl(p.start)} ${hm(p.start)}–${hm(p.end)}${on ? ', in onda adesso' : ''}</p>`
+    + (p.desc ? `<p class="plot">${esc(p.desc)}</p>` : '')
+    + `<div class="dacts" style="margin:0">` + (on ? `<button class="btn primary block" data-gp-play="${esc(o.key)}">${ICON.play} Guarda ora</button>` : (p.start > now ? `<button class="btn primary block" data-gp-play="${esc(o.key)}">${ICON.play} Apri ${esc(o.name)}</button>` : ''))
+    + `<button class="btn gray block" data-gp-epg="${esc(o.key)}">${ICON.guide} Tutti i programmi del canale</button></div>`);
+}
+
+// ---------- anteprima: tieni premuto un canale per vederlo in un riquadro ----------
+function openPreview(o){
+  if (!o || o.type !== 'live') return;
+  const [s, u, p] = authParts();
+  const src = iosSource({live:true, url:`${s}/live/${u}/${p}/${o.id}.ts`});
+  S.pvKey = o.key;
+  openSheet(`<div class="grab"></div><h3>${esc(o.name)}</h3><p class="pvnow" id="pvnow"></p><div class="pv"><video id="pvv" playsinline webkit-playsinline autoplay></video><div class="msg" id="pvmsg"><span class="spinner"></span></div></div>`
+    + `<div class="drow"><button class="btn primary" data-pv-open>${ICON.play} Guarda</button><button class="btn gray" data-pv-close>Chiudi</button></div>`);
+  const v = $('#pvv'), msg = $('#pvmsg');
+  const fail = () => { if ($('#pvv') !== v) return; clearTimeout(t); v.pause(); v.removeAttribute('src'); msg.classList.remove('hidden'); msg.textContent = 'L\'anteprima non è disponibile per questo canale. Tocca Guarda per aprirlo.'; };
+  const t = setTimeout(() => { if (v.readyState < 2) fail(); }, 12000);
+  v.addEventListener('playing', () => { clearTimeout(t); msg.classList.add('hidden'); });
+  v.addEventListener('error', fail);
+  v.src = src; v.play().catch(() => {});
+  const c = nowNext(o).cur;
+  if (c) $('#pvnow').textContent = 'Ora: ' + c.title;
+  else rowEpg(o).then(() => { const q = nowNext(o).cur, el = $('#pvnow'); if (q && el && S.pvKey === o.key) el.textContent = 'Ora: ' + q.title; });
+}
+function stopPreview(){
+  const v = $('#pvv'); if (!v) return;
+  try { v.pause(); v.removeAttribute('src'); v.load(); } catch(_) {}
+}
+let lp = null, lpAt = 0;
+const lpCancel = () => { if (lp) { clearTimeout(lp.t); lp = null; } };
+document.addEventListener('touchstart', e => {
+  lpCancel();
+  if (e.touches.length !== 1 || $('#app').classList.contains('hidden')) return;
+  const el = e.target.closest('[data-k^="live:"]'); if (!el || e.target.closest('.cact')) return;
+  const x = e.touches[0].clientX, y = e.touches[0].clientY;
+  lp = {x, y, fired:false, t:setTimeout(() => { if (!lp) return; lp.fired = true; const o = S.byKey[el.dataset.k]; if (okItem(o)) openPreview(o); }, 480)};
+}, {passive:true});
+document.addEventListener('touchmove', e => { if (lp && !lp.fired) { const t = e.touches[0]; if (Math.abs(t.clientX - lp.x) > 10 || Math.abs(t.clientY - lp.y) > 10) lpCancel(); } }, {passive:true});
+document.addEventListener('touchend', () => { if (lp && lp.fired) lpAt = Date.now(); lpCancel(); });
+document.addEventListener('touchcancel', lpCancel);
+// il tocco che segue una pressione lunga non deve aprire il canale
+document.addEventListener('click', e => { if (Date.now() - lpAt < 450) { e.stopPropagation(); e.preventDefault(); } }, true);
+document.addEventListener('contextmenu', e => { if (e.target.closest('[data-k]')) e.preventDefault(); });
 function liveSearch(q, D){
   const f = fold(q.trim()), box = $('#liveRes'), main = $('#liveMain');
   if (!box) return;
@@ -1241,7 +1422,7 @@ async function pLiveCat(r, tok){
   r.title = name;
   setBar({title:name, acts:''});
   const items = r.cat === 'all' ? D.items : (D.byCat[r.cat] || []).filter(okItem);
-  V.innerHTML = page(`<h1 class="big">${esc(name)}<small>${nf(items.length)} ${items.length === 1 ? 'canale' : 'canali'}</small></h1>`
+  V.innerHTML = page(`<h1 class="big">${esc(name)}<small>${nf(items.length)} ${items.length === 1 ? 'canale' : 'canali'}. Tieni premuto un canale per vederne l'anteprima.</small></h1>`
     + `<label class="sfield">${ICON.search}<input id="catQ" type="search" placeholder="Filtra i canali" autocomplete="off" enterkeyhint="search"></label>`
     + (items.length ? `<div class="chlist" id="clist"></div>` : `<div class="empty"><p>In questa categoria non c'è niente.</p></div>`));
   if (!items.length) return;
@@ -1394,20 +1575,64 @@ async function pCat(r, tok){
   setBar({title:name, acts:''});
   const base = r.cat === 'all' ? D.items : (D.byCat[r.cat] || []).filter(okItem);
   const label = SORTS.find(s => s[0] === r.sort)[1];
+  r.flt = r.flt || {};
+  S.fltBase = base;
   V.innerHTML = page(`<h1 class="big">${esc(name)}<small>${nf(base.length)} ${base.length === 1 ? (type === 'movie' ? 'film' : 'serie') : T.noun}</small></h1>`
-    + `<div class="toolbar"><label class="sfield">${ICON.search}<input id="catQ" type="search" placeholder="Filtra" autocomplete="off" enterkeyhint="search"></label><button class="btn gray" data-sort aria-label="Ordina: ${esc(label)}">${ICON.sort}</button></div>`
-    + `<div class="cap" style="margin:0 2px 12px" id="sortLbl">${esc(label)}</div>`
+    + `<div class="toolbar"><label class="sfield">${ICON.search}<input id="catQ" type="search" placeholder="Filtra" autocomplete="off" enterkeyhint="search"></label><button class="btn gray fbtn${fltCount(r.flt) ? ' on' : ''}" id="fltBtn" data-flt aria-label="Filtri">${ICON.sliders}</button><button class="btn gray" data-sort aria-label="Ordina: ${esc(label)}">${ICON.sort}</button></div>`
+    + `<div class="cap" style="margin:0 2px 12px" id="sortLbl">${esc(catLabel(r))}</div>`
     + (base.length ? `<div class="grid3" id="cgrid"></div>` : `<div class="empty"><p>In questa categoria non c'è niente.</p></div>`));
   if (!base.length) return;
   const paint = () => {
     const f = fold(($('#catQ').value || '').trim());
-    const res = sorted(f ? base.filter(o => o.lc.includes(f)) : base, r.sort);
-    if (!res.length) { $('#cgrid').innerHTML = `<p class="note" style="grid-column:1/-1">Nessun titolo trovato.</p>`; return; }
+    const res = sorted(applyFlt(f ? base.filter(o => o.lc.includes(f)) : base, r.flt), r.sort);
+    $('#sortLbl').textContent = catLabel(r) + (fltCount(r.flt) ? ` (${nf(res.length)})` : '');
+    $('#fltBtn').classList.toggle('on', fltCount(r.flt) > 0);
+    if (!res.length) { $('#cgrid').innerHTML = `<p class="note" style="grid-column:1/-1">Nessun titolo trovato${fltCount(r.flt) ? ' con questi filtri' : ''}.</p>`; return; }
     lazyList($('#cgrid'), res, poster);
   };
   S.repaintCat = paint;
   paint();
   $('#catQ').addEventListener('input', debounce(paint, 140));
+}
+// ---------- filtri: anno, voto, genere, non ancora visti ----------
+const YEARS = [['', 'Tutti'], ['2020', 'Dal 2020'], ['2010', '2010–2019'], ['2000', '2000–2009'], ['old', 'Prima del 2000']];
+const RATES = [['', 'Tutti'], ['6', '6 o più'], ['7', '7 o più'], ['8', '8 o più']];
+const genresOf = o => String(o.raw.genre || '').split(/[,\/|]/).map(x => x.trim()).filter(x => x && x.length < 30);
+const fltCount = f => (f.year ? 1 : 0) + (f.rate ? 1 : 0) + (f.genre ? 1 : 0) + (f.unseen ? 1 : 0);
+const seenSet = () => { const st = new Set(lsGet(ns('seen'), [])); for (const p of Object.values(prog)) st.add(p.kind === 'movie' ? 'movie:' + p.id : 'series:' + p.seriesId); return st; };
+function markSeen(key){ const l = lsGet(ns('seen'), []); if (!l.includes(key)) lsSet(ns('seen'), [key, ...l].slice(0, 4000)); }
+function applyFlt(items, f){
+  if (!fltCount(f)) return items;
+  const seen = f.unseen ? seenSet() : null, g = f.genre ? fold(f.genre) : '', rate = Number(f.rate) || 0;
+  return items.filter(o => {
+    if (f.year) { const y = Number(o.year) || 0; if (!y) return false;
+      if (f.year === 'old' ? y >= 2000 : (f.year === '2020' ? y < 2020 : (y < Number(f.year) || y > Number(f.year) + 9))) return false; }
+    if (rate && o.rating < rate) return false;
+    if (g && !genresOf(o).some(x => fold(x) === g)) return false;
+    if (seen && seen.has(o.key)) return false;
+    return true;
+  });
+}
+function catLabel(r){
+  const f = r.flt || {}, parts = [];
+  if (f.year) parts.push(YEARS.find(y => y[0] === f.year)[1].toLowerCase());
+  if (f.rate) parts.push('voto ' + f.rate + ' o più');
+  if (f.genre) parts.push(f.genre.toLowerCase());
+  if (f.unseen) parts.push('non ancora visti');
+  return SORTS.find(x => x[0] === r.sort)[1] + (parts.length ? ', ' + parts.join(', ') : '');
+}
+function filterSheet(){
+  const r = cur(), f = r.flt || (r.flt = {}), base = S.fltBase || [];
+  const count = {};
+  base.forEach(o => genresOf(o).forEach(g => { count[g] = (count[g] || 0) + 1; }));
+  const gs = Object.keys(count).sort((a, b) => count[b] - count[a]).slice(0, 14);
+  const grp = (title, attr, opts, val) => `<div class="fgrp"><b>${title}</b><div class="chips">${opts.map(([id, l]) => `<button class="chip${(val || '') === id ? ' on' : ''}" ${attr}="${esc(id)}">${esc(l)}</button>`).join('')}</div></div>`;
+  const n = applyFlt(base, f).length;
+  const html = `<div class="grab"></div><h3>Filtri</h3>` + grp('Anno', 'data-fy', YEARS, f.year) + grp('Voto', 'data-fr', RATES, f.rate)
+    + (gs.length > 1 ? grp('Genere', 'data-fg', [['', 'Tutti'], ...gs.map(g => [g, g])], f.genre) : '')
+    + `<div class="group" style="margin-bottom:16px"><div class="li"><span class="lt"><b>Solo non ancora visti</b><span>Nasconde quello che hai già iniziato</span></span><button class="tg${f.unseen ? ' on' : ''}" data-fu role="switch" aria-checked="${!!f.unseen}"></button></div></div>`
+    + `<div class="drow"><button class="btn gray" data-fclear${fltCount(f) ? '' : ' disabled'}>Azzera</button><button class="btn primary" data-fdone>${n ? `Mostra ${nf(n)} ${n === 1 ? 'titolo' : 'titoli'}` : 'Nessun titolo'}</button></div>`;
+  if ($('#sheetbg').classList.contains('hidden')) openSheet(html); else $('#sheet').innerHTML = html;
 }
 function sortSheet(){
   const r = cur();
@@ -1472,9 +1697,12 @@ function paintDetail(o, r){
     + `<h1 class="dtitle">${esc(o.name)}</h1><div class="meta">${metaHtml(o, inf, extra)}</div>`
     + `<div class="dacts"><button class="btn primary block" data-act="play"${waiting || (o.type === 'series' && d && !keys.length) ? ' disabled' : ''}>${ICON.play} ${esc(label)}</button>`
     + `<div class="drow"><button class="btn gray" data-act="fav">${isFav(o.key) ? ICON.check + ' Nella lista' : ICON.plus + ' La mia lista'}</button>`
+    + (o.type === 'movie' ? `<button class="btn gray" data-act="dl" id="dlbtn">${dlBtnHtml('movie:' + o.id)}</button>` : '') + `</div>`
+    + `<div class="drow"><button class="btn gray" data-act="trailer">${ICON.play} Trailer</button>`
     + (o.type === 'movie' ? `<button class="btn gray" data-act="vlc">${ICON.ext} Apri in VLC</button>` : '') + `</div></div>`
     + (plot ? `<p class="plot clamp" id="plot">${esc(plot)}</p><button class="plotmore hidden" id="plotMore">Altro</button>` : '')
     + (cast || dir ? `<p class="credits">${cast ? `<span><b>Cast</b>${esc(cast)}</span>` : ''}${dir ? `<span><b>Regia</b>${esc(dir)}</span>` : ''}</p>` : '')
+    + (tmdbUrl(o, inf) ? `<button class="plotmore" style="margin-top:12px" data-open="${esc(tmdbUrl(o, inf))}">Voti e recensioni su TMDB</button>` : '')
     + (o.infoErr ? `<p class="note" style="margin:16px 0 0">Dettagli non disponibili: ${esc(o.infoErr)}</p>` : '');
   if (o.type === 'series') {
     if (waiting) h += `<div class="sec"><span class="sk" style="height:32px;width:60%;margin-bottom:16px"></span>${'<span class="sk" style="height:74px;margin-bottom:10px"></span>'.repeat(3)}</div>`;
@@ -1486,11 +1714,43 @@ function paintDetail(o, r){
         + `<div class="eps" id="eps">${episodesHtml(o, r.season)}</div></section>`;
     } else if (d) h += `<div class="empty"><p>Non ci sono episodi disponibili per questa serie.</p></div>`;
   }
+  const sim = similar(o, inf);
+  if (sim.length >= 3) h += sec('Simili a questo', hs(sim.map(poster)));
   V.innerHTML = page(h, 'detail');
   setAmb(pimg || bd);
   const pl = $('#plot');
   if (pl && pl.scrollHeight > pl.clientHeight + 2) $('#plotMore').classList.remove('hidden');
   const on = $('.chips .chip.on'); if (on) on.scrollIntoView({inline:'center', block:'nearest'});
+}
+// trailer: quello indicato dal fornitore, altrimenti una ricerca su YouTube
+function trailerUrl(o){
+  const inf = infoOf(o.info), raw = String(inf.youtube_trailer || o.raw.youtube_trailer || inf.trailer || '').trim();
+  const m = raw.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/) || raw.match(/^([\w-]{11})$/);
+  if (m) return 'https://www.youtube.com/watch?v=' + m[1];
+  return 'https://www.youtube.com/results?search_query=' + encodeURIComponent([o.name, o.year, 'trailer'].filter(Boolean).join(' '));
+}
+function tmdbUrl(o, inf){
+  const id = String(inf.tmdb_id || inf.tmdb || o.raw.tmdb || o.raw.tmdb_id || '').trim();
+  return /^\d+$/.test(id) ? `https://www.themoviedb.org/${o.type === 'movie' ? 'movie' : 'tv'}/${id}?language=it-IT` : '';
+}
+const openLink = url => { if (!native('open', {url})) window.open(url, '_blank'); };
+// titoli simili: stessa categoria, generi in comune, anni vicini; a parità vince il voto più alto
+function similar(o, inf){
+  const D = vis(o.type); if (!D) return [];
+  const g = new Set(String(inf.genre || o.raw.genre || '').split(/[,\/|]/).map(x => fold(x.trim())).filter(Boolean));
+  const y = Number(o.year) || 0;
+  const pool = g.size ? D.items : (D.byCat[o.cat] || []).filter(okItem);
+  const out = [];
+  for (const x of pool) {
+    if (x === o) continue;
+    let sc = x.cat === o.cat ? 2 : 0;
+    if (g.size) for (const k of genresOf(x)) if (g.has(fold(k))) sc += 2;
+    if (sc < 2) continue;
+    const xy = Number(x.year) || 0;
+    if (y && xy && Math.abs(y - xy) <= 3) sc += 1;
+    out.push([sc + Math.min(x.rating, 10) / 20, x]);
+  }
+  return out.sort((a, b) => b[0] - a[0]).slice(0, 14).map(x => x[1]);
 }
 function episodesHtml(o, season){
   const w = watched();
@@ -1499,9 +1759,9 @@ function episodesHtml(o, season){
     const p = prog['ep:' + ep.id], pct = p && p.d ? Math.round(p.t / p.d * 100) : 0;
     const seen = w.includes(String(ep.id));
     const dur = fmtDur(inf.duration_secs || inf.duration);
-    return `<button class="ep" data-ep="${i}"><span class="eth"><span class="n">${esc(n)}</span>${inf.movie_image ? `<img src="${esc(inf.movie_image)}" loading="lazy" alt="" onerror="this.remove()">` : ''}`
+    return `<div class="ep" data-ep="${i}" role="button" tabindex="0"><span class="eth"><span class="n">${esc(n)}</span>${inf.movie_image ? `<img src="${esc(inf.movie_image)}" loading="lazy" alt="" onerror="this.remove()">` : ''}`
       + (pct ? `<span class="pbar"><i style="width:${pct}%"></i></span>` : '') + (seen ? `<span class="seen">${ICON.check}</span>` : '') + `</span>`
-      + `<span class="et"><b>${esc(n)}. ${esc(ep.title && !/^\s*$/.test(ep.title) ? ep.title.replace(/^.*?\bS\d+\s*E\d+\s*[-–:]\s*/i, '') : 'Episodio ' + n)}</b>${dur ? `<small>${esc(dur)}</small>` : ''}${inf.plot ? `<span>${esc(inf.plot)}</span>` : ''}</span></button>`;
+      + `<span class="et"><b>${esc(n)}. ${esc(ep.title && !/^\s*$/.test(ep.title) ? ep.title.replace(/^.*?\bS\d+\s*E\d+\s*[-–:]\s*/i, '') : 'Episodio ' + n)}</b>${dur ? `<small>${esc(dur)}</small>` : ''}${inf.plot ? `<span>${esc(inf.plot)}</span>` : ''}</span>${epDlBtn('ep:' + ep.id, i)}</div>`;
   }).join('');
 }
 
@@ -1543,8 +1803,8 @@ async function pSearch(r, tok){
   r.title = 'Cerca';
   r.q = r.q || ''; r.f = r.f || 'all';
   setBar({title:'Cerca'});
-  V.innerHTML = page(`<h1 class="big">Cerca</h1><label class="sfield">${ICON.search}<input id="sq" type="search" placeholder="Canali, film e serie" autocomplete="off" enterkeyhint="search" value="${esc(r.q)}"></label>`
-    + `<div class="chips">${[['all', 'Tutto'], ['live', 'Canali'], ['movie', 'Film'], ['series', 'Serie']].map(([id, l]) => `<button class="chip${r.f === id ? ' on' : ''}" data-sf="${id}">${l}</button>`).join('')}</div><div id="sres"></div>`);
+  V.innerHTML = page(`<h1 class="big">Cerca</h1><label class="sfield">${ICON.search}<input id="sq" type="search" placeholder="Canali, film, serie e programmi" autocomplete="off" enterkeyhint="search" value="${esc(r.q)}"></label>`
+    + `<div class="chips">${[['all', 'Tutto'], ['live', 'Canali'], ['movie', 'Film'], ['series', 'Serie'], ['prog', 'Programmi TV']].map(([id, l]) => `<button class="chip${r.f === id ? ' on' : ''}" data-sf="${id}">${l}</button>`).join('')}</div><div id="sres"></div>`);
   const input = $('#sq');
   input.addEventListener('input', debounce(() => { r.q = input.value; searchResults(r); }, 160));
   input.addEventListener('keydown', e => { if (e.key === 'Enter') { input.blur(); rememberSearch(input.value); } });
@@ -1558,6 +1818,8 @@ function rememberSearch(q){
 function searchResults(r){
   const box = $('#sres'); if (!box) return;
   const q = fold(r.q.trim());
+  r.pgTok = (r.pgTok || 0) + 1;
+  if (r.f === 'prog') return progSearch(r, box, q);
   if (!q) {
     const past = lsGet(ns('searches'), []);
     box.innerHTML = past.length ? `<div class="cap" style="margin-top:4px">Ricerche recenti</div><div class="group">${past.map(p => `<button class="li" data-past="${esc(p)}"><span class="lt"><b>${esc(p)}</b></span></button>`).join('')}</div>` : `<p class="note" style="margin:6px 2px">Scrivi almeno una parte del nome: cerco tra canali, film e serie insieme.</p>`;
@@ -1577,13 +1839,90 @@ function searchResults(r){
       + (t === 'live' ? `<div class="chlist" data-res="${t}"></div>` : `<div class="grid3" data-res="${t}"></div>`) + more + `</section>`;
     S['res_' + t] = lim;
   }
-  if (!n) { box.innerHTML = `<div class="empty"><h3>Nessun risultato</h3><p>Prova con un'altra parola, o solo con una parte del nome.</p></div>`; return; }
-  box.innerHTML = h;
+  const inProg = q.length >= 3 && r.f === 'all' ? `<button class="more-row" data-sf="prog">Cerca “${esc(r.q.trim())}” nei programmi TV</button>` : '';
+  if (!n) { box.innerHTML = `<div class="empty"><h3>Nessun risultato</h3><p>Prova con un'altra parola, o solo con una parte del nome.</p></div>` + inProg; return; }
+  box.innerHTML = h + inProg;
   for (const t of ['live', 'movie', 'series']) {
     const el = box.querySelector(`[data-res="${t}"]`);
     if (el) { el.innerHTML = S['res_' + t].slice(0, 120).map(t === 'live' ? (o => chRow(o)) : poster).join(''); }
   }
   observeNow(box);
+}
+// Cerca un titolo tra i programmi in onda nelle prossime ore: prima i preferiti, poi le categorie nell'ordine in cui le vedi
+function progScope(D){
+  const out = [], seen = new Set();
+  const add = o => { if (okItem(o) && o.type === 'live' && !seen.has(o.key) && out.length < 150) { seen.add(o.key); out.push(o); } };
+  favs.forEach(k => add(S.byKey[k])); recentLive().forEach(add);
+  for (const c of D.cats) { if (c.locked && !S.unlocked) continue; (D.byCat[c.id] || []).forEach(add); if (out.length >= 150) break; }
+  return out;
+}
+async function progSearch(r, box, q){
+  if (q.length < 3) { box.innerHTML = `<p class="note" style="margin:6px 2px">Scrivi almeno 3 lettere del titolo: cerco tra i programmi in onda adesso e nelle prossime ore.</p>`; return; }
+  const D = vis('live'); if (!D) { box.innerHTML = `<div class="empty"><p>La lista dei canali non è ancora pronta.</p></div>`; return; }
+  const tok = r.pgTok, alive = () => r.pgTok === tok && cur() === r && r.f === 'prog';
+  const chans = progScope(D), hits = [];
+  let done = 0, timer = null;
+  const paint = () => {
+    timer = null; if (!alive()) return;
+    const now = Date.now() / 1000;
+    hits.sort((a, b) => a.p.start - b.p.start);
+    const head = done < chans.length ? `<div class="cap" style="margin-top:4px">Cerco nella guida: ${done} canali su ${chans.length}</div>`
+      : `<div class="cap" style="margin-top:4px">${hits.length ? nf(hits.length) + (hits.length === 1 ? ' programma' : ' programmi') : 'Nessun programma'} nella guida di ${chans.length} canali</div>`;
+    const rows = hits.slice(0, 100).map(({o, p}) => {
+      const on = p.start <= now;
+      return `<button class="prog${on ? ' now' : ''}" data-pg="${esc(o.key)}|${p.start}"><span class="pt">${hm(p.start)}</span><span class="pm"><b>${esc(p.title)}</b><span>${esc(o.name)}, ${dayLbl(p.start)} fino alle ${hm(p.end)}</span></span>${on ? '<span class="pa"><span class="onair">IN ONDA</span></span>' : ''}</button>`;
+    }).join('');
+    box.innerHTML = head + (rows ? `<div class="group">${rows}</div>` : (done < chans.length ? '' : `<div class="empty"><p>Nessun programma con questo titolo nelle prossime ore. La ricerca guarda i tuoi preferiti e i primi ${chans.length} canali.</p></div>`));
+  };
+  paint();
+  await Promise.all(chans.map(o => rowEpg(o, alive).then(list => {
+    done++;
+    const now = Date.now() / 1000;
+    for (const p of list || []) if (p.end > now && fold(p.title).includes(q)) hits.push({o, p});
+    if (!timer) timer = setTimeout(paint, 500);
+  })));
+  clearTimeout(timer); paint();
+}
+
+// ================= novità dall'ultima visita =================
+function noteVisit(){
+  const v = lsGet(ns('visit'), null), now = Date.now();
+  if (!v || !v.last) { S.since = now - 7 * 864e5; lsSet(ns('visit'), {since:S.since, last:now}); }
+  else if (now - v.last > 4 * 3600e3) { S.since = v.last; lsSet(ns('visit'), {since:v.last, last:now}); }
+  else S.since = v.since || v.last;
+  S.since = Math.max(S.since, now - 30 * 864e5);
+}
+function newSince(M, Se){
+  const t = (S.since || 0) / 1000, out = [];
+  for (const D of [M, Se]) { if (!D) continue; for (const o of D.recent) { if (o.added > t) out.push(o); else break; } }
+  return out.sort((a, b) => b.added - a.added);
+}
+async function pNews(r, tok){
+  r.title = 'Novità';
+  setBar({title:'Novità', acts:''});
+  await Promise.allSettled(['movie', 'series'].map(ensure));
+  if (!live(tok)) return;
+  const all = newSince(vis('movie'), vis('series')), m = all.filter(o => o.type === 'movie'), se = all.filter(o => o.type === 'series');
+  const since = new Date(S.since).toLocaleDateString('it-IT', {day:'numeric', month:'long'});
+  let h = `<h1 class="big">Novità<small>Arrivate dal ${esc(since)}: ${nf(m.length)} film, ${nf(se.length)} serie nuove o con nuovi episodi</small></h1>`;
+  if (m.length) h += sec('Film', `<div class="grid3">${m.slice(0, 150).map(poster).join('')}</div>`);
+  if (se.length) h += sec('Serie', `<div class="grid3">${se.slice(0, 150).map(poster).join('')}</div>`);
+  if (!all.length) h += `<div class="empty"><h3>Niente di nuovo</h3><p>Dall'ultima volta che hai aperto l'app il catalogo non è cambiato.</p></div>`;
+  V.innerHTML = page(h);
+}
+
+// ================= canale di riserva e numero del canale =================
+const QUAL_RE = /\b(fhd|uhd|hd|sd|4k|8k|hevc|h\.?265|h\.?264|1080p?|720p?|576p?|50fps|60fps|backup|bkp|raw|low)\b|[\[(][^\])]*[\])]|[ᴴᴰᶠᵁˢᴷ⁴]+/gi;
+const baseName = o => o._b || (o._b = fold(o.name).replace(/^\s*[a-z]{2,3}\s*[:|]\s*/, '').replace(QUAL_RE, ' ').replace(/[^a-z0-9+]+/g, ' ').trim());
+function altChannel(o, tried){
+  const D = vis('live'); if (!D) return null;
+  const b = baseName(o); if (b.length < 2) return null;
+  const c = D.items.filter(x => !tried.includes(x.key) && baseName(x) === b);
+  return c.find(x => x.cat === o.cat) || c[0] || null;
+}
+function channelByNumber(n){
+  const z = S.pl && S.pl.zap, D = vis('live');
+  return (z && z.list.find(o => String(o.raw.num) === n)) || (D && D.items.find(o => String(o.raw.num) === n)) || null;
 }
 
 // ================= impostazioni =================
@@ -1599,6 +1938,7 @@ function pSettings(r){
     + `<div class="cap">Riproduzione</div><div class="group">`
     + `<div class="li"><span class="lt"><b>Prossimo episodio automatico</b><span>Alla fine di un episodio parte il successivo</span></span>${tg('autonext', lsGet('xp_autonext', true))}</div>`
     + `<div class="li"><span class="lt"><b>Riapri l'ultimo canale</b><span>All'avvio riparte il canale che guardavi</span></span>${tg('startlast', lsGet('xp_startlast', false))}</div>`
+    + `<div class="li"><span class="lt"><b>Canale di riserva</b><span>Se un canale non parte, provo la sua versione HD o FHD</span></span>${tg('fallback', lsGet('xp_fallback', false))}</div>`
     + `<div class="li"><span class="lt"><b>Video a tutto schermo</b><span>Riempie lo schermo tagliando i bordi</span></span>${tg('fill', fill)}</div></div>`
     + `<p class="note">Il Picture in Picture parte da solo quando esci dall'app mentre guardi qualcosa. Se non succede, controlla in Impostazioni dell'iPhone, Generali, Picture in Picture.</p>`
     + `<div class="cap">Colore dell'app</div><div class="group"><div class="swatches">${swatches()}</div><div class="sw-name">Colore: ${esc(themeOf(curTheme()).name)}</div></div>`
@@ -1610,10 +1950,16 @@ function pSettings(r){
     + `<div class="cap">Controllo genitori</div><div class="group">`
     + (pin ? li({title:'Cambia PIN', icon:ICON.shield, attrs:'data-pin="change"'}) + li({title:'<span class="danger">Disattiva il controllo genitori</span>', attrs:'data-pin="off"', chev:false})
            : li({title:'Imposta un PIN', sub:'Blocca le categorie per adulti e quelle che scegli', icon:ICON.shield, attrs:'data-pin="on"'})) + `</div>`
+    + `<div class="cap">Senza connessione</div><div class="group">`
+    + li({title:'Scaricati', sub:dlSummary(), icon:ICON.dl, route:{v:'downloads'}}) + `</div>`
+    + `<div class="cap">Gli stessi dati su tutti i dispositivi</div><div class="group">`
+    + li({title:'Esporta i miei dati', sub:'Preferiti, punti di ripresa ed episodi visti in un file', icon:ICON.up, attrs:'data-bk="export"', chev:false})
+    + li({title:'Importa da un file', sub:'Unisce i dati arrivati dal PC o da un altro iPhone', icon:ICON.dl, attrs:'data-bk="import"', chev:false}) + `</div>`
+    + `<p class="note">Non è automatico: esporta qui, manda il file all'altro dispositivo (AirDrop, email, WhatsApp) e lì scegli Importa. I dati si uniscono, non viene cancellato nulla.</p>`
     + `<div class="cap">Catalogo</div><div class="group">`
     + li({title:'Aggiorna il catalogo', sub:'Scarica di nuovo canali, film e serie', icon:ICON.refresh, attrs:'data-reload', chev:false})
     + li({title:'Le mie playlist', icon:ICON.list, route:{v:'playlists'}}) + `</div>`
-    + `<p class="note" style="margin-top:26px;text-align:center">Xtream per iPhone, versione 3.0</p>`);
+    + `<p class="note" style="margin-top:26px;text-align:center">Xtream per iPhone, versione 3.2</p>`);
 }
 async function editCats(type, fn){
   if (parentalOn() && !(await unlock('Per cambiare le categorie serve il PIN.'))) return;
@@ -1674,6 +2020,7 @@ function openSheet(html){
 function closeSheet(){
   const bg = $('#sheetbg');
   if (bg.classList.contains('hidden')) return;
+  stopPreview();
   bg.classList.remove('open');
   setTimeout(() => { if (!bg.classList.contains('open')) { bg.classList.add('hidden'); $('#sheet').innerHTML = ''; } }, 260);
 }
@@ -1682,7 +2029,7 @@ function accountSheet(){
   const ui = S.acct || {}, name = ui.username || S.creds.username, act = activePl();
   const cons = ui.max_connections ? `Connessioni in uso: ${ui.active_cons ?? 0} su ${ui.max_connections}` : '';
   openSheet(`<div class="grab"></div><div class="acct"><span class="avatar">${esc(name.slice(0, 1).toUpperCase())}</span><div><b>${esc(act ? act.name : name)}</b><span>${esc(expText(ui.exp_date && ui.exp_date !== 'null' ? Number(ui.exp_date) : null))}</span>${cons ? `<span>${esc(cons)}</span>` : ''}</div></div>`
-    + `<div class="group">` + li({title:'La mia lista', icon:ICON.bookmark, route:{v:'list'}}) + li({title:'Impostazioni', icon:ICON.sliders, route:{v:'settings'}}) + li({title:'Cambia playlist', icon:ICON.list, route:{v:'playlists'}}) + `</div>`
+    + `<div class="group">` + li({title:'La mia lista', icon:ICON.bookmark, route:{v:'list'}}) + li({title:'Scaricati', icon:ICON.dl, value:dlList().length || null, route:{v:'downloads'}}) + li({title:'Impostazioni', icon:ICON.sliders, route:{v:'settings'}}) + li({title:'Cambia playlist', icon:ICON.list, route:{v:'playlists'}}) + `</div>`
     + `<div class="cap">Colore dell'app</div><div class="group"><div class="swatches">${swatches()}</div><div class="sw-name">Colore: ${esc(themeOf(curTheme()).name)}</div></div>`
     + `<div class="cap"></div><div class="group">` + li({title:'<span class="danger">Esci dall\'account</span>', icon:ICON.logout, attrs:'data-logout', chev:false}) + `</div>`);
 }
@@ -1697,7 +2044,8 @@ function iosSource(cfg){
 }
 function playMovie(o){
   const [s, u, p] = authParts(), ext = o.raw.container_extension || 'mp4';
-  openPlayer({title:o.name, sub:[o.year, fmtDur(infoOf(o.info).duration_secs)].filter(Boolean).join('   '), url:`${s}/movie/${u}/${p}/${o.id}.${ext}`,
+  const loc = dlLocal('movie:' + o.id);
+  openPlayer({title:o.name, sub:[o.year, fmtDur(infoOf(o.info).duration_secs)].filter(Boolean).join('   '), url:loc || `${s}/movie/${u}/${p}/${o.id}.${ext}`, dl:!!loc,
     pk:'movie:' + o.id, item:o, meta:{kind:'movie', id:o.id, name:o.name, img:o.img, ext}});
 }
 async function playSeries(o){
@@ -1709,7 +2057,8 @@ async function playSeries(o){
 }
 function playEpisode(o, season, ep){
   const [s, u, p] = authParts(), n = ep.episode_num ?? '', ext = ep.container_extension || 'mp4';
-  openPlayer({title:o.name, sub:`Stagione ${season}, episodio ${n}` + (ep.title ? `: ${ep.title}` : ''), url:`${s}/series/${u}/${p}/${ep.id}.${ext}`,
+  const loc = dlLocal('ep:' + ep.id);
+  openPlayer({title:o.name, sub:`Stagione ${season}, episodio ${n}` + (ep.title ? `: ${ep.title}` : ''), url:loc || `${s}/series/${u}/${p}/${ep.id}.${ext}`, dl:!!loc,
     pk:'ep:' + ep.id, item:o, meta:{kind:'ep', name:o.name, img:o.img, seriesId:o.id, season, epnum:n, epId:ep.id, ext, eptitle:ep.title || ''},
     next:nextEpisode(o, season, ep)});
 }
@@ -1721,7 +2070,7 @@ function nextEpisode(o, season, ep){
   if (k >= 0 && k < keys.length - 1 && E[keys[k + 1]].length) return {o, season:keys[k + 1], ep:E[keys[k + 1]][0]};
   return null;
 }
-async function playLive(o){
+async function playLive(o, via){
   try { await ensure('live'); } catch(e) { toast(e.message); return; }
   if (blocked('live', o.cat) && !(await unlock())) return;
   const D = vis('live');
@@ -1729,7 +2078,9 @@ async function playLive(o){
   noteLive(o);
   const [s, u, p] = authParts();
   openPlayer({title:o.name, sub:D.catName[o.cat] || 'In diretta', url:`${s}/live/${u}/${p}/${o.id}.ts`, live:true, item:o,
+    tried:via ? via.tried : [o.key],
     zap:{list, i:Math.max(0, list.indexOf(o)), name:D.catName[o.cat] || 'Canali'}});
+  if (via && via.toast && NATIVE_PLAYER) native('player', {cmd:'update', toast:via.toast});
 }
 async function resume(k){
   const p = prog[k]; if (!p) return;
@@ -1751,13 +2102,16 @@ const nextTitle = nx => `Stagione ${nx.season}, episodio ${nx.ep.episode_num ?? 
 
 function openPlayer(cfg){
   S.pl = cfg;
-  const p = cfg.pk && prog[cfg.pk];
+  // punto di ripresa: quello dell'account, oppure quello salvato per il video scaricato (il più recente dei due)
+  const p = [cfg.pk && S.creds && (!cfg.dl || !cfg.meta || !cfg.meta.acc || cfg.meta.acc === curAcc()) ? prog[cfg.pk] : null, cfg.dl ? dlProg()[cfg.pk] : null]
+    .filter(Boolean).sort((a, b) => (b.ts || 0) - (a.ts || 0))[0];
   const start = p && p.t > 30 && (!p.d || p.t < p.d - 60) ? p.t : 0;
   const z = cfg.zap;
-  const msg = {cmd:'open', url:iosSource(cfg), vlc:cfg.url, title:cfg.title, sub:cfg.sub || '', live:!!cfg.live, catchup:!!cfg.catchup, start,
+  const msg = {cmd:'open', url:iosSource(cfg), vlc:cfg.dl ? '' : cfg.url, title:cfg.title, sub:cfg.sub || '', live:!!cfg.live, catchup:!!cfg.catchup, start,
     zap:z ? {i:z.i, name:z.name, list:z.list.map(c => ({name:c.name, num:String(c.raw.num ?? '')}))} : null,
     next:cfg.next ? {title:nextTitle(cfg.next)} : null, autonext:lsGet('xp_autonext', true),
-    fav:cfg.live && cfg.item ? isFav(cfg.item.key) : null, fill:lsGet('xp_fit', 'contain') === 'cover', accent:accentHex()};
+    fav:cfg.live && cfg.item ? isFav(cfg.item.key) : null, fill:lsGet('xp_fit', 'contain') === 'cover', accent:accentHex(),
+    fallback:!!cfg.live && !!lsGet('xp_fallback', false), skip:!!(cfg.meta && cfg.meta.kind === 'ep')};
   if (NATIVE_PLAYER) native('player', msg); else htmlPlayer(msg);
   if (cfg.live && cfg.item) loadNowForPlayer(cfg);
 }
@@ -1782,6 +2136,13 @@ function saveProgressAt(t, d, force){
   if (!isFinite(d) || d < 60 || !isFinite(t)) return;
   if (!force && Date.now() - (S.lastSave || 0) < 4000) return;
   S.lastSave = Date.now();
+  if (c.dl) {
+    const q = dlProg();
+    if (t / d > .95) delete q[c.pk]; else if (t > 30) q[c.pk] = {t, d, ts:Date.now()};
+    lsSet('xp_dlprog', q); S.dirty = true;
+    if (!S.creds || (c.meta && c.meta.acc && c.meta.acc !== curAcc())) return;
+  }
+  if (t > 30 && c.meta) markSeen(c.meta.kind === 'ep' ? 'series:' + c.meta.seriesId : 'movie:' + c.meta.id);
   if (t / d > .95) delete prog[c.pk];
   else if (t > 30) prog[c.pk] = {...c.meta, k:c.pk, t, d, ts:Date.now()};
   if (c.meta && c.meta.kind === 'ep' && t / d > .9) markWatched(c.meta.epId);
@@ -1796,9 +2157,25 @@ window.XP = {ev(name, d){
     else if (name === 'closed') { saveProgressAt(d.t, d.d, true); S.pl = null; afterPlayer(); }
     else if (name === 'ended') {
       const c = S.pl;
-      if (c && c.pk) { delete prog[c.pk]; lsSet(ns('progress'), prog); S.dirty = true; }
-      if (c && c.meta && c.meta.kind === 'ep') markWatched(c.meta.epId);
+      if (c && c.dl) { const q = dlProg(); delete q[c.pk]; lsSet('xp_dlprog', q); S.dirty = true; }
+      const mine = c && S.creds && (!c.dl || !c.meta || !c.meta.acc || c.meta.acc === curAcc());
+      if (mine && c.pk) { delete prog[c.pk]; lsSet(ns('progress'), prog); S.dirty = true; }
+      if (mine && c.meta && c.meta.kind === 'ep') markWatched(c.meta.epId);
     }
+    else if (name === 'fail') {
+      // il canale non parte: se l'opzione è attiva provo la versione alternativa (al massimo tre di fila)
+      const c = S.pl;
+      if (c && c.live && c.item && lsGet('xp_fallback', false) && (c.tried || []).length < 4) {
+        const alt = altChannel(c.item, c.tried || [c.item.key]);
+        if (alt) playLive(alt, {tried:[...(c.tried || [c.item.key]), alt.key], toast:`${c.item.name} non risponde: provo ${alt.name}`});
+      }
+    }
+    else if (name === 'num') {
+      const o = channelByNumber(String(d.n || ''));
+      if (o) playLive(o); else native('player', {cmd:'update', toast:`Nessun canale con il numero ${d.n}`});
+    }
+    else if (name === 'downloads') onDownloads(d.items || []);
+    else if (name === 'import') { if (d.text) importBackup(d.text); else toast('Non riesco a leggere questo file'); }
     else if (name === 'zap') { const z = S.pl && S.pl.zap; if (z && z.list[d.i]) playLive(z.list[d.i]); }
     else if (name === 'next') { const c = S.pl; if (c && c.next) playEpisode(c.next.o, c.next.season, c.next.ep); }
     else if (name === 'fav') { const o = S.pl && S.pl.item; if (o) { const on = toggleFav(o.key); native('player', {cmd:'update', fav:on}); } }
@@ -1815,10 +2192,11 @@ window.XP = {ev(name, d){
 window.nativeExternalFailed = () => toast('Per aprirlo serve VLC: installalo gratis dall\'App Store');
 // dopo la riproduzione aggiorna "Continua a guardare", episodi visti e preferiti senza perdere il punto della pagina
 function afterPlayer(){
+  if (!$('#offline').classList.contains('hidden')) { S.dirty = false; paintOffline(); return; }
   if (!S.dirty || !S.creds || $('#app').classList.contains('hidden')) return;
   S.dirty = false;
   const r = cur();
-  if (['home', 'list', 'detail', 'movie', 'series', 'live'].includes(r.v)) { const y = scrollY; renderRoute(false); scrollTo(0, y); }
+  if (['home', 'list', 'detail', 'movie', 'series', 'live', 'downloads'].includes(r.v)) { const y = scrollY; renderRoute(false); scrollTo(0, y); }
 }
 
 // player del browser: serve solo per provare l'interfaccia fuori dall'iPhone
@@ -1902,6 +2280,262 @@ async function startMulti(keys){
   native('multi', {cmd:'open', prefix:`${s}/live/${u}/${p}/`, suffix:sample.slice(sample.lastIndexOf('.')), max:multiMax(), accent:accentHex(), items:items.map(m), pool:D.items.slice(0, 4000).map(m)});
 }
 
+// ================= video scaricati: film ed episodi da vedere senza connessione =================
+const NATIVE_DL = !!(MH && MH.download);
+const DL_OK = ['mp4', 'm4v', 'mov'];   // i formati che l'iPhone legge da solo
+let DL = {}, DLORDER = [];
+const curAcc = () => S.creds ? S.creds.username + '@' + S.creds.server : '';
+const dlProg = () => lsGet('xp_dlprog', {});
+const dlList = () => DLORDER.map(id => DL[id]).filter(Boolean);
+// il download di questo account (lo stesso numero può esistere anche su un'altra playlist)
+const dlMine = id => { const it = DL[id]; return it && (!it.m.acc || it.m.acc === curAcc()) ? it : null; };
+const dlLocal = id => { const it = dlMine(id); return it && it.state === 'done' && it.path ? it.path : ''; };
+const fmtSize = b => b >= 1e9 ? (b / 1e9).toFixed(1).replace('.', ',') + ' GB' : Math.max(1, Math.round((b || 0) / 1e6)) + ' MB';
+const pctOf = it => Math.round((it.progress || 0) * 100);
+function dlSummary(){
+  const l = dlList(), done = l.filter(x => x.state === 'done');
+  if (!l.length) return 'Nessun video scaricato';
+  return `${done.length} ${done.length === 1 ? 'video' : 'video'}, ${fmtSize(done.reduce((n, x) => n + (x.size || 0), 0))} occupati`;
+}
+function onDownloads(items){
+  const old = DL; DL = {}; DLORDER = [];
+  for (const it of items) {
+    try { it.m = JSON.parse(it.meta || '{}') || {}; } catch(_) { it.m = {}; }
+    DL[it.id] = it; DLORDER.push(it.id);
+    const o = old[it.id];
+    if (o && o.state === 'loading' && it.state === 'done') toast('Scaricato: ' + it.title);
+    if (o && o.state === 'loading' && it.state === 'failed') toast('Download non riuscito: ' + it.title);
+  }
+  paintDl();
+}
+function startDownload(d){
+  if (!NATIVE_DL) return toast('I download funzionano nell\'app installata sull\'iPhone');
+  const ext = String(d.ext || '').toLowerCase();
+  if (!DL_OK.includes(ext)) return toast(`Questo video è in formato ${ext.toUpperCase() || 'sconosciuto'}: l'iPhone non lo legge da solo, quindi non si può scaricare`);
+  const mc = Number(S.acct && S.acct.max_connections) || 0;
+  if (mc === 1 && !Object.values(DL).some(x => x.state === 'loading')
+    && !confirm('Il tuo abbonamento permette una sola connessione alla volta: finché il download non finisce potresti non riuscire a guardare altro. Vuoi scaricare lo stesso?')) return;
+  if (DL[d.id]) native('download', {cmd:'remove', id:d.id});
+  const meta = JSON.stringify(d.meta);
+  if (!DL[d.id]) DLORDER.unshift(d.id);
+  DL[d.id] = {id:d.id, title:d.title, sub:d.sub, img:d.img, ext, meta, m:d.meta, state:'loading', progress:0, size:0};
+  native('download', {cmd:'start', id:d.id, url:d.url, title:d.title, sub:d.sub, img:d.img || '', ext, meta});
+  toast('Download avviato: lo trovi in Scaricati');
+  paintDl();
+}
+function dlMovie(o){
+  const [s, u, p] = authParts(), ext = o.raw.container_extension || 'mp4';
+  startDownload({id:'movie:' + o.id, url:`${s}/movie/${u}/${p}/${o.id}.${ext}`, title:o.name, sub:[o.year, 'Film'].filter(Boolean).join(', '), img:o.img, ext,
+    meta:{kind:'movie', id:o.id, name:o.name, img:o.img, ext, acc:curAcc(), lk:blocked('movie', o.cat) ? 1 : 0}});
+}
+function dlEpisode(o, season, ep){
+  const [s, u, p] = authParts(), n = ep.episode_num ?? '', ext = ep.container_extension || 'mp4';
+  startDownload({id:'ep:' + ep.id, url:`${s}/series/${u}/${p}/${ep.id}.${ext}`, title:o.name, sub:`Stagione ${season}, episodio ${n}` + (ep.title ? `: ${ep.title}` : ''), img:o.img, ext,
+    meta:{kind:'ep', name:o.name, img:o.img, seriesId:o.id, season, epnum:n, epId:ep.id, ext, eptitle:ep.title || '', acc:curAcc(), lk:blocked('series', o.cat) ? 1 : 0}});
+}
+// tocco sul pulsante di download nella scheda: scarica, annulla oppure apre le opzioni
+function dlTap(id, start){
+  const it = dlMine(id);
+  if (!it || it.state === 'failed') return start();
+  if (it.state === 'loading') { if (confirm('Annullare il download?')) removeDownload(id); return; }
+  dlMenu(id);
+}
+function removeDownload(id){
+  const q = dlProg(); if (q[id]) { delete q[id]; lsSet('xp_dlprog', q); }
+  delete DL[id]; DLORDER = DLORDER.filter(x => x !== id);
+  native('download', {cmd:'remove', id});
+  paintDl();
+}
+function retryDownload(id){
+  const it = DL[id]; if (!it) return;
+  const m = it.m;
+  if (!S.creds || (m.acc && m.acc !== curAcc())) return toast('Per riprovare apri prima la playlist da cui arriva questo video');
+  const [s, u, p] = authParts();
+  const url = m.kind === 'movie' ? `${s}/movie/${u}/${p}/${m.id}.${m.ext}` : `${s}/series/${u}/${p}/${m.epId}.${m.ext}`;
+  startDownload({id, url, title:it.title, sub:it.sub, img:it.img, ext:it.ext, meta:m});
+}
+async function playDownload(id){
+  const it = DL[id]; if (!it) return;
+  if (it.state === 'loading') return toast(`Sto ancora scaricando: ${pctOf(it)}%`);
+  if (it.state !== 'done' || !it.path) return dlMenu(id);
+  if (it.m.lk && parentalOn() && !(await unlock())) return;
+  closeSheet();
+  openPlayer({title:it.title, sub:it.sub, url:it.path, pk:id, meta:it.m, dl:true});
+}
+function dlMenu(id){
+  const it = DL[id]; if (!it) return;
+  const rows = it.state === 'done' ? li({title:'Guarda', icon:ICON.play, attrs:`data-dl-play="${esc(id)}"`, chev:false})
+    : (it.state === 'failed' ? li({title:'Riprova a scaricare', icon:ICON.refresh, attrs:`data-dl-retry="${esc(id)}"`, chev:false}) : '');
+  openSheet(`<div class="grab"></div><h3>${esc(it.title)}</h3><div class="group">${rows}`
+    + li({title:`<span class="danger">${it.state === 'loading' ? 'Annulla il download' : 'Elimina dall\'iPhone'}</span>`, icon:ICON.trash, attrs:`data-dl-rm="${esc(id)}"`, chev:false}) + `</div>`);
+}
+function dlBtnHtml(id){
+  const it = dlMine(id);
+  if (!it) return `${ICON.dl} Scarica`;
+  if (it.state === 'done') return `${ICON.check} Scaricato`;
+  if (it.state === 'failed') return `${ICON.refresh} Riprova`;
+  return `Scarico… ${pctOf(it)}%`;
+}
+function epDlInner(id){
+  const it = dlMine(id);
+  return !it ? ICON.dl : (it.state === 'done' ? ICON.check : (it.state === 'failed' ? ICON.refresh : `<i>${pctOf(it)}%</i>`));
+}
+function epDlBtn(id, i){
+  const it = dlMine(id);
+  const label = !it ? 'Scarica l\'episodio' : (it.state === 'done' ? 'Episodio scaricato' : (it.state === 'failed' ? 'Riprova a scaricare' : 'Download in corso'));
+  return `<button class="epdl${it && it.state === 'done' ? ' on' : ''}" data-epdl="${i}" data-dlid="${esc(id)}" aria-label="${label}">${epDlInner(id)}</button>`;
+}
+function dlRow(it){
+  const q = it.state === 'done' ? [dlProg()[it.id], S.creds && dlMine(it.id) ? prog[it.id] : null].filter(Boolean).sort((a, b) => (b.ts || 0) - (a.ts || 0))[0] : null;
+  const left = q && q.d && q.t > 30 ? `, mancano ${fmtDur(q.d - q.t) || 'pochi minuti'}` : '';
+  const st = it.state === 'done' ? `<small class="st">${fmtSize(it.size)}${left}</small>`
+    : (it.state === 'failed' ? `<small class="bad">Download non riuscito</small>`
+    : `<small class="st">Scarico… ${pctOf(it)}%${it.size ? ' (' + fmtSize(it.size) + ')' : ''}</small><span class="dbar"><i style="width:${pctOf(it)}%"></i></span>`);
+  return `<div class="dl"><button class="dmain" data-dl-play="${esc(it.id)}"><span class="dimg">${it.img ? `<img src="${esc(it.img)}" loading="lazy" alt="" onerror="this.remove()">` : ''}</span>`
+    + `<span class="dt"><b>${esc(it.title)}</b>${it.sub ? `<small>${esc(it.sub)}</small>` : ''}${st}</span></button>`
+    + `<button class="ib" data-dl-menu="${esc(it.id)}" aria-label="Opzioni per ${esc(it.title)}">${ICON.more}</button></div>`;
+}
+function dlCard(it){
+  const sub = it.state === 'done' ? (it.sub || fmtSize(it.size)) : (it.state === 'failed' ? 'Download non riuscito' : `Scarico… ${pctOf(it)}%`);
+  return `<button class="cont" data-dl-play="${esc(it.id)}"><span class="cimg">${it.img ? `<img src="${esc(it.img)}" loading="lazy" alt="" onerror="this.remove()">` : ''}</span>`
+    + `<span class="ct"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span><span class="go">${it.state === 'done' ? ICON.play : ICON.dl}</span></button>`;
+}
+const dlListHtml = () => dlList().map(dlRow).join('');
+function pDownloads(r){
+  r.title = 'Scaricati';
+  setBar({title:'Scaricati', acts:''});
+  const l = dlList();
+  V.innerHTML = page(`<h1 class="big">Scaricati<small id="dlsum">${esc(dlSummary())}</small></h1>`
+    + (l.length ? `<div class="dls" id="dlbox">${dlListHtml()}</div><p class="note" style="margin-top:16px">I video scaricati restano sull'iPhone e si guardano anche senza connessione. Mentre un download è in corso usa una connessione del tuo abbonamento.</p>`
+      : `<div class="empty"><h3>Ancora nessun video</h3><p>Apri la scheda di un film e tocca Scarica, oppure tocca la freccia accanto a un episodio. Poi lo guardi qui, anche in aereo.</p><button class="btn primary" data-tab="movie">Sfoglia i film</button></div>`));
+}
+function paintOffline(){
+  const l = dlList();
+  $('#offList').innerHTML = l.length ? dlListHtml() : `<div class="empty"><p>Non ci sono video scaricati su questo iPhone.</p></div>`;
+}
+// aggiorna quello che è sullo schermo quando un download avanza, finisce o viene tolto
+function paintDl(){
+  const any = dlList().some(x => x.state === 'done');
+  $$('[data-off-open]').forEach(b => b.classList.toggle('hidden', !any));
+  if (!$('#offline').classList.contains('hidden')) paintOffline();
+  if ($('#app').classList.contains('hidden') || !S.stacks) return;
+  const r = cur();
+  if (r.v === 'downloads') {
+    const box = $('#dlbox');
+    if (box && dlList().length) { box.innerHTML = dlListHtml(); $('#dlsum').textContent = dlSummary(); }
+    else { const y = scrollY; renderRoute(false); scrollTo(0, y); }
+  } else if (r.v === 'detail') {
+    const o = S.byKey[r.key], b = $('#dlbtn');
+    if (b && o) b.innerHTML = dlBtnHtml('movie:' + o.id);
+    $$('[data-dlid]').forEach(el => { const it = dlMine(el.dataset.dlid); el.innerHTML = epDlInner(el.dataset.dlid); el.classList.toggle('on', !!it && it.state === 'done'); });
+  }
+}
+// questi tocchi funzionano anche dalla pagina di accesso, quando non c'è rete
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (t.closest('[data-off-open]')) { paintOffline(); $('#login').classList.add('hidden'); $('#offline').classList.remove('hidden'); scrollTo(0, 0); return; }
+  if (t.closest('[data-off-close]')) { $('#offline').classList.add('hidden'); $('#login').classList.remove('hidden'); return; }
+  const mn = t.closest('[data-dl-menu]'); if (mn) return dlMenu(mn.dataset.dlMenu);
+  const pl = t.closest('[data-dl-play]'); if (pl) return playDownload(pl.dataset.dlPlay);
+  const rt = t.closest('[data-dl-retry]'); if (rt) { closeSheet(); return retryDownload(rt.dataset.dlRetry); }
+  const rm = t.closest('[data-dl-rm]');
+  if (rm) {
+    const it = DL[rm.dataset.dlRm]; closeSheet(); if (!it) return;
+    if (it.state === 'done' && !confirm(`Eliminare “${it.title}” dall'iPhone? Potrai scaricarlo di nuovo.`)) return;
+    removeDownload(it.id); toast(it.state === 'loading' ? 'Download annullato' : 'Eliminato dall\'iPhone');
+  }
+});
+
+// ================= copia dei dati: preferiti e punti di ripresa uguali su tutti i dispositivi =================
+const SYNC_KEYS = ['favs', 'progress', 'watched', 'cats', 'recentLive', 'lastLive', 'seen'];
+function storeKeys(){
+  const ks = new Set(Object.keys(STORE));
+  try { for (let i = 0; i < localStorage.length; i++) ks.add(localStorage.key(i)); } catch(_) {}
+  return [...ks];
+}
+function buildBackup(withPlaylists){
+  const accounts = {};
+  for (const k of storeKeys()) {
+    const m = /^xp_([A-Za-z]+):(.+)$/.exec(k); if (!m || !SYNC_KEYS.includes(m[1])) continue;
+    const v = lsGet(k, null); if (v == null) continue;
+    (accounts[m[2]] = accounts[m[2]] || {})[m[1]] = v;
+  }
+  const out = {app:'xtream', v:1, made:Date.now(), from:'iPhone', accounts};
+  if (withPlaylists) out.playlists = playlists().map(p => ({name:p.name, server:p.server, username:p.username, password:p.password}));
+  return out;
+}
+function exportSheet(){
+  openSheet(`<div class="grab"></div><h3>Esporta i miei dati</h3><div class="group">`
+    + li({title:'Preferiti e punti di ripresa', sub:'Senza password: puoi mandarlo a chi vuoi', icon:ICON.up, attrs:'data-bk-go="data"', chev:false})
+    + li({title:'Anche le mie playlist', sub:'Contiene le password: tienilo per te', icon:ICON.lock, attrs:'data-bk-go="all"', chev:false}) + `</div>`
+    + `<p class="note">Si crea un file da aprire con “Importa” nell'app sull'altro dispositivo.</p>`);
+}
+function exportBackup(withPlaylists){
+  flushStore();
+  const text = JSON.stringify(buildBackup(withPlaylists));
+  const name = 'xtream-dati-' + new Date().toISOString().slice(0, 10) + '.json';
+  if (MH && MH.backup) { native('backup', {cmd:'export', text, name}); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], {type:'application/json'})); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('File creato: ' + name);
+}
+function askImport(){
+  if (MH && MH.backup) { native('backup', {cmd:'import'}); return; }
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json,application/json'; inp.id = 'bkFile'; inp.style.display = 'none';
+  inp.onchange = async () => { const f = inp.files[0]; inp.remove(); if (f) importBackup(await f.text()); };
+  document.body.appendChild(inp); inp.click();
+}
+// Unisce i dati del file a quelli già presenti: non cancella mai nulla
+function importBackup(text){
+  let d = null; try { d = JSON.parse(text); } catch(_) {}
+  if (!d || d.app !== 'xtream' || !d.accounts || typeof d.accounts !== 'object') return toast('Questo file non è una copia dei dati di Xtream');
+  const canon = a => String(a).toLowerCase().replace(/\/+$/, '');
+  const known = {};
+  for (const p of playlists()) known[canon(p.username + '@' + p.server)] = p.username + '@' + p.server;
+  if (S.creds) known[canon(curAcc())] = curAcc();
+  const uniq = (a, b) => { const out = [...a]; for (const x of b) if ((typeof x === 'string' || typeof x === 'number') && !out.includes(x)) out.push(x); return out; };
+  let nFav = 0, nProg = 0, nPl = 0;
+  for (const [acc, data] of Object.entries(d.accounts)) {
+    if (!data || typeof data !== 'object') continue;
+    const a = known[canon(acc)] || acc, key = k => 'xp_' + k + ':' + a;
+    if (Array.isArray(data.favs)) {
+      const cur0 = lsGet(key('favs'), []), all = uniq(cur0, data.favs);
+      if (all.length > cur0.length) { nFav += all.length - cur0.length; lsSet(key('favs'), all); }
+    }
+    if (data.progress && typeof data.progress === 'object') {
+      const cur0 = lsGet(key('progress'), {}); let ch = 0;
+      for (const [k, v] of Object.entries(data.progress)) {
+        if (!v || typeof v.t !== 'number' || typeof v.d !== 'number') continue;
+        if (!cur0[k] || (v.ts || 0) > (cur0[k].ts || 0)) { cur0[k] = v; ch++; }
+      }
+      if (ch) {
+        Object.keys(cur0).sort((x, y) => (cur0[y].ts || 0) - (cur0[x].ts || 0)).slice(80).forEach(k => delete cur0[k]);
+        nProg += ch; lsSet(key('progress'), cur0);
+      }
+    }
+    if (Array.isArray(data.watched)) { const cur0 = lsGet(key('watched'), []), all = uniq(cur0, data.watched.map(String)); if (all.length > cur0.length) lsSet(key('watched'), all.slice(0, 3000)); }
+    if (Array.isArray(data.seen)) { const cur0 = lsGet(key('seen'), []), all = uniq(cur0, data.seen); if (all.length > cur0.length) lsSet(key('seen'), all.slice(0, 4000)); }
+    if (Array.isArray(data.recentLive)) { const cur0 = lsGet(key('recentLive'), []), all = uniq(cur0, data.recentLive); if (all.length > cur0.length) lsSet(key('recentLive'), all.slice(0, 20)); }
+    if (typeof data.lastLive === 'string' && !lsGet(key('lastLive'), null)) lsSet(key('lastLive'), data.lastLive);
+    // l'organizzazione delle categorie si copia solo se qui non ne hai ancora una
+    if (data.cats && typeof data.cats === 'object' && !lsGet(key('cats'), null)) lsSet(key('cats'), data.cats);
+  }
+  if (Array.isArray(d.playlists)) {
+    const list = playlists();
+    for (const p of d.playlists) {
+      if (!p || !p.server || !p.username || !p.password || list.some(x => plKey(x) === plKey(p))) continue;
+      list.push({id:Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name:String(p.name || hostOf(p.server)).slice(0, 40), server:String(p.server), username:String(p.username), password:String(p.password), last:0});
+      nPl++;
+    }
+    if (nPl) lsSet(PL_KEY, list);
+  }
+  if (S.creds) { favs = lsGet(ns('favs'), []); prog = lsGet(ns('progress'), {}); S.visVer++; if (!$('#app').classList.contains('hidden')) renderRoute(false); }
+  else renderSavedLogin();
+  const parts = [nFav ? `${nFav} ${nFav === 1 ? 'preferito' : 'preferiti'}` : '', nProg ? `${nProg} ${nProg === 1 ? 'punto di ripresa' : 'punti di ripresa'}` : '', nPl ? `${nPl} playlist` : ''].filter(Boolean);
+  toast(parts.length ? 'Importati: ' + parts.join(', ') : 'Era già tutto aggiornato: niente di nuovo da importare');
+}
+
 // ================= canali recenti e ultimo canale =================
 const recentLive = () => lsGet(ns('recentLive'), []).map(k => S.byKey[k]).filter(Boolean);
 function noteLive(o){
@@ -1941,6 +2575,25 @@ document.addEventListener('click', async e => {
   const mr = t.closest('[data-mrm]'); if (mr) return toggleMulti(mr.dataset.mrm);
   const mp = t.closest('[data-mpick]'); if (mp) return toggleMulti(mp.dataset.mpick);
   if (t.closest('[data-mgo]')) return startMulti(S.multi);
+  if (t.closest('[data-pv-close]')) return closeSheet();
+  if (t.closest('[data-pv-open]')) { const o = S.byKey[S.pvKey]; closeSheet(); if (o) setTimeout(() => playLive(o), 250); return; }
+  const gp = t.closest('[data-gp]'); if (gp) { const [k, st] = gp.dataset.gp.split('|'); return progSheet(k, st); }
+  const gpl = t.closest('[data-gp-play]'); if (gpl) { const o = S.byKey[gpl.dataset.gpPlay]; closeSheet(); if (o) playLive(o); return; }
+  const gpe = t.closest('[data-gp-epg]'); if (gpe) { closeSheet(); return push({v:'epg', key:gpe.dataset.gpEpg}); }
+  const pg = t.closest('[data-pg]');
+  if (pg) { const [k, st] = pg.dataset.pg.split('|'), o = S.byKey[k]; if (!o) return; return Number(st) <= Date.now() / 1000 ? playLive(o) : progSheet(k, st); }
+  const ol = t.closest('[data-open]'); if (ol) return openLink(ol.dataset.open);
+  if (t.closest('[data-flt]')) return filterSheet();
+  {
+    const r0 = cur(), f = r0.flt || (r0.flt = {});
+    const fy = t.closest('[data-fy]'), fr = t.closest('[data-fr]'), fg = t.closest('[data-fg]');
+    if (fy || fr || fg || t.closest('[data-fu]') || t.closest('[data-fclear]')) {
+      if (fy) f.year = fy.dataset.fy; else if (fr) f.rate = fr.dataset.fr; else if (fg) f.genre = fg.dataset.fg;
+      else if (t.closest('[data-fu]')) f.unseen = !f.unseen; else r0.flt = {};
+      filterSheet(); if (S.repaintCat) S.repaintCat(); return;
+    }
+    if (t.closest('[data-fdone]')) return closeSheet();
+  }
   const ep = t.closest('[data-epg]'); if (ep) return push({v:'epg', key:ep.dataset.epg});
   const pr = t.closest('[data-prog]'); if (pr) return playProg(pr);
   const rs = t.closest('[data-resume]'); if (rs) return resume(rs.dataset.resume);
@@ -1972,10 +2625,14 @@ document.addEventListener('click', async e => {
       const a = act.dataset.act;
       if (a === 'play') return o.type === 'movie' ? playMovie(o) : playSeries(o);
       if (a === 'fav') { const on = toggleFav(o.key); act.innerHTML = on ? ICON.check + ' Nella lista' : ICON.plus + ' La mia lista'; toast(on ? 'Aggiunto alla tua lista' : 'Tolto dalla tua lista'); return; }
+      if (a === 'trailer') return openLink(trailerUrl(o));
+      if (a === 'dl') return dlTap('movie:' + o.id, () => dlMovie(o));
       if (a === 'vlc') { const [s, u, p] = authParts(); native('external', {url:`${s}/movie/${u}/${p}/${o.id}.${o.raw.container_extension || 'mp4'}`, title:o.name}) || toast('Disponibile nell\'app per iPhone'); return; }
     }
     if (t.closest('#plotMore')) { $('#plot').classList.toggle('clamp'); $('#plotMore').textContent = $('#plot').classList.contains('clamp') ? 'Altro' : 'Meno'; return; }
     const sb = t.closest('[data-season]'); if (sb && o) { r.season = sb.dataset.season; $$('[data-season]').forEach(b => b.classList.toggle('on', b === sb)); $('#eps').innerHTML = episodesHtml(o, r.season); return; }
+    const ed = t.closest('[data-epdl]');
+    if (ed && o) { const ep = epsOf(o)[r.season][+ed.dataset.epdl]; return dlTap('ep:' + ep.id, () => dlEpisode(o, r.season, ep)); }
     const eb = t.closest('[data-ep]'); if (eb && o) return playEpisode(o, r.season, epsOf(o)[r.season][+eb.dataset.ep]);
   }
   const lm = t.closest('[data-live-mode]'); if (lm) { S.liveMode = lm.dataset.liveMode; lsSet('xp_livemode', S.liveMode); return renderRoute(false); }
@@ -1985,7 +2642,7 @@ document.addEventListener('click', async e => {
   const lsm = t.closest('[data-list-mode]'); if (lsm) { S.listMode = lsm.dataset.listMode; return renderRoute(false); }
   if (t.closest('[data-sort]')) return sortSheet();
   const sp = t.closest('[data-sort-pick]');
-  if (sp) { r.sort = sp.dataset.sortPick; closeSheet(); $('#sortLbl').textContent = SORTS.find(s => s[0] === r.sort)[1]; if (S.repaintCat) S.repaintCat(); return; }
+  if (sp) { r.sort = sp.dataset.sortPick; closeSheet(); if (S.repaintCat) S.repaintCat(); return; }
   const sf = t.closest('[data-sf]'); if (sf && r.v === 'search') { r.f = sf.dataset.sf; $$('[data-sf].chip').forEach(b => b.classList.toggle('on', b.dataset.sf === r.f)); searchResults(r); scrollTo(0, 0); return; }
   const past = t.closest('[data-past]'); if (past) { r.q = past.dataset.past; $('#sq').value = r.q; searchResults(r); return; }
   // impostazioni
@@ -1993,7 +2650,7 @@ document.addEventListener('click', async e => {
   if (sw) {
     const id = sw.dataset.set;
     if (id === 'fill') lsSet('xp_fit', lsGet('xp_fit', 'contain') === 'cover' ? 'contain' : 'cover');
-    else { const key = {autonext:'xp_autonext', startlast:'xp_startlast'}[id]; lsSet(key, !lsGet(key, id === 'autonext')); }
+    else { const key = {autonext:'xp_autonext', startlast:'xp_startlast', fallback:'xp_fallback'}[id]; lsSet(key, !lsGet(key, id === 'autonext')); }
     sw.classList.toggle('on'); sw.setAttribute('aria-checked', sw.classList.contains('on'));
     return;
   }
@@ -2003,6 +2660,8 @@ document.addEventListener('click', async e => {
     await Promise.allSettled(['live', 'movie', 'series'].map(ensure));
     toast('Catalogo aggiornato'); return;
   }
+  const bk = t.closest('[data-bk]'); if (bk) return bk.dataset.bk === 'export' ? exportSheet() : askImport();
+  const bx = t.closest('[data-bk-go]'); if (bx) { closeSheet(); return exportBackup(bx.dataset.bkGo === 'all'); }
   const pb = t.closest('[data-pin]'); if (pb) return pinAction(pb.dataset.pin);
   const cp = t.closest('[data-cat-pin]'); if (cp) return editCats(r.type, c => { c.pinned[r.type] = toggleIn(c.pinned[r.type] || [], cp.dataset.catPin); });
   const ch = t.closest('[data-cat-hide]'); if (ch) return editCats(r.type, c => { c.hidden[r.type] = toggleIn(c.hidden[r.type] || [], ch.dataset.catHide); });
@@ -2062,6 +2721,7 @@ async function pinAction(act){
   S.liveMode = lsGet('xp_livemode', 'cats') === 'guide' ? 'guide' : 'cats';
   const tm = lsGet('xp_typemode', null); if (tm && typeof tm === 'object') S.typeMode = {movie:tm.movie === 'cats' ? 'cats' : 'discover', series:tm.series === 'cats' ? 'cats' : 'discover'};
   setTheme(lsGet('xp_theme', 'nero'));
+  if (NATIVE_DL) native('download', {cmd:'list'});
   const saved = lsGet('xp_creds', null);
   if (saved && saved.server && !playlists().some(p => plKey(p) === plKey(saved))) {
     lsSet(PL_KEY, [...playlists(), {id:Date.now().toString(36), name:hostOf(saved.server), server:saved.server, username:saved.username, password:saved.password, last:Date.now()}]);

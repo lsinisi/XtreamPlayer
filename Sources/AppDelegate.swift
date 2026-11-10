@@ -19,7 +19,14 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         window.rootViewController = WebViewController()
         window.makeKeyAndVisible()
         self.window = window
+        _ = DownloadManager.shared   // riaggancia i download rimasti in corso
         return true
+    }
+
+    /// Il sistema riapre l'app quando i download finiscono mentre era chiusa.
+    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String,
+                     completionHandler: @escaping () -> Void) {
+        DownloadManager.shared.backgroundCompletion = completionHandler
     }
 }
 

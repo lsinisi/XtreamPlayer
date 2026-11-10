@@ -1,10 +1,11 @@
 import UIKit
 import WebKit
+import UniformTypeIdentifiers
 
 /// La schermata dell'app: l'interfaccia (fatta per iPhone) dentro una WKWebView.
 /// I file della pagina e le chiamate al server Xtream passano da AppSchemeHandler;
 /// i video li riproduce il player nativo (PlayerViewController), con il Picture in Picture automatico.
-final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
+final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, UIDocumentPickerDelegate {
 
     private var webView: WKWebView!
     private let schemeHandler = AppSchemeHandler()
@@ -37,6 +38,9 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
         controller.add(bridge, name: "theme")
         controller.add(bridge, name: "player")
         controller.add(bridge, name: "multi")
+        controller.add(bridge, name: "download")
+        controller.add(bridge, name: "backup")
+        controller.add(bridge, name: "open")
         config.userContentController = controller
 
         let web = WKWebView(frame: .zero, configuration: config)
@@ -54,6 +58,7 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        DownloadManager.shared.onChange = { [weak self] in self?.sendDownloads() }
         if let url = URL(string: AppSchemeHandler.scheme + "://app/index.html?ios=1") {
             webView.load(URLRequest(url: url))
         }
@@ -81,6 +86,15 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
             handlePlayer(body)
         case "multi":
             handleMulti(body)
+        case "download":
+            handleDownload(body)
+        case "backup":
+            handleBackup(body)
+        case "open":
+            // collegamenti esterni (per esempio il trailer su YouTube): si aprono fuori dall'app
+            if let link = body["url"] as? String, let url = URL(string: link), url.scheme == "https" {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         default:
             break
         }
@@ -140,6 +154,60 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
             return
         }
         show()
+    }
+
+    // MARK: video scaricati
+
+    private func handleDownload(_ body: [String: Any]) {
+        let command = (body["cmd"] as? String) ?? ""
+        let id = (body["id"] as? String) ?? ""
+        switch command {
+        case "start":
+            guard !id.isEmpty, let link = body["url"] as? String, let url = URL(string: link) else { return }
+            DownloadManager.shared.start(id: id, url: url,
+                                         title: (body["title"] as? String) ?? "",
+                                         sub: (body["sub"] as? String) ?? "",
+                                         img: (body["img"] as? String) ?? "",
+                                         ext: (body["ext"] as? String) ?? "mp4",
+                                         meta: (body["meta"] as? String) ?? "")
+        case "remove":
+            if !id.isEmpty { DownloadManager.shared.remove(id: id) }
+        default:
+            sendDownloads()
+        }
+    }
+
+    private func sendDownloads() {
+        sendEvent("downloads", ["items": DownloadManager.shared.list()])
+    }
+
+    // MARK: copia dei dati da portare sugli altri dispositivi
+
+    private func handleBackup(_ body: [String: Any]) {
+        if (body["cmd"] as? String) == "export" {
+            guard let text = body["text"] as? String else { return }
+            let name = (body["name"] as? String) ?? "xtream-dati.json"
+            let file = FileManager.default.temporaryDirectory.appendingPathComponent(name)
+            do { try text.write(to: file, atomically: true, encoding: .utf8) } catch { return }
+            let share = UIActivityViewController(activityItems: [file], applicationActivities: nil)
+            share.popoverPresentationController?.sourceView = view
+            share.popoverPresentationController?.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
+            present(share, animated: true)
+        } else {
+            let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.json, UTType.plainText, UTType.data], asCopy: true)
+            picker.delegate = self
+            picker.allowsMultipleSelection = false
+            present(picker, animated: true)
+        }
+    }
+
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let url = urls.first, let data = try? Data(contentsOf: url), data.count < 20_000_000,
+              let text = String(data: data, encoding: .utf8) else {
+            sendEvent("import", ["text": ""])
+            return
+        }
+        sendEvent("import", ["text": text])
     }
 
     fileprivate func sendEvent(_ event: String, _ data: [String: Any]) {

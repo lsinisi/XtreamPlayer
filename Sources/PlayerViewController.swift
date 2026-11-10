@@ -73,6 +73,9 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     private var nextShown = false
     private var isFav: Bool?
     private var retried = false
+    private var wantsFallback = false   // se il canale non parte, la pagina può proporne uno alternativo
+    private var canSkipIntro = false
+    private var loadCount = 0
     private var restoring = false
     private var closing = false
     private var scrubbing = false
@@ -82,6 +85,12 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     private var sleepMinutes = 0
     private var sleepUntil: Date?
     private var forcedMask: UIInterfaceOrientationMask?
+    private var speed: Float = 1
+    private var panMode = 0            // 0 niente, 1 luminosità, 2 volume
+    private var panStart: Double = 0
+    private var savedBrightness: CGFloat?
+    private var doubleTapGesture: UITapGestureRecognizer?
+    private let volumeView = MPVolumeView(frame: CGRect(x: -2000, y: -2000, width: 120, height: 40))
     private var accent = UIColor(red: 0.31, green: 0.48, blue: 1.0, alpha: 1)
 
     // MARK: osservatori e timer
@@ -125,8 +134,11 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     private let audioItem = PlayerViewController.actionButton("captions.bubble", "Audio")
     private let fitItem = PlayerViewController.actionButton("aspectratio", "Formato")
     private let sleepItem = PlayerViewController.actionButton("moon.zzz", "Timer")
+    private let speedItem = PlayerViewController.actionButton("speedometer", "Velocità")
     private let favItem = PlayerViewController.actionButton("star", "Preferito")
     private let vlcItem = PlayerViewController.actionButton("arrow.up.right.square", "VLC")
+    private let numberItem = PlayerViewController.actionButton("number", "Numero")
+    private let skipItem = PlayerViewController.actionButton("forward.end", "Salta 90 s")
     private let errorBox = UIVisualEffectView(effect: UIBlurEffect(style: .systemMaterialDark))
     private let errorTitle = UILabel()
     private let errorMessage = UILabel()
@@ -169,6 +181,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         }
         setupRemoteCommands()
         buildSleepMenu()
+        buildSpeedMenu()
     }
 
     deinit {
@@ -204,6 +217,9 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         liveInfoLabel.text = ""
         autoNext = (body["autonext"] as? Bool) ?? true
         nextTitle = (body["next"] as? [String: Any])?["title"] as? String
+        wantsFallback = (body["fallback"] as? Bool) ?? false
+        canSkipIntro = (body["skip"] as? Bool) ?? false
+        loadCount += 1
         isFav = body["fav"] as? Bool
         if let hex = body["accent"] as? String, let color = PlayerViewController.color(hex: hex) {
             accent = color
@@ -227,6 +243,9 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         }
         retried = false
         nextShown = false
+        speed = 1
+        PlayerViewController.setItem(speedItem, symbol: "speedometer", title: "Velocità")
+        buildSpeedMenu()
         configureForContent()
         startPlayback()
         setControls(true)
@@ -237,6 +256,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         loadViewIfNeeded()
         if let sub = body["sub"] as? String { subtitleLabel.text = sub }
         if let info = body["info"] as? String { liveInfoLabel.text = info }
+        if let toast = body["toast"] as? String { showToast(toast) }
         if let fav = body["fav"] as? Bool {
             isFav = fav
             refreshFavItem()
@@ -261,6 +281,10 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         nextTimer?.invalidate()
         toastTimer?.invalidate()
         sleepUntil = nil
+        if let brightness = savedBrightness {
+            UIScreen.main.brightness = brightness
+            savedBrightness = nil
+        }
         player.pause()
         clearItemObservers()
         player.replaceCurrentItem(with: nil)
@@ -345,6 +369,17 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
             }
             return
         }
+        if isLive && wantsFallback && !refused {
+            // chiede alla pagina un canale alternativo; se non arriva entro poco, mostra l'errore
+            let attempt = loadCount
+            host?.player(self, event: "fail", data: [:])
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
+                guard let self = self, !self.closing, self.loadCount == attempt else { return }
+                self.spinner.stopAnimating()
+                self.showError("Il canale non risponde", "Potrebbe essere offline in questo momento e non ho trovato un canale alternativo. Riprova tra poco.")
+            }
+            return
+        }
         spinner.stopAnimating()
         let what = isLive ? "Il canale" : "Il contenuto"
         let domain = (error as NSError?)?.domain ?? ""
@@ -380,7 +415,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
                 elapsedLabel.text = PlayerViewController.format(t)
                 remainingLabel.text = "-" + PlayerViewController.format(max(0, d - t))
             }
-            if let next = nextTitle, !nextShown, d > 300, d - t < 25, d - t > 1 {
+            if let next = nextTitle, !nextShown, d > 300, d - t < 60, d - t > 1 {
                 nextShown = true
                 showNext(next, countdown: false)
             }
@@ -406,6 +441,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
             spinner.stopAnimating()
             watchdog?.invalidate()
             pausedAt = nil
+            if !isLive && speed != 1 && abs(player.rate - speed) > 0.01 { player.rate = speed }
             scheduleHide()
         case .waitingToPlayAtSpecifiedRate:
             if errorBox.isHidden { spinner.startAnimating() }
@@ -435,6 +471,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
                 player.seek(to: .zero)
             }
             player.play()
+            applySpeed()
         } else {
             player.pause()
         }
@@ -500,6 +537,32 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     }
 
     /// Dalla diretta al multischermo: la pagina chiude questo player e apre i riquadri con questo canale.
+    /// Salta la sigla: avanti di un minuto e mezzo.
+    @objc private func skipTapped() {
+        seek(by: 90)
+        showToast("Avanti di 90 secondi")
+    }
+
+    /// Scrivi il numero del canale, come con un telecomando.
+    @objc private func numberTapped() {
+        let alert = UIAlertController(title: "Vai al canale", message: "Scrivi il numero del canale.", preferredStyle: .alert)
+        alert.overrideUserInterfaceStyle = .dark
+        alert.addTextField { field in
+            field.keyboardType = .numberPad
+            field.placeholder = "Numero"
+            field.textAlignment = .center
+        }
+        alert.addAction(UIAlertAction(title: "Annulla", style: .cancel) { [weak self] _ in self?.scheduleHide() })
+        alert.addAction(UIAlertAction(title: "Vai", style: .default) { [weak self, weak alert] _ in
+            guard let self = self else { return }
+            let digits = (alert?.textFields?.first?.text ?? "").filter { $0.isNumber }
+            self.scheduleHide()
+            if !digits.isEmpty { self.host?.player(self, event: "num", data: ["n": digits]) }
+        })
+        hideTimer?.invalidate()
+        present(alert, animated: true)
+    }
+
     @objc private func multiTapped() {
         host?.player(self, event: "multi", data: [:])
     }
@@ -581,6 +644,76 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
 
     @objc private func viewTapped() {
         setControls(!controlsVisible)
+    }
+
+    /// Doppio tocco: a sinistra torna indietro di 10 secondi, a destra va avanti (solo film ed episodi).
+    @objc private func doubleTapped(_ gesture: UITapGestureRecognizer) {
+        guard !isLive else { return }
+        let left = gesture.location(in: view).x < view.bounds.width / 2
+        seek(by: left ? -10 : 10)
+        showToast(left ? "10 secondi indietro" : "10 secondi avanti")
+    }
+
+    /// Scorrimento in verticale: metà sinistra dello schermo per la luminosità, metà destra per il volume.
+    @objc private func panned(_ gesture: UIPanGestureRecognizer) {
+        switch gesture.state {
+        case .began:
+            let velocity = gesture.velocity(in: view)
+            guard abs(velocity.y) > abs(velocity.x) else {
+                panMode = 0
+                return
+            }
+            let left = gesture.location(in: view).x < view.bounds.width / 2
+            panMode = left ? 1 : 2
+            if left {
+                if savedBrightness == nil { savedBrightness = UIScreen.main.brightness }
+                panStart = Double(UIScreen.main.brightness)
+            } else {
+                panStart = Double(volumeSlider?.value ?? AVAudioSession.sharedInstance().outputVolume)
+            }
+        case .changed:
+            guard panMode != 0 else { return }
+            let travel = max(220, view.bounds.height * 0.55)
+            let value = min(1, max(0, panStart - Double(gesture.translation(in: view).y / travel)))
+            if panMode == 1 {
+                UIScreen.main.brightness = CGFloat(value)
+                showToast("Luminosità \(Int((value * 100).rounded()))%")
+            } else {
+                volumeSlider?.value = Float(value)
+                showToast("Volume \(Int((value * 100).rounded()))%")
+            }
+        default:
+            panMode = 0
+        }
+    }
+
+    private var volumeSlider: UISlider? {
+        return volumeView.subviews.compactMap { $0 as? UISlider }.first
+    }
+
+    private func buildSpeedMenu() {
+        let options: [(String, Float)] = [("0,5x", 0.5), ("0,75x", 0.75), ("Normale", 1), ("1,25x", 1.25), ("1,5x", 1.5), ("2x", 2)]
+        let actions = options.map { option in
+            UIAction(title: option.0, state: option.1 == speed ? .on : .off) { [weak self] _ in
+                self?.setSpeed(option.1, label: option.0)
+            }
+        }
+        speedItem.menu = UIMenu(title: "Velocità di riproduzione", children: actions)
+        speedItem.showsMenuAsPrimaryAction = true
+    }
+
+    private func setSpeed(_ value: Float, label: String) {
+        speed = value
+        PlayerViewController.setItem(speedItem, symbol: "speedometer", title: value == 1 ? "Velocità" : label)
+        buildSpeedMenu()
+        applySpeed()
+        scheduleHide()
+        showToast(value == 1 ? "Velocità normale" : "Velocità " + label)
+    }
+
+    private func applySpeed() {
+        guard !isLive, player.timeControlStatus != .paused else { return }
+        player.rate = speed
     }
 
     @objc private func pinched(_ gesture: UIPinchGestureRecognizer) {
@@ -738,7 +871,11 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         forwardButton.isHidden = isLive && !canZap
         channelsItem.isHidden = zapNames.isEmpty
         multiItem.isHidden = !isLive
-        vlcItem.isHidden = isLive
+        vlcItem.isHidden = isLive || (url?.isFileURL ?? false)   // un video scaricato si guarda qui, senza VLC
+        speedItem.isHidden = isLive
+        numberItem.isHidden = !isLive
+        skipItem.isHidden = isLive || !canSkipIntro
+        doubleTapGesture?.isEnabled = !isLive
         favItem.isHidden = isFav == nil
         refreshFavItem()
         refreshFitItem()
@@ -788,6 +925,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     private func showError(_ title: String, _ message: String) {
         errorTitle.text = title
         errorMessage.text = message
+        errorVLCButton.isHidden = url?.isFileURL ?? false
         errorBox.isHidden = false
         playButton.isHidden = true
         backButton.alpha = 0
@@ -1011,8 +1149,11 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         vlcItem.addTarget(self, action: #selector(vlcTapped), for: .touchUpInside)
         audioItem.addTarget(self, action: #selector(menuOpened), for: .menuActionTriggered)
         sleepItem.addTarget(self, action: #selector(menuOpened), for: .menuActionTriggered)
+        speedItem.addTarget(self, action: #selector(menuOpened), for: .menuActionTriggered)
         multiItem.addTarget(self, action: #selector(multiTapped), for: .touchUpInside)
-        [channelsItem, multiItem, audioItem, fitItem, sleepItem, favItem, vlcItem].forEach { actionBar.addArrangedSubview($0) }
+        numberItem.addTarget(self, action: #selector(numberTapped), for: .touchUpInside)
+        skipItem.addTarget(self, action: #selector(skipTapped), for: .touchUpInside)
+        [channelsItem, numberItem, multiItem, skipItem, audioItem, fitItem, speedItem, sleepItem, favItem, vlcItem].forEach { actionBar.addArrangedSubview($0) }
         actionBar.axis = .horizontal
         actionBar.distribution = .fillEqually
         actionBar.alignment = .fill
@@ -1119,6 +1260,19 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         let tap = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
         tap.delegate = self
         view.addGestureRecognizer(tap)
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped(_:)))
+        doubleTap.numberOfTapsRequired = 2
+        doubleTap.delegate = self
+        view.addGestureRecognizer(doubleTap)
+        tap.require(toFail: doubleTap)
+        doubleTapGesture = doubleTap
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(panned(_:)))
+        pan.maximumNumberOfTouches = 1
+        pan.delegate = self
+        view.addGestureRecognizer(pan)
+        // il cursore del volume di sistema, fuori dallo schermo: serve per regolare il volume con il dito
+        volumeView.alpha = 0.01
+        view.addSubview(volumeView)
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(pinched(_:)))
         pinch.delegate = self
         view.addGestureRecognizer(pinch)

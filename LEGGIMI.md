@@ -1,15 +1,31 @@
-# Xtream per iPhone (versione 3.0)
+# Xtream per iPhone (versione 3.2)
 
 App per iPhone fatta apposta per il telefono, in verticale e con tema scuro.
 Parla direttamente con il server Xtream (non serve il PC acceso).
 
-Novità della versione 3.0:
-- Multischermo: fino a 4 canali insieme (quanti dipende dalle connessioni del tuo abbonamento).
-  Si apre dalla sezione TV, oppure dal pulsante "Multi" mentre guardi un canale.
-  Tocchi un riquadro per sentirne l'audio; in basso: Aggiungi, Cambia, Togli, Schermo intero.
-- Nuova grafica: la Home si colora con la locandina in primo piano, le locandine in evidenza
-  scorrono al centro, la barra delle sezioni è sospesa in basso, "Cerca" è una sezione a sé.
-- In Home un tocco per tornare all'ultimo canale o riprendere film ed episodi.
+Novità della versione 3.2:
+- Anteprima: tieni premuto un canale e parte in un riquadro, senza aprire il player.
+- Canale di riserva (si attiva in Impostazioni, Riproduzione): se un canale non parte, l'app prova
+  da sola la versione alternativa con lo stesso nome (per esempio HD al posto di FHD).
+- Guida TV a griglia: canali in colonna e ore in riga, nella sezione TV, scheda "Guida TV".
+- Cerca nei programmi: in Cerca scegli "Programmi TV" e scrivi un titolo; guarda i preferiti e
+  i primi 150 canali, per quello che va in onda adesso e nelle prossime ore.
+- Numero del canale: pulsante "Numero" nel player delle dirette.
+- Episodi: pulsante "Salta 90 s" per la sigla, e l'avviso del prossimo episodio compare un minuto
+  prima della fine.
+- Scheda di film e serie: pulsante "Trailer" (YouTube), collegamento a TMDB quando il fornitore
+  lo indica, e la riga "Simili a questo".
+- Filtri nelle categorie di film e serie: anno, voto, genere, solo non ancora visti.
+- In Home la riga "Novità dall'ultima visita" con film e serie arrivati da quando hai aperto
+  l'app l'ultima volta.
+
+Dalla versione 3.1: download di film ed episodi (solo MP4, M4V, MOV) da vedere senza connessione
+in "Scaricati"; "Esporta i miei dati" e "Importa da un file" in Impostazioni per avere gli stessi
+preferiti e punti di ripresa su iPhone e PC; gesti nel player (doppio tocco per 10 secondi,
+dito su e giù per luminosità e volume) e pulsante "Velocità".
+
+Dalla versione 3.0: multischermo fino a 4 canali insieme (dalla sezione TV o dal pulsante "Multi"
+mentre guardi un canale) e nuova grafica con la Home che si colora con la locandina in primo piano.
 
 Dalla versione 2.0: player nativo con i comandi in ordine, Picture in Picture automatico
 quando esci dall'app (va attivato in Impostazioni dell'iPhone > Generali > Picture in Picture),
