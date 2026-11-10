@@ -1,0 +1,2078 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#000000">
+<title>Xtream</title>
+<script>try{var t=JSON.parse(localStorage.getItem('xp_theme'));if(t&&t!=='nero')document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+@font-face{font-family:'Archivo Expanded';font-style:normal;font-display:swap;font-weight:100 900;src:url(/assets/archivo-x-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Archivo Expanded';font-style:normal;font-display:swap;font-weight:100 900;src:url(/assets/archivo-x-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Archivo Condensed';font-style:normal;font-display:swap;font-weight:100 900;src:url(/assets/archivo-c-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F}
+
+/* ---------- colori: tutti i temi sono su fondo nero, cambia solo il colore d'accento ---------- */
+:root{
+  color-scheme:dark;
+  --bg:#000;--s1:#0f0f11;--s2:#19191c;--s3:#242428;--s4:#323237;
+  --line:rgba(255,255,255,.1);--line2:rgba(255,255,255,.14);
+  --text:#f5f5f7;--text2:#d1d1d6;--muted:#8e8e93;--faint:#5c5c61;
+  --accent:#4f7bff;--accent-rgb:79,123,255;--on-accent:#fff;--tg:var(--accent);
+  --live:#ff453a;
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);
+  --gut:16px;--barh:44px;--tabh:50px;
+  --display:"Archivo Expanded",-apple-system,system-ui,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,sans-serif;
+  --num:"Archivo Condensed",-apple-system,system-ui,sans-serif;
+}
+[data-theme="rubino"]{--accent:#ff453a;--accent-rgb:255,69,58}
+[data-theme="ambra"]{--accent:#ffb020;--accent-rgb:255,176,32;--on-accent:#1c1100}
+[data-theme="smeraldo"]{--accent:#30d158;--accent-rgb:48,209,88;--on-accent:#002410}
+[data-theme="ametista"]{--accent:#bf5af2;--accent-rgb:191,90,242}
+[data-theme="ghiaccio"]{--accent:#64d2ff;--accent-rgb:100,210,255;--on-accent:#00222f}
+[data-theme="grafite"]{--accent:#f5f5f7;--accent-rgb:245,245,247;--on-accent:#000;--tg:#30d158}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 var(--body);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;min-height:100vh}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;-webkit-user-select:none;user-select:none;text-align:inherit}
+input{font:inherit;color:inherit}
+img{display:block}
+h1,h2,h3,p{margin:0}
+.hidden{display:none!important}
+svg{width:22px;height:22px;flex:0 0 auto}
+
+/* la fascia dell'ora e della batteria resta sempre nera: niente testo ci passa sotto */
+#sb{position:fixed;top:0;left:0;right:0;height:var(--sat);background:var(--bg);z-index:90;pointer-events:none}
+
+/* ---------- barra in alto ---------- */
+.bar{position:fixed;top:0;left:0;right:0;z-index:50;height:calc(var(--sat) + var(--barh));padding:var(--sat) calc(6px + var(--sar)) 0 calc(6px + var(--sal));display:flex;align-items:center;transition:background-color .2s,box-shadow .2s}
+.bar.scrolled{background:rgba(0,0,0,.96);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);box-shadow:0 .5px 0 var(--line2)}
+.bar-l{display:flex;align-items:center;min-width:44px;position:relative;z-index:1}
+.bar-r{margin-left:auto;display:flex;align-items:center;gap:2px;position:relative;z-index:1}
+.bar-t{position:absolute;left:31vw;right:31vw;top:var(--sat);height:var(--barh);display:flex;align-items:center;justify-content:center;font:600 17px var(--body);opacity:0;transition:opacity .18s;pointer-events:none}
+.bar-t span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar.scrolled .bar-t{opacity:1}
+.back{display:flex;align-items:center;height:44px;padding:0 8px 0 0;color:var(--accent);font-size:17px;max-width:42vw;transition:max-width .18s}
+.bar.scrolled .back{max-width:30vw}
+.back svg{width:28px;height:28px;stroke-width:2.4}
+.back span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:-2px}
+.bar.over:not(.scrolled) .back{width:36px;height:36px;margin-left:4px;padding:0;justify-content:center;border-radius:50%;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#fff}
+.bar.over:not(.scrolled) .back span{display:none}
+.bar.over:not(.scrolled) .back svg{width:22px;height:22px;margin-left:-2px}
+.ib{width:44px;height:44px;display:grid;place-items:center;border-radius:22px;color:var(--accent)}
+.ib:active{opacity:.5}
+.ib svg{width:24px;height:24px}
+.avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--s3);color:var(--text);font:800 13px var(--display)}
+.ib.av{width:40px}
+
+/* ---------- barra delle sezioni ---------- */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;padding:6px var(--sar) calc(var(--sab) + 2px) var(--sal);background:rgba(12,12,13,.88);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);box-shadow:0 -.5px 0 var(--line2)}
+.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font:500 10px/1.2 var(--body);color:var(--muted);padding:1px 0 2px}
+.tabs button svg{width:26px;height:26px;stroke-width:1.8}
+.tabs button.on{color:var(--accent)}
+
+/* ---------- pagina ---------- */
+#view{min-height:100vh}
+.page{padding:calc(var(--sat) + var(--barh)) calc(var(--gut) + var(--sar)) calc(var(--tabh) + var(--sab) + 32px) calc(var(--gut) + var(--sal))}
+.big{font:800 31px/1.04 var(--display);letter-spacing:-.035em;margin:2px 0 16px;overflow-wrap:anywhere}
+.big small{display:block;font:400 15px/1.3 var(--body);color:var(--muted);letter-spacing:0;margin-top:6px}
+.sec{margin-top:28px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin:0 0 11px}
+.sec-h h2{font:700 19px/1.2 var(--display);letter-spacing:-.025em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sec-h button{color:var(--accent);font-size:15px;flex:0 0 auto}
+.cap{font-size:13px;color:var(--muted);text-transform:none;margin:22px 14px 7px}
+.note{font-size:13px;line-height:1.45;color:var(--muted);margin:8px 14px 0}
+.empty{text-align:center;padding:56px 18px;color:var(--muted)}
+.empty h3{font:700 20px/1.2 var(--display);letter-spacing:-.02em;color:var(--text);margin-bottom:8px}
+.empty p{font-size:15px;line-height:1.45;margin-bottom:20px}
+
+/* ---------- controlli ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 18px;border-radius:12px;font:600 16px var(--body);white-space:nowrap}
+.btn svg{width:19px;height:19px}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.btn.tint{background:rgba(var(--accent-rgb),.16);color:var(--accent)}
+.btn.gray{background:var(--s3);color:var(--text)}
+.btn.small{height:34px;padding:0 14px;font-size:14px;border-radius:10px}
+.btn.block{display:flex;width:100%}
+.btn:active{opacity:.7}
+.btn:disabled{opacity:.4}
+.seg{display:flex;background:var(--s2);border-radius:9px;padding:2px;margin:0 0 18px}
+.seg button{flex:1;height:30px;border-radius:7px;font:600 13px var(--body);color:var(--text2);white-space:nowrap;padding:0 6px}
+.seg button.on{background:var(--s4);color:var(--text);box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.sfield{display:flex;align-items:center;gap:7px;height:38px;background:var(--s2);border-radius:10px;padding:0 10px;color:var(--muted);margin:0 0 18px}
+.sfield svg{width:17px;height:17px}
+.sfield input{flex:1;min-width:0;height:100%;background:none;border:0;outline:0;font-size:16px;color:var(--text);-webkit-appearance:none;appearance:none}
+.sfield input::placeholder{color:var(--muted)}
+.sfield input::-webkit-search-cancel-button{-webkit-appearance:none}
+.sfield .clr{width:28px;height:28px;display:grid;place-items:center;color:var(--muted)}
+.sfield .clr svg{width:16px;height:16px}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:18px}
+.toolbar .sfield{flex:1;margin:0}
+.toolbar .btn{height:38px;padding:0 12px;font-size:14px;border-radius:10px}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 calc(-1 * (var(--gut) + var(--sar))) 18px calc(-1 * (var(--gut) + var(--sal)));padding:0 calc(var(--gut) + var(--sar)) 2px calc(var(--gut) + var(--sal));scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;height:32px;padding:0 14px;border-radius:16px;background:var(--s2);font:500 14px var(--body);color:var(--text2);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.chip svg{width:14px;height:14px}
+.chip.on{background:var(--text);color:#000}
+.tg{width:51px;height:31px;border-radius:16px;background:var(--s4);position:relative;flex:0 0 auto;transition:background-color .2s}
+.tg::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform .2s}
+.tg.on{background:var(--tg)}
+.tg.on::after{transform:translateX(20px)}
+
+/* ---------- elenchi in stile iPhone ---------- */
+.group{background:var(--s1);border-radius:12px;overflow:hidden}
+.li{display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:9px 14px;text-align:left;position:relative}
+.li + .li::before{content:"";position:absolute;top:0;left:14px;right:0;border-top:.5px solid var(--line2)}
+.li.ic + .li.ic::before{left:56px}
+button.li:active,.li.tap:active{background:var(--s3)}
+.li .lt{flex:1;min-width:0}
+.li .lt b{display:block;font-weight:400;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .lt span{display:block;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.li .lv{color:var(--muted);font-size:15px;white-space:nowrap}
+.li .chev{width:15px;height:15px;color:var(--faint);stroke-width:2.6}
+.li .lock{width:15px;height:15px;color:var(--muted)}
+.li .lic{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:var(--s4);color:var(--text);flex:0 0 auto}
+.li .lic svg{width:18px;height:18px}
+.li .lic.a{background:var(--accent);color:var(--on-accent)}
+.li .lt .danger{display:inline;font-size:inherit;color:var(--live);margin:0}
+.li .badge{font-size:12px;font-weight:600;color:var(--accent);background:rgba(var(--accent-rgb),.16);padding:2px 8px;border-radius:6px}
+.li .pin{width:34px;height:34px;display:grid;place-items:center;color:var(--faint);margin-left:-8px}
+.li .pin.on{color:var(--accent)}
+.li .pin svg,.li .lk svg{width:20px;height:20px}
+.li .lk{width:34px;height:34px;display:grid;place-items:center;color:var(--faint)}
+.li .lk.on{color:var(--text)}
+
+/* ---------- canali ---------- */
+.chlist{background:var(--s1);border-radius:12px;overflow:hidden}
+.chrow{display:flex;align-items:center;gap:12px;padding:9px 2px 9px 10px;position:relative;cursor:pointer}
+.chrow + .chrow::before{content:"";position:absolute;top:0;left:86px;right:0;border-top:.5px solid var(--line2)}
+.chrow:active{background:var(--s3)}
+.clogo{width:64px;height:44px;border-radius:9px;background:var(--s3);flex:0 0 auto;position:relative;overflow:hidden;display:grid;place-items:center;font:800 13px var(--display);color:var(--faint)}
+.clogo img{position:absolute;left:6px;top:5px;width:calc(100% - 12px);height:calc(100% - 10px);object-fit:contain}
+.cmain{flex:1;min-width:0}
+.ctop{display:flex;align-items:baseline;gap:8px;min-width:0}
+.cnum{font:700 16px/1 var(--num);color:var(--muted);font-style:normal;font-variant-numeric:tabular-nums;flex:0 0 auto}
+.ctop b{font-weight:600;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.carch{color:var(--muted);flex:0 0 auto;align-self:center}
+.carch svg{width:13px;height:13px}
+.cnow,.cnext{display:block;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;min-height:18px}
+.cnow b{color:var(--text2);font-weight:500}
+.cnext{color:var(--faint);margin-top:0}
+.cbar{display:block;height:3px;border-radius:2px;background:var(--s4);margin-top:5px;overflow:hidden;max-width:160px}
+.cbar i{display:block;height:100%;background:var(--accent);border-radius:2px}
+.cact{width:40px;height:44px;display:grid;place-items:center;color:var(--faint);flex:0 0 auto}
+.cact svg{width:21px;height:21px}
+.cact.on{color:var(--accent)}
+.more-row{display:block;width:100%;padding:14px;text-align:center;color:var(--accent);font-size:15px}
+
+/* ---------- file orizzontali e locandine ---------- */
+.hs{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 calc(-1 * (var(--gut) + var(--sar))) 0 calc(-1 * (var(--gut) + var(--sal)));padding:0 calc(var(--gut) + var(--sar)) 2px calc(var(--gut) + var(--sal));scroll-padding-left:calc(var(--gut) + var(--sal));scrollbar-width:none}
+.hs::-webkit-scrollbar{display:none}
+.hs>*{scroll-snap-align:start;flex:0 0 auto}
+.hs .poster{width:116px}
+.hs .ctile{width:128px}
+.poster{display:block;text-align:left;min-width:0}
+.pimg{position:relative;display:block;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:var(--s2)}
+.pimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pimg .ph{position:absolute;inset:0;padding:10px;display:flex;align-items:flex-end;font:700 12.5px/1.15 var(--display);letter-spacing:-.01em;color:var(--faint);overflow:hidden}
+.pbar{position:absolute;left:8px;right:8px;bottom:8px;height:3px;border-radius:2px;background:rgba(255,255,255,.28);overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--accent)}
+.pcap{display:block;min-width:0}
+.pcap b{display:block;font-weight:500;font-size:13px;line-height:1.25;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcap small{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.poster:active .pimg,.ctile:active .tlogo{opacity:.65}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 10px}
+@media (min-width:600px){.grid3{grid-template-columns:repeat(auto-fill,minmax(124px,1fr))}}
+.ctile{display:block;text-align:left}
+.tlogo{position:relative;display:block;aspect-ratio:16/10;border-radius:10px;background:var(--s2);overflow:hidden}
+.tlogo img{position:absolute;left:14%;top:14%;width:72%;height:72%;object-fit:contain}
+.tlogo .ph{position:absolute;inset:0;display:grid;place-items:center;font:800 20px var(--display);color:var(--faint)}
+.tlogo .live{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--live)}
+.ctile .pcap b{display:flex;gap:6px;align-items:baseline}
+.ctile .pcap i{font:700 14px var(--num);font-style:normal;color:var(--muted)}
+.ctile .pcap span{overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- in evidenza (home) ---------- */
+.feat{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 calc(-1 * (var(--gut) + var(--sar))) 0 calc(-1 * (var(--gut) + var(--sal)));padding:0 calc(var(--gut) + var(--sar)) 0 calc(var(--gut) + var(--sal));scroll-padding-left:calc(var(--gut) + var(--sal));scrollbar-width:none}
+.feat::-webkit-scrollbar{display:none}
+.fcard{flex:0 0 calc(100% - 22px);max-width:430px;scroll-snap-align:start;position:relative;aspect-ratio:4/5;border-radius:18px;overflow:hidden;background:var(--s2);text-align:left;display:block}
+.fcard .bg{position:absolute;inset:0;background-size:cover;background-position:center 25%}
+.fcard .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.55) 58%,rgba(0,0,0,.94) 100%)}
+.fcard .body{position:absolute;left:18px;right:18px;bottom:18px}
+.fcard .kind{font-size:12px;font-weight:600;color:rgba(255,255,255,.75);margin-bottom:6px}
+.fcard h3{font:800 27px/1.02 var(--display);letter-spacing:-.035em;margin:0 0 8px;color:#fff;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.fcard .acts{display:flex;gap:8px;margin-top:14px}
+.fcard .acts .btn{height:42px}
+.fcard .acts .btn.gray{background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;width:42px;padding:0}
+.meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13.5px;color:var(--muted);align-items:center}
+.fcard .meta{color:rgba(255,255,255,.78)}
+.meta .score{color:var(--text);font-weight:600}
+.fcard .meta .score{color:#fff}
+.meta .tag{background:var(--s3);color:var(--text2);border-radius:5px;padding:1px 7px;font-size:12.5px}
+
+/* ---------- scheda di film e serie ---------- */
+.page.detail{padding-top:var(--sat)}
+.dhero{position:relative;margin:0 calc(-1 * (var(--gut) + var(--sar))) 0 calc(-1 * (var(--gut) + var(--sal)));aspect-ratio:16/11;max-height:52vh;width:auto;overflow:hidden;background:var(--s1)}
+.dhero .bg{position:absolute;inset:0;background-size:cover;background-position:center 22%}
+.dhero.poster .bg{filter:blur(28px) brightness(.55) saturate(1.2);transform:scale(1.25)}
+.dhero .fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,var(--bg) 100%)}
+.dhero .dp{position:absolute;left:50%;bottom:8%;height:80%;transform:translateX(-50%);border-radius:10px;box-shadow:0 18px 40px rgba(0,0,0,.6);aspect-ratio:2/3;object-fit:cover}
+.dtitle{font:800 28px/1.04 var(--display);letter-spacing:-.035em;margin:14px 0 9px;overflow-wrap:anywhere}
+.dacts{margin:18px 0 0;display:grid;gap:10px}
+.drow{display:flex;gap:10px}
+.drow .btn{flex:1}
+.plot{font-size:15px;line-height:1.5;color:var(--text2);margin-top:20px}
+.plot.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.plotmore{color:var(--accent);font-size:15px;margin-top:4px}
+.credits{font-size:13.5px;line-height:1.5;color:var(--muted);margin-top:14px}
+.credits b{color:var(--text2);font-weight:500;margin-right:6px}
+.credits span{display:block}
+.eps{display:grid;gap:4px}
+.ep{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;padding:8px 0;border-radius:10px}
+.ep:active{opacity:.6}
+.eth{position:relative;flex:0 0 auto;width:132px;aspect-ratio:16/9;border-radius:8px;background:var(--s2);overflow:hidden}
+.eth img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.eth .n{position:absolute;inset:0;display:grid;place-items:center;font:800 22px var(--num);color:var(--faint)}
+.eth .pbar{left:6px;right:6px;bottom:6px}
+.eth .seen{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}
+.eth .seen svg{width:14px;height:14px;stroke-width:3}
+.et{flex:1;min-width:0;padding-top:1px}
+.et b{display:block;font-weight:600;font-size:15px;line-height:1.3}
+.et small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.et span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.4;color:var(--muted);margin-top:4px}
+
+/* ---------- guida di un canale ---------- */
+.chhead{display:flex;align-items:center;gap:14px;margin:4px 0 16px}
+.chhead .clogo{width:76px;height:52px}
+.chhead h1{font:800 24px/1.08 var(--display);letter-spacing:-.03em;overflow-wrap:anywhere}
+.chhead small{display:block;font-size:14px;color:var(--muted);margin-top:4px}
+.day{font:700 15px var(--body);color:var(--text);margin:24px 2px 8px;text-transform:capitalize}
+.prog{display:flex;gap:12px;align-items:flex-start;padding:11px 14px;position:relative;width:100%;text-align:left}
+.prog + .prog::before{content:"";position:absolute;top:0;left:76px;right:0;border-top:.5px solid var(--line2)}
+.prog .pt{width:50px;flex:0 0 auto;font:700 16px var(--num);color:var(--muted);font-variant-numeric:tabular-nums;padding-top:1px}
+.prog .pm{flex:1;min-width:0}
+.prog .pm b{display:block;font-weight:500;font-size:15px;line-height:1.3}
+.prog .pm span{display:block;font-size:13px;line-height:1.4;color:var(--muted);margin-top:3px}
+.prog .pm span.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.prog.past .pm b{color:var(--text2)}
+.prog.now{background:rgba(var(--accent-rgb),.1)}
+.prog.now .pt{color:var(--accent)}
+.prog .pa{flex:0 0 auto;align-self:center}
+.prog .onair{font-size:11px;font-weight:700;color:#fff;background:var(--live);border-radius:4px;padding:2px 6px}
+
+/* ---------- finestre dal basso ---------- */
+.sheetbg{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .2s}
+.sheetbg.open{opacity:1}
+.sheet{width:100%;max-width:560px;max-height:86vh;overflow:auto;-webkit-overflow-scrolling:touch;background:var(--s1);border-radius:14px 14px 0 0;padding:8px calc(var(--gut) + var(--sar)) calc(var(--sab) + 18px) calc(var(--gut) + var(--sal));transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.sheetbg.open .sheet{transform:none}
+.sheet .grab{width:36px;height:5px;border-radius:3px;background:var(--s4);margin:0 auto 14px}
+.sheet h3{font:600 17px var(--body);text-align:center;margin:0 0 16px}
+.sheet .group{background:var(--s2)}
+.sheet .li + .li::before{border-color:var(--line)}
+.acct{display:flex;align-items:center;gap:14px;margin:2px 2px 18px}
+.acct .avatar{width:54px;height:54px;font-size:21px}
+.acct b{display:block;font:700 19px var(--display);letter-spacing:-.02em;overflow-wrap:anywhere}
+.acct div span{display:block;font-size:13.5px;color:var(--muted);margin-top:2px}
+.swatches{display:flex;flex-wrap:wrap;gap:12px;padding:14px}
+.sw{width:42px;height:42px;border-radius:50%;background:#000;box-shadow:inset 0 0 0 1px var(--line2);display:grid;place-items:center;position:relative}
+.sw i{width:18px;height:18px;border-radius:50%;background:var(--c)}
+.sw.on{box-shadow:inset 0 0 0 1px var(--line2),0 0 0 2px var(--bg),0 0 0 4px var(--c)}
+.sw-name{font-size:13px;color:var(--muted);padding:0 14px 12px}
+
+/* ---------- accesso ---------- */
+#login{min-height:100vh;padding:calc(var(--sat) + 34px) calc(20px + var(--sar)) calc(var(--sab) + 34px) calc(20px + var(--sal));max-width:560px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font:800 19px var(--display);letter-spacing:-.02em}
+.brand i{position:relative;width:26px;height:26px;border-radius:8px;background:var(--accent)}
+.brand i::after{content:"";position:absolute;left:10px;top:8px;border-left:8px solid var(--on-accent);border-top:5px solid transparent;border-bottom:5px solid transparent}
+#login h1{font:800 34px/1.02 var(--display);letter-spacing:-.04em;margin:38px 0 10px}
+#login .lead{font-size:15px;line-height:1.45;color:var(--muted);margin-bottom:8px}
+.form{background:var(--s1);border-radius:12px;overflow:hidden}
+.form label{display:flex;align-items:center;min-height:50px;padding:0 14px;gap:10px;position:relative}
+.form label + label::before{content:"";position:absolute;top:0;left:14px;right:0;border-top:.5px solid var(--line2)}
+.form label span{width:94px;flex:0 0 auto;font-size:16px}
+.form input{flex:1;min-width:0;background:none;border:0;outline:0;font-size:16px;height:48px;-webkit-appearance:none;appearance:none}
+.form input::placeholder{color:var(--faint)}
+#loginBtn{margin-top:22px}
+#loginCancel{margin-top:10px}
+.err{color:#ff6961;font-size:14px;line-height:1.4;margin-top:14px;text-align:center}
+.err:empty{display:none}
+.splash{display:none;position:fixed;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:var(--muted);font-size:15px}
+#login.auto .splash{display:flex}
+#login.auto form{display:none}
+.spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--s4);border-top-color:var(--text);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- PIN, messaggi, attesa ---------- */
+.dlg{position:fixed;inset:0;z-index:85;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:24px}
+.dlg form{width:100%;max-width:320px;background:var(--s2);border-radius:16px;padding:22px 18px 16px;text-align:center}
+.dlg h2{font:600 17px var(--body);margin-bottom:6px}
+.dlg p{font-size:14px;color:var(--muted);line-height:1.4;margin-bottom:16px}
+.dlg input{width:100%;height:50px;border-radius:10px;border:0;background:var(--s4);text-align:center;font:700 26px var(--num);letter-spacing:.5em;padding-left:.5em;outline:0;color:var(--text)}
+.dlg .row2{display:flex;gap:10px;margin-top:16px}
+.dlg .row2 .btn{flex:1}
+.toast{position:fixed;left:50%;bottom:calc(var(--tabh) + var(--sab) + 18px);transform:translateX(-50%);z-index:95;background:var(--s4);color:var(--text);font-size:14px;font-weight:500;padding:10px 16px;border-radius:12px;max-width:calc(100% - 40px);text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:tin .2s ease-out}
+@keyframes tin{from{opacity:0;transform:translate(-50%,8px)}}
+.sk{display:block;border-radius:10px;background:linear-gradient(90deg,var(--s1),var(--s2),var(--s1));background-size:200% 100%;animation:sh 1.4s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.sk.poster{aspect-ratio:2/3}
+.sentinel{height:1px}
+
+/* ---------- riproduzione nel browser (solo per prove fuori dall'iPhone) ---------- */
+#hp{position:fixed;inset:0;z-index:99;background:#000;display:flex;flex-direction:column;justify-content:center}
+#hp video{width:100%;max-height:100%;background:#000}
+#hp .hpbar{position:absolute;top:var(--sat);left:0;right:0;display:flex;align-items:center;gap:10px;padding:8px 12px}
+#hp b{font-size:15px}
+
+
+/* =====================================================================
+   VERSIONE 3 — sala buia: superfici trasparenti sopra la luce che arriva
+   dalle locandine, barra delle sezioni sospesa, schede più grandi.
+   ===================================================================== */
+:root{
+  --bg:#09090b;--o1:#141417;--o2:#1c1c20;--o3:#2a2a2f;
+  --s1:rgba(255,255,255,.055);--s2:rgba(255,255,255,.085);--s3:rgba(255,255,255,.125);--s4:rgba(255,255,255,.19);
+  --tabh:64px;--tabb:max(10px,calc(var(--sab) - 12px));
+}
+/* luce d'ambiente: l'immagine in primo piano, sfocata, colora la parte alta della pagina */
+#amb{position:fixed;top:0;left:0;right:0;height:88vh;z-index:0;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .7s;
+  -webkit-mask-image:linear-gradient(#000 8%,rgba(0,0,0,.55) 50%,transparent);mask-image:linear-gradient(#000 8%,rgba(0,0,0,.55) 50%,transparent)}
+#amb i{position:absolute;inset:-14%;background-size:cover;background-position:center;filter:blur(46px) saturate(1.7) brightness(.78);transition:opacity .7s}
+#amb.on{opacity:.6}
+#app{position:relative;z-index:1}
+/* la fascia dell'ora diventa piena appena scorri: le scritte non ci passano sotto */
+#sb{opacity:0;transition:opacity .15s}
+html.scr #sb{opacity:1}
+.bar.scrolled{background:rgba(9,9,11,.95)}
+
+/* barra delle sezioni sospesa */
+.tabs{left:12px;right:12px;bottom:var(--tabb);max-width:520px;margin:0 auto;padding:6px;gap:2px;border-radius:34px;background:rgba(30,30,35,.86);
+  -webkit-backdrop-filter:blur(30px) saturate(1.8);backdrop-filter:blur(30px) saturate(1.8);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.15),0 16px 44px rgba(0,0,0,.6)}
+.tabs button{height:52px;border-radius:26px;justify-content:center;gap:3px;padding:0;font:600 10.5px/1.1 var(--body);transition:background-color .2s,color .2s}
+.tabs button svg{width:23px;height:23px}
+.tabs button.on{background:rgba(255,255,255,.13);color:var(--text)}
+.tabs button.on svg{color:var(--accent)}
+#app::after{content:"";position:fixed;left:0;right:0;bottom:0;height:calc(var(--tabh) + var(--tabb) + 34px);background:linear-gradient(rgba(9,9,11,0),rgba(9,9,11,.94) 72%);pointer-events:none;z-index:40}
+.page{padding-bottom:calc(var(--tabh) + var(--tabb) + 40px)}
+.toast{bottom:calc(var(--tabh) + var(--tabb) + 16px);background:var(--o3)}
+
+/* superfici */
+.group,.chlist{border-radius:16px;box-shadow:inset 0 0 0 .5px var(--line)}
+.sheet{background:var(--o1);border-radius:22px 22px 0 0}
+.dlg form{background:var(--o2)}
+.dlg input{background:var(--o3)}
+.btn{border-radius:14px}
+.btn.gray{background:var(--s3)}
+.seg{border-radius:12px;padding:3px}
+.seg button{height:32px;border-radius:9px}
+.sfield{height:42px;border-radius:13px}
+.big{font-size:33px}
+
+/* titoli di sezione: si toccano per vedere tutto */
+.sec{margin-top:30px}
+.sec-h.tap{display:flex;width:100%;align-items:center;gap:4px;text-align:left}
+.sec-h.tap h2{flex:0 1 auto}
+.sec-h.tap svg{width:17px;height:17px;color:var(--muted);stroke-width:2.6;margin-top:1px}
+.sec-h.tap:active{opacity:.6}
+
+/* in evidenza: locandine intere al centro, le vicine che spuntano ai lati */
+.feat{gap:12px;padding:8px calc((100vw - min(76vw,330px)) / 2) 0;scroll-padding:0;margin:0 calc(-1 * (var(--gut) + var(--sar))) 0 calc(-1 * (var(--gut) + var(--sal)))}
+.fcard{flex:0 0 min(76vw,330px);max-width:none;aspect-ratio:2/3;border-radius:24px;scroll-snap-align:center;box-shadow:0 26px 60px rgba(0,0,0,.6)}
+.fcard::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2);pointer-events:none}
+.fcard .bg{background-position:center}
+.fcard .shade{background:linear-gradient(180deg,rgba(0,0,0,0) 44%,rgba(0,0,0,.62) 68%,rgba(0,0,0,.96))}
+.fcard .body{left:16px;right:16px;bottom:16px;text-align:center}
+.fcard .kind{margin-bottom:5px}
+.fcard h3{font-size:22px;-webkit-line-clamp:2}
+.fcard .meta{justify-content:center}
+.fcard .acts{justify-content:center;margin-top:13px}
+.fcard .acts .btn{height:44px}
+.fcard .acts .btn.primary{flex:1;border-radius:22px}
+.fcard .acts .btn.gray{width:44px;border-radius:50%}
+.fdots{display:flex;justify-content:center;gap:6px;margin-top:16px}
+.fdots i{width:6px;height:6px;border-radius:3px;background:var(--s4);transition:width .25s,background-color .25s}
+.fdots i.on{width:20px;background:var(--text)}
+
+/* riprendi: una scheda larga con il tasto play */
+.cont{width:284px;display:flex;gap:12px;align-items:center;padding:10px 12px 10px 10px;border-radius:18px;background:var(--s1);box-shadow:inset 0 0 0 .5px var(--line);text-align:left}
+.cont.wide{width:100%}
+.cont:active{background:var(--s3)}
+.cont .cimg{position:relative;width:56px;aspect-ratio:2/3;border-radius:9px;overflow:hidden;background:var(--s2);flex:0 0 auto}
+.cont .cimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cont .clogo{width:76px;height:52px;border-radius:11px}
+.cont .ct{flex:1;min-width:0}
+.cont .ct em{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-bottom:1px}
+.cont .ct b{display:block;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cont .ct small,.cont .cnow{display:block;font-size:13px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:0}
+.cont .cp,.cont .cbar{display:block;height:3px;border-radius:2px;background:var(--s4);margin-top:9px;overflow:hidden;max-width:none}
+.cont .cp i{display:block;height:100%;background:var(--accent)}
+.cont .go{width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:0 0 auto}
+.cont .go svg{width:17px;height:17px;margin-left:2px}
+
+/* locandine e canali */
+.hs{gap:12px}
+.hs .poster{width:124px}
+.hs .ctile{width:136px}
+.pimg{border-radius:13px}
+.pimg::after,.tlogo::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14);pointer-events:none}
+.tlogo{border-radius:13px;background:var(--s2)}
+.pcap b{font-size:13.5px;margin-top:8px}
+.grid3{gap:20px 12px}
+.clogo{border-radius:10px}
+
+/* multischermo */
+.mbanner{display:flex;align-items:center;gap:14px;width:100%;padding:14px;border-radius:18px;background:rgba(var(--accent-rgb),.14);box-shadow:inset 0 0 0 .5px rgba(var(--accent-rgb),.4);text-align:left;margin-bottom:18px}
+.mbanner:active{opacity:.7}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:3px;width:46px;height:34px;flex:0 0 auto}
+.mgrid i{border-radius:4px;background:var(--accent)}
+.mgrid i:nth-child(2),.mgrid i:nth-child(3){opacity:.55}
+.mbanner .lt{flex:1;min-width:0}
+.mbanner b{display:block;font:700 16px var(--display);letter-spacing:-.02em}
+.mbanner .lt span{display:block;font-size:13px;color:var(--text2);margin-top:2px}
+.mbanner svg{width:16px;height:16px;color:var(--accent);stroke-width:2.6}
+.mslots{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:14px}
+.mslot{position:relative;min-width:0;aspect-ratio:16/9;border-radius:14px;background:var(--s2);display:grid;place-items:center;overflow:hidden}
+.mslot.empty{background:none;border:1.5px dashed var(--line2);color:var(--faint);font-size:13px}
+.mslot.off{opacity:.35}
+.mslot img{max-width:54%;max-height:46%;object-fit:contain;margin-bottom:14px}
+.mslot .ph{font:800 20px var(--display);color:var(--faint);margin-bottom:14px}
+.mslot b{position:absolute;left:10px;right:10px;bottom:8px;font-size:12.5px;font-weight:600;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mslot .rm{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.6);display:grid;place-items:center}
+.mslot .rm svg{width:13px;height:13px;stroke-width:2.6}
+.chrow.picked .cact{color:var(--accent)}
+#mgo{position:sticky;bottom:calc(var(--tabh) + var(--tabb) + 12px);z-index:41;margin-top:14px;height:52px;border-radius:26px;box-shadow:0 12px 30px rgba(0,0,0,.55)}
+#mgo:disabled{opacity:1;background:var(--o3);color:var(--muted)}
+
+/* scheda di film e serie: l'immagine sfuma nella luce d'ambiente */
+.page.detail{padding-top:0}
+.dhero{background:none;aspect-ratio:auto;height:calc(var(--sat) + 62vw);max-height:56vh}
+.dhero .fade{display:none}
+.dhero .bg{-webkit-mask-image:linear-gradient(#000 52%,transparent);mask-image:linear-gradient(#000 52%,transparent)}
+.dhero.poster{height:calc(var(--sat) + min(42vh,350px));max-height:none}
+.dhero.poster .bg{display:none}
+.dhero .dp{bottom:10px;height:calc(100% - var(--sat) - 26px);border-radius:14px;box-shadow:0 22px 50px rgba(0,0,0,.65)}
+.dtitle{font-size:29px;margin-top:16px}
+.dacts .btn.primary{height:50px;border-radius:16px;font-size:17px}
+.eth{border-radius:10px}
+
+/* accesso */
+.brand i{width:30px;height:30px;border-radius:9px}
+.brand i::after{left:12px;top:9px;border-left-width:9px;border-top-width:6px;border-bottom-width:6px}
+.form{border-radius:16px;box-shadow:inset 0 0 0 .5px var(--line)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="amb" aria-hidden="true"><i></i></div>
+<div id="sb" aria-hidden="true"></div>
+
+<section id="login">
+  <div class="splash" aria-live="polite"><div class="brand"><i></i>Xtream</div><span class="spinner"></span><span>Accesso in corso…</span></div>
+  <form id="loginForm" autocomplete="on">
+    <div class="brand"><i></i>Xtream</div>
+    <h1 id="loginH">Accedi</h1>
+    <p class="lead" id="loginLead">Scrivi i dati della tua playlist per vedere canali, film e serie.</p>
+    <div id="savedPl" class="hidden"><div class="cap">Le tue playlist</div><div class="group" id="savedList"></div></div>
+    <div class="cap">Dati della playlist</div>
+    <div class="form">
+      <label id="fNameRow"><span>Nome</span><input id="fName" placeholder="Facoltativo, es. Casa" autocomplete="off"></label>
+      <label><span>Server</span><input id="fServer" placeholder="http://server:porta" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" required></label>
+      <label><span>Username</span><input id="fUser" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="username" required></label>
+      <label><span>Password</span><input id="fPass" type="password" autocomplete="current-password" required></label>
+    </div>
+    <p class="note">Nel campo Server puoi incollare anche il link M3U completo: username e password si compilano da soli.</p>
+    <div class="cap"></div>
+    <div class="group"><div class="li"><span class="lt"><b>Ricorda l'accesso</b></span><button type="button" class="tg on" id="fRemember" role="switch" aria-checked="true" aria-label="Ricorda l'accesso"></button></div></div>
+    <button class="btn primary block" id="loginBtn">Accedi</button>
+    <button type="button" class="btn gray block hidden" id="loginCancel">Annulla</button>
+    <div class="err" id="loginErr" role="alert"></div>
+  </form>
+</section>
+
+<div id="app" class="hidden">
+  <header class="bar" id="bar"><div class="bar-l" id="barL"></div><div class="bar-t" id="barT"></div><div class="bar-r" id="barR"></div></header>
+  <main id="view"></main>
+  <nav class="tabs" id="tabs"></nav>
+</div>
+
+<div class="sheetbg hidden" id="sheetbg"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+
+<div class="dlg hidden" id="pinDlg">
+  <form id="pinForm" autocomplete="off">
+    <h2 id="pinTitle">Inserisci il PIN</h2>
+    <p id="pinSub"></p>
+    <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-label="PIN di 4 cifre">
+    <div class="err" id="pinErr" role="alert"></div>
+    <div class="row2"><button type="button" class="btn gray" id="pinCancel">Annulla</button><button class="btn primary" id="pinOk">Conferma</button></div>
+  </form>
+</div>
+
+<div id="hp" class="hidden"><div class="hpbar"><button class="btn gray small" id="hpClose">Chiudi</button><b id="hpT"></b></div><video id="hv" controls playsinline></video></div>
+
+<script>
+// ================= utilità =================
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const MH = window.webkit && window.webkit.messageHandlers;
+const IOS = !!(MH && MH.store);
+const NATIVE_PLAYER = !!(MH && MH.player);
+const NATIVE_MULTI = !!(MH && MH.multi);
+const native = (name, body) => { try { MH[name].postMessage(body); return true; } catch(_) { return false; } };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cssUrl = s => String(s || '').replace(/['\\]/g, '\\$&');
+const fold = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const toArr = x => Array.isArray(x) ? x : (x && typeof x === 'object' ? Object.values(x) : []);
+const nf = n => Number(n || 0).toLocaleString('it-IT');
+const ic = (d, w) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w || 2}" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+const STAR = 'M12 3.6l2.55 5.2 5.75.84-4.15 4.05.98 5.71L12 16.7l-5.13 2.7.98-5.71L3.7 9.64l5.75-.84z';
+const ICON = {
+  home: ic('M3.5 10.5 12 3.5l8.5 7V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z'),
+  tv: ic('M3 7.5h18v11.5H3zM8 3.5l4 4 4-4'),
+  film: ic('M4 4h16v16H4zM8 4v16M16 4v16M4 8.5h4M4 15.5h4M16 8.5h4M16 15.5h4'),
+  series: ic('M3 8.5h18V20H3zM6 5h12M8.5 2h7'),
+  bookmark: ic('M6.5 3.5h11V21L12 17l-5.5 4z'),
+  search: ic('M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM20 20l-4.6-4.6'),
+  back: ic('M15 5l-7 7 7 7'),
+  chev: ic('M9 5.5l6.5 6.5L9 18.5'),
+  down: ic('M6 9l6 6 6-6'),
+  star: ic(STAR, 1.8),
+  starF: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="${STAR}"/></svg>`,
+  guide: ic('M4 5.5h16V20H4zM4 10h16M8.5 3v4M15.5 3v4'),
+  rewind: ic('M11 7l-6 5 6 5zM19 7l-6 5 6 5z'),
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.8v14.4a1 1 0 0 0 1.5.86l12-7.2a1 1 0 0 0 0-1.72l-12-7.2A1 1 0 0 0 7 4.8z"/></svg>',
+  plus: ic('M12 5v14M5 12h14'),
+  check: ic('M5 12.5l4.5 4.5L19 7.5'),
+  x: ic('M6 6l12 12M18 6L6 18'),
+  lock: ic('M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3'),
+  sort: ic('M7 4v16M4 7l3-3 3 3M17 20V4M14 17l3 3 3-3'),
+  sliders: ic('M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4'),
+  list: ic('M8.5 6h11.5M8.5 12h11.5M8.5 18h11.5M4 6h.01M4 12h.01M4 18h.01'),
+  logout: ic('M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10'),
+  ext: ic('M14 4h6v6M20 4l-9 9M18 14v6H4V6h6'),
+  refresh: ic('M20 12a8 8 0 1 1-2.35-5.65M20 4v5h-5'),
+  edit: ic('M4 20h4L19 9l-4-4L4 16z'),
+  trash: ic('M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13'),
+  more: ic('M5 12h.01M12 12h.01M19 12h.01', 3),
+  palette: ic('M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-1.3-1-1.6-1-2.6 0-.9.7-1.6 1.6-1.6H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3zM7.5 12h.01M9.5 7.5h.01M14.5 7.5h.01'),
+  shield: ic('M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z'),
+  info: ic('M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5.5M12 7.6v.01'),
+  multi: ic('M3.5 5h7.5v6H3.5zM13 5h7.5v6H13zM3.5 13h7.5v6H3.5zM13 13h7.5v6H13z')
+};
+const TYPES = {
+  live:   {label:'TV',    full:'TV in diretta', noun:'canali', all:'Tutti i canali', cats:'get_live_categories',   items:'get_live_streams'},
+  movie:  {label:'Film',  full:'Film',          noun:'film',   all:'Tutti i film',   cats:'get_vod_categories',    items:'get_vod_streams'},
+  series: {label:'Serie', full:'Serie TV',      noun:'serie',  all:'Tutte le serie', cats:'get_series_categories', items:'get_series'}
+};
+const THEMES = [
+  {id:'nero',     name:'Blu',      c:'#4f7bff'},
+  {id:'rubino',   name:'Rubino',   c:'#ff453a'},
+  {id:'ambra',    name:'Ambra',    c:'#ffb020'},
+  {id:'smeraldo', name:'Smeraldo', c:'#30d158'},
+  {id:'ametista', name:'Ametista', c:'#bf5af2'},
+  {id:'ghiaccio', name:'Ghiaccio', c:'#64d2ff'},
+  {id:'grafite',  name:'Grafite',  c:'#f5f5f7'}
+];
+const SORTS = [['recent','Aggiunti di recente'], ['az','Dalla A alla Z'], ['rating','Voto più alto'], ['year','Anno più recente']];
+const STEP = 60;
+const V = $('#view');
+const S = {creds:null, acct:null, data:{}, ready:{}, byKey:{}, visVer:0, tab:'home', stacks:null, rt:0, pl:null, liveMode:'cats', typeMode:{movie:'discover', series:'discover'}, listMode:'all', guideCat:null, now:{}, epg:{}, unlocked:false};
+let favs = [], prog = {};
+
+// ================= impostazioni salvate =================
+// Vivono in un file dell'app (/store); la memoria della pagina fa solo da copia veloce.
+let STORE = {};
+const pendingSave = {};
+const lsGet = (k, d) => {
+  if (k in STORE) return STORE[k] ?? d;
+  try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch(_) { return d; }
+};
+const postStore = (k, v) => IOS ? native('store', {k, v:JSON.stringify(v ?? null)}) : fetch('/store?k=' + encodeURIComponent(k), {method:'POST', body:JSON.stringify(v ?? null), keepalive:true}).catch(() => {});
+const lsSet = (k, v) => {
+  if (v == null) delete STORE[k]; else STORE[k] = v;
+  try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch(_) {}
+  clearTimeout(pendingSave[k] && pendingSave[k].t);
+  pendingSave[k] = {v, t:setTimeout(() => { delete pendingSave[k]; postStore(k, v); }, 250)};
+};
+const flushStore = () => { for (const k in pendingSave) { clearTimeout(pendingSave[k].t); postStore(k, pendingSave[k].v); delete pendingSave[k]; } };
+addEventListener('pagehide', flushStore);
+document.addEventListener('visibilitychange', () => { if (document.hidden) flushStore(); });
+const ns = k => 'xp_' + k + ':' + S.creds.username + '@' + S.creds.server;
+
+function toast(t){
+  $$('.toast').forEach(el => el.remove());
+  const el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); el.textContent = t;
+  document.body.appendChild(el); setTimeout(() => el.remove(), 2400);
+}
+function fmtTime(s){ s = Math.floor(s || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); }
+function fmtDur(v){
+  if (!v) return '';
+  let s = Number(v);
+  if (isNaN(s)) { const p = String(v).split(':').map(Number); if (p.some(isNaN)) return ''; s = p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p[0] * 60 + (p[1] || 0); }
+  if (!s) return '';
+  const h = Math.floor(s / 3600), m = Math.round(s % 3600 / 60);
+  return h ? `${h} h ${m} min` : `${m} min`;
+}
+const firstImg = x => Array.isArray(x) ? (x.find(Boolean) || '') : (typeof x === 'string' ? x : '');
+const infoOf = d => (d && d.info && !Array.isArray(d.info)) ? d.info : {};
+const decB64 = v => { try { return new TextDecoder().decode(Uint8Array.from(atob(v || ''), c => c.charCodeAt(0))); } catch(_) { return v || ''; } };
+const hm = t => new Date(t * 1000).toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+const initials = name => esc(String(name).replace(/^[^\p{L}\p{N}]+/u, '').slice(0, 2).toUpperCase() || 'TV');
+function authParts(){ return [S.creds.server, encodeURIComponent(S.creds.username), encodeURIComponent(S.creds.password)]; }
+
+// ================= temi =================
+const curTheme = () => document.documentElement.dataset.theme || 'nero';
+const themeOf = id => THEMES.find(t => t.id === id) || THEMES[0];
+function setTheme(id){
+  id = themeOf(id).id;
+  if (id === 'nero') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = id;
+  lsSet('xp_theme', id);
+  if (IOS) native('theme', {light:false});
+  $$('.swatches').forEach(el => el.innerHTML = swatches());
+  $$('.sw-name').forEach(el => el.textContent = 'Colore: ' + themeOf(id).name);
+}
+function swatches(){
+  return THEMES.map(t => `<button class="sw${t.id === curTheme() ? ' on' : ''}" data-theme-pick="${t.id}" style="--c:${t.c}" aria-label="Colore ${t.name}"><i></i></button>`).join('');
+}
+const accentHex = () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+// ================= server Xtream =================
+// Al massimo 2 richieste insieme: molti server bloccano chi ne fa troppe.
+const apiQueue = {active:0, waiting:[]};
+async function api(action, extra = {}){
+  if (apiQueue.active >= 2) await new Promise(res => apiQueue.waiting.push(res));
+  apiQueue.active++;
+  try { return await apiCall(action, extra); }
+  finally { apiQueue.active--; const next = apiQueue.waiting.shift(); if (next) next(); }
+}
+async function apiCall(action, extra){
+  const p = new URLSearchParams({server:S.creds.server, username:S.creds.username, password:S.creds.password, ...extra});
+  if (action) p.set('action', action);
+  const r = await fetch('/api?' + p);
+  const t = await r.text();
+  let j;
+  try { j = JSON.parse(t); } catch(e) { throw new Error(r.ok ? 'Il server Xtream ha inviato una risposta non valida.' : t.slice(0, 200)); }
+  if (!r.ok) throw new Error((j && j.error) || ('Errore ' + r.status));
+  return j;
+}
+
+function norm(type, it){
+  const id = type === 'series' ? it.series_id : it.stream_id;
+  const o = {
+    type, id, key:type + ':' + id, raw:it,
+    name:String(it.name || '').trim() || 'Senza titolo',
+    lc:fold(it.name),
+    img:(type === 'series' ? it.cover : it.stream_icon) || '',
+    cat:String(it.category_id),
+    rating:parseFloat(it.rating) || (parseFloat(it.rating_5based) * 2) || 0,
+    added:Number(type === 'series' ? it.last_modified : it.added) || 0,
+    year:(String(it.releaseDate || it.release_date || it.year || '').match(/\d{4}/) || [''])[0]
+  };
+  S.byKey[o.key] = o;
+  return o;
+}
+
+// Il catalogo dell'ultima visita resta salvato (IndexedDB): si vede subito, intanto arriva quello aggiornato.
+const IDB = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    try {
+      const r = indexedDB.open('xtream-ios', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('cat');
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+      setTimeout(() => rej(new Error('timeout')), 2500);
+    } catch(e) { rej(e); }
+  }));
+  const tx = async (mode, fn) => {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction('cat', mode), r = fn(t.objectStore('cat'));
+      t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+    });
+  };
+  return {
+    get:k => tx('readonly', st => st.get(k)).catch(() => null),
+    put:(k, v) => tx('readwrite', st => st.put(v, k)).catch(() => null),
+    clear:() => tx('readwrite', st => st.clear()).catch(() => null)
+  };
+})();
+
+function buildCatalog(type, c, i){
+  const cs = toArr(c), items = toArr(i).map(x => norm(type, x));
+  const byCat = {};
+  items.forEach(x => (byCat[x.cat] || (byCat[x.cat] = [])).push(x));
+  let recent = items;
+  if (type !== 'live') {
+    const cmp = (a, b) => b.added - a.added;
+    Object.values(byCat).forEach(a => a.sort(cmp));
+    recent = [...items].sort(cmp);
+  }
+  S.visVer++;
+  return S.ready[type] = {
+    items, byCat, recent,
+    cats:cs.map(x => ({id:String(x.category_id), name:x.category_name, n:(byCat[String(x.category_id)] || []).length})).filter(x => x.n),
+    catName:Object.fromEntries(cs.map(x => [String(x.category_id), x.category_name]))
+  };
+}
+function ensure(type){
+  if (!S.data[type]) {
+    const owner = S.creds && plKey(S.creds), key = 'cat:' + owner + ':' + type;
+    const fresh = async () => {
+      const [c, i] = await Promise.all([api(TYPES[type].cats), api(TYPES[type].items)]);
+      if (!S.creds || plKey(S.creds) !== owner) throw new Error('Playlist cambiata');
+      IDB.put(key, {t:Date.now(), c, i});
+      return buildCatalog(type, c, i);
+    };
+    S.data[type] = (async () => {
+      const cached = await IDB.get(key);
+      if (cached && cached.c && cached.i && Date.now() - cached.t < 7 * 864e5) {
+        const D = buildCatalog(type, cached.c, cached.i);
+        fresh().then(D2 => {
+          if (!S.creds || plKey(S.creds) !== owner) return;
+          S.data[type] = Promise.resolve(D2);
+          softRefresh(type);
+        }).catch(() => {});
+        return D;
+      }
+      return fresh();
+    })();
+    S.data[type].catch(() => { delete S.data[type]; });
+  }
+  return S.data[type];
+}
+// Catalogo aggiornato arrivato: ridisegna solo se non disturba
+function softRefresh(type){
+  const r = cur();
+  if (S.pl || !$('#sheetbg').classList.contains('hidden') || scrollY > 40) return;
+  if (['home', 'live', 'movie', 'series', 'list'].includes(r.v) && (r.v === type || r.v === 'home' || r.v === 'list')) renderRoute(false);
+}
+
+// ================= categorie: in cima, nascoste, bloccate =================
+const catCfg = () => { const c = lsGet(ns('cats'), {}) || {}; return {hidden:c.hidden || {}, locked:c.locked || {}, pinned:c.pinned || {}}; };
+const parentalOn = () => !!lsGet('xp_pin', null);
+const isHiddenCat = (type, cat) => (catCfg().hidden[type] || []).includes(String(cat));
+const isLockedCat = (type, cat) => parentalOn() && (catCfg().locked[type] || []).includes(String(cat));
+const blocked = (type, cat) => isHiddenCat(type, cat) || (isLockedCat(type, cat) && !S.unlocked);
+const okItem = o => !!o && !blocked(o.type, o.cat);
+// Il catalogo come lo vedi: senza le categorie nascoste, con quelle in cima per prime
+function vis(type){
+  const D = S.ready[type]; if (!D) return null;
+  const cache = S.visCache || (S.visCache = {});
+  const cfg = catCfg();
+  const sig = S.visVer + '|' + JSON.stringify(cfg) + '|' + parentalOn() + '|' + S.unlocked;
+  if (cache[type] && cache[type].sig === sig && cache[type].src === D) return cache[type].view;
+  const pinned = cfg.pinned[type] || [];
+  const items = D.items.filter(okItem), recent = D.recent.filter(okItem);
+  const cats = D.cats.filter(c => !isHiddenCat(type, c.id)).map(c => ({...c, locked:isLockedCat(type, c.id), pinned:pinned.includes(c.id)}));
+  cats.sort((a, b) => (a.pinned === b.pinned) ? (a.pinned ? pinned.indexOf(a.id) - pinned.indexOf(b.id) : 0) : (a.pinned ? -1 : 1));
+  const view = {items, recent, byCat:D.byCat, cats, catName:D.catName};
+  cache[type] = {sig, src:D, view};
+  return view;
+}
+const ADULT_RE = /\b(adult[io]?|xxx|18\s?\+|porn\w*|erotic\w*|for adults|per adulti|hot)\b/i;
+
+function askPin(title, sub){
+  return new Promise(res => {
+    const D = $('#pinDlg');
+    $('#pinTitle').textContent = title; $('#pinSub').textContent = sub || ''; $('#pinErr').textContent = '';
+    $('#pinInput').value = '';
+    D.classList.remove('hidden');
+    setTimeout(() => $('#pinInput').focus(), 60);
+    const done = v => { D.classList.add('hidden'); $('#pinForm').onsubmit = null; $('#pinCancel').onclick = null; $('#pinInput').blur(); res(v); };
+    $('#pinForm').onsubmit = e => {
+      e.preventDefault();
+      const v = $('#pinInput').value.trim();
+      if (!/^\d{4}$/.test(v)) { $('#pinErr').textContent = 'Il PIN è di 4 cifre.'; return; }
+      done(v);
+    };
+    $('#pinCancel').onclick = () => done(null);
+  });
+}
+const pinHash = p => { let h = 0x811c9dc5; for (const c of 'xp:' + p) { h ^= c.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16); };
+async function unlock(why){
+  if (!parentalOn() || S.unlocked) return true;
+  for (let i = 0; i < 3; i++) {
+    const p = await askPin('Contenuto protetto', why || 'Scrivi il PIN del controllo genitori.');
+    if (p === null) return false;
+    if (pinHash(p) === lsGet('xp_pin', null)) { S.unlocked = true; S.visVer++; toast('Sbloccato fino alla chiusura dell\'app'); return true; }
+    toast('PIN sbagliato');
+  }
+  return false;
+}
+
+// ================= playlist salvate =================
+const PL_KEY = 'xp_playlists';
+const plKey = c => (String(c.server || '') + '|' + String(c.username || '')).toLowerCase();
+const playlists = () => lsGet(PL_KEY, []);
+const hostOf = srv => { try { return new URL(srv).hostname.replace(/^www\./, ''); } catch(_) { return String(srv || ''); } };
+const activePl = () => S.creds ? playlists().find(p => plKey(p) === plKey(S.creds)) : null;
+function savePlaylist(c, ui){
+  const list = playlists(), k = plKey(c);
+  let p = list.find(x => plKey(x) === k);
+  if (!p) { p = {id:Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name:''}; list.push(p); }
+  Object.assign(p, {server:c.server, username:c.username, password:c.password, last:Date.now(),
+    exp:ui.exp_date && ui.exp_date !== 'null' ? Number(ui.exp_date) : null, conns:ui.max_connections || ''});
+  if (c.name) p.name = c.name;
+  if (!p.name) p.name = hostOf(c.server);
+  lsSet(PL_KEY, list);
+  return p;
+}
+const expText = exp => {
+  if (!exp) return 'Senza scadenza';
+  const d = new Date(exp * 1000);
+  return (d < new Date() ? 'Scaduta il ' : 'Scade il ') + d.toLocaleDateString('it-IT', {day:'numeric', month:'long', year:'numeric'});
+};
+function renderSavedLogin(){
+  const list = playlists().sort((a, b) => (b.last || 0) - (a.last || 0));
+  $('#savedPl').classList.toggle('hidden', !list.length);
+  $('#savedList').innerHTML = list.map(p => `<button type="button" class="li" data-pl-login="${esc(p.id)}"><span class="lt"><b>${esc(p.name)}</b><span>${esc(p.username)} su ${esc(hostOf(p.server))}</span></span>${ICON.chev.replace('<svg', '<svg class="chev"')}</button>`).join('');
+}
+function showLogin(adding){
+  closeSheet();
+  S.adding = !!(adding && S.creds);
+  S.backupCreds = S.adding ? S.creds : null;
+  ['fName', 'fServer', 'fUser', 'fPass'].forEach(id => $('#' + id).value = '');
+  $('#loginErr').textContent = '';
+  $('#loginH').textContent = S.adding ? 'Nuova playlist' : 'Accedi';
+  $('#loginLead').textContent = S.adding ? 'Scrivi i dati che ti ha dato il tuo fornitore.' : 'Scrivi i dati della tua playlist per vedere canali, film e serie.';
+  $('#loginCancel').classList.toggle('hidden', !S.adding);
+  renderSavedLogin();
+  $('#login').classList.remove('auto');
+  $('#app').classList.add('hidden'); $('#login').classList.remove('hidden');
+  scrollTo(0, 0);
+}
+function cancelAdd(){
+  if (!S.adding) return;
+  S.adding = false; S.creds = S.backupCreds;
+  $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+}
+$('#loginCancel').onclick = cancelAdd;
+function openPlaylist(id){
+  const p = playlists().find(x => x.id === id); if (!p) return;
+  closeSheet();
+  if (S.creds && plKey(p) === plKey(S.creds) && !$('#app').classList.contains('hidden')) { setTab('home', true); return; }
+  closePlayer();
+  S.adding = false;
+  $('#fName').value = ''; $('#fServer').value = p.server; $('#fUser').value = p.username; $('#fPass').value = p.password;
+  $('#app').classList.add('hidden'); $('#login').classList.remove('hidden'); $('#login').classList.add('auto');
+  login({server:p.server, username:p.username, password:p.password}, true);
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-pl-login]'); if (b) { e.preventDefault(); openPlaylist(b.dataset.plLogin); } });
+
+// ================= accesso =================
+$('#fServer').addEventListener('input', e => {
+  const v = e.target.value; if (!/username=/i.test(v)) return;
+  try { const u = new URL(v.trim()), un = u.searchParams.get('username'), pw = u.searchParams.get('password');
+    if (un && pw) { e.target.value = u.origin; $('#fUser').value = un; $('#fPass').value = pw; } } catch(_) {}
+});
+$('#fRemember').onclick = () => { const b = $('#fRemember'); b.classList.toggle('on'); b.setAttribute('aria-checked', b.classList.contains('on')); };
+function normServer(s){ s = s.trim(); if (!/^https?:\/\//i.test(s)) s = 'http://' + s;
+  try { return new URL(s).origin; } catch(e) { return s.replace(/\/+$/, ''); } }
+$('#loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  document.activeElement && document.activeElement.blur();
+  const name = $('#fName').value.trim();
+  login({server:normServer($('#fServer').value), username:$('#fUser').value.trim(), password:$('#fPass').value.trim(), ...(name ? {name} : {})}, $('#fRemember').classList.contains('on'));
+});
+async function login(c, remember, tries = 1){
+  S.creds = c; $('#loginErr').textContent = '';
+  const b = $('#loginBtn'); b.disabled = true; b.textContent = 'Accesso in corso…';
+  try {
+    const info = await api();
+    const ui = info && info.user_info;
+    if (!ui || String(ui.auth) !== '1') throw new Error('Accesso negato. Controlla server, username e password.');
+    if (ui.status && ui.status !== 'Active') throw new Error('L\'abbonamento risulta non attivo (stato: ' + ui.status + ').');
+    const cr = {server:c.server, username:c.username, password:c.password};
+    if (remember) savePlaylist(c, ui);
+    lsSet('xp_creds', remember ? cr : null);
+    S.creds = cr; S.adding = false; S.backupCreds = null; S.acct = ui;
+    favs = lsGet(ns('favs'), []); prog = lsGet(ns('progress'), {});
+    S.data = {}; S.ready = {}; S.byKey = {}; S.visCache = {}; S.featKeys = null; S.now = {}; S.epg = {}; S.unlocked = false; S.guideCat = null; S.multi = null; S.featAt = 0;
+    resetStacks();
+    $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+    buildTabs();
+    renderRoute(false);
+    maybeStartLast();
+  } catch(e) {
+    S.creds = S.adding ? S.backupCreds : null;
+    if (tries > 1 && !/rifiutat|negato|non attivo/i.test(e.message)) { setTimeout(() => login(c, remember, tries - 1), 2000); return; }
+    $('#loginErr').textContent = e.message; $('#login').classList.remove('auto'); renderSavedLogin();
+  } finally { b.disabled = false; b.textContent = 'Accedi'; }
+}
+function logout(){
+  closePlayer(); closeSheet();
+  S.creds = null; S.adding = false; lsSet('xp_creds', null);
+  showLogin(false);
+}
+
+// ================= navigazione: sezioni in basso, pagine una sopra l'altra =================
+const TABS = [['home', 'Home', ICON.home], ['live', 'TV', ICON.tv], ['movie', 'Film', ICON.film], ['series', 'Serie', ICON.series], ['search', 'Cerca', ICON.search]];
+function resetStacks(){ S.stacks = Object.fromEntries(TABS.map(([t]) => [t, [{v:t}]])); S.tab = 'home'; }
+const cur = () => { const st = S.stacks[S.tab]; return st[st.length - 1]; };
+function buildTabs(){
+  $('#tabs').innerHTML = TABS.map(([t, l, i]) => `<button data-tab="${t}" class="${t === S.tab ? 'on' : ''}">${i}<span>${l}</span></button>`).join('');
+}
+function setTab(t, toRoot){
+  closeSheet();
+  if (t === S.tab) {
+    // tocco sulla sezione già aperta: torna all'inizio, poi in cima
+    if (S.stacks[t].length > 1) { S.stacks[t].length = 1; renderRoute(false); scrollTo(0, 0); }
+    else scrollTo({top:0, behavior:'smooth'});
+    return;
+  }
+  cur().y = scrollY;
+  S.tab = t;
+  if (toRoot) S.stacks[t].length = 1;
+  $$('#tabs [data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  renderRoute(false);
+  scrollTo(0, cur().y || 0);
+}
+function push(route){
+  closeSheet();
+  cur().y = scrollY;
+  S.stacks[S.tab].push(route);
+  renderRoute(false);
+  scrollTo(0, 0);
+  slide('in');
+}
+function back(){
+  const st = S.stacks[S.tab];
+  if (st.length < 2) return;
+  st.pop();
+  renderRoute(false);
+  scrollTo(0, cur().y || 0);
+  slide('back');
+}
+function slide(dir){
+  try {
+    V.animate(dir === 'in' ? [{transform:'translateX(36px)', opacity:.4}, {transform:'none', opacity:1}] : [{transform:'translateX(-28px)', opacity:.5}, {transform:'none', opacity:1}],
+      {duration:240, easing:'cubic-bezier(.2,.8,.2,1)'});
+  } catch(_) {}
+}
+// la barra in alto: indietro (con il nome della pagina precedente), titolo piccolo, azioni
+function setBar(o){
+  const st = S.stacks[S.tab], prev = st.length > 1 ? st[st.length - 2] : null;
+  $('#barL').innerHTML = prev ? `<button class="back" data-back aria-label="Indietro">${ICON.back}<span>${esc(prev.title || 'Indietro')}</span></button>` : '';
+  $('#barT').innerHTML = `<span>${esc(o.title || '')}</span>`;
+  $('#barR').innerHTML = o.acts == null ? rootActs() : o.acts;
+  $('#bar').classList.toggle('over', !!o.over);
+  S.barAt = o.over ? 220 : 34;
+  onScroll();
+}
+const rootActs = () => `<button class="ib" data-route="${R({v:'list'})}" aria-label="La mia lista">${ICON.bookmark}</button><button class="ib av" data-account aria-label="Account"><span class="avatar">${esc((S.acct && S.acct.username || S.creds.username || 'U').slice(0, 1).toUpperCase())}</span></button>`;
+function onScroll(){
+  $('#bar').classList.toggle('scrolled', scrollY > (S.barAt || 34));
+  document.documentElement.classList.toggle('scr', scrollY > 6);
+}
+// luce d'ambiente presa da un'immagine (o spenta)
+function setAmb(url){
+  const a = $('#amb');
+  if (!url) { a.classList.remove('on'); S.amb = null; return; }
+  if (S.amb !== url) { S.amb = url; a.firstChild.style.backgroundImage = `url('${cssUrl(url)}')`; }
+  a.classList.add('on');
+}
+addEventListener('scroll', onScroll, {passive:true});
+
+function renderRoute(){
+  const r = cur(), tok = ++S.rt;
+  nowObserver.disconnect(); moreObserver.disconnect();
+  if (r.v !== 'home' && r.v !== 'detail') setAmb(null);
+  const f = {multi:pMulti, home:pHome, live:pLive, livecat:pLiveCat, epg:pEpg, movie:pType, series:pType, cat:pCat, detail:pDetail,
+    list:pList, search:pSearch, settings:pSettings, cats:pCats, playlists:pPlaylists}[r.v];
+  if (f) f(r, tok);
+}
+const live = tok => tok === S.rt;
+const page = (inner, cls = '') => `<div class="page ${cls}">${inner}</div>`;
+const errBox = msg => page(`<div class="empty"><h3>Non riesco a caricare il catalogo</h3><p>${esc(msg)}</p><button class="btn primary" data-retry>Riprova</button></div>`);
+const skelRows = () => `<div class="sec"><span class="sk" style="width:46%;height:22px;margin-bottom:12px"></span><div class="hs">${'<span class="sk poster" style="width:116px"></span>'.repeat(4)}</div></div>`.repeat(2);
+const skelList = n => `<div class="chlist">${'<div class="chrow"><span class="sk" style="width:64px;height:44px"></span><span style="flex:1"><span class="sk" style="width:60%;height:15px;margin-bottom:8px"></span><span class="sk" style="width:40%;height:12px"></span></span></div>'.repeat(n)}</div>`;
+
+// scorrimento dal bordo sinistro per tornare indietro, come nelle app dell'iPhone
+let swipe = null;
+document.addEventListener('touchstart', e => {
+  if (!S.stacks || S.stacks[S.tab].length < 2 || e.touches.length !== 1 || $('#app').classList.contains('hidden') || !$('#sheetbg').classList.contains('hidden')) return;
+  const t = e.touches[0]; if (t.clientX > 26) return;
+  swipe = {x:t.clientX, y:t.clientY, dx:0, on:false};
+}, {passive:true});
+document.addEventListener('touchmove', e => {
+  if (!swipe) return;
+  const t = e.touches[0], dx = t.clientX - swipe.x, dy = t.clientY - swipe.y;
+  if (!swipe.on) {
+    if (Math.abs(dy) > 14 && Math.abs(dy) > dx) { swipe = null; return; }
+    if (dx < 10) return;
+    swipe.on = true; V.style.transition = 'none';
+  }
+  swipe.dx = Math.max(0, dx); V.style.transform = `translateX(${swipe.dx}px)`;
+}, {passive:true});
+document.addEventListener('touchend', () => {
+  if (!swipe) return;
+  const s = swipe; swipe = null;
+  if (!s.on) return;
+  V.style.transition = 'transform .2s ease-out';
+  if (s.dx > innerWidth * .28) {
+    V.style.transform = `translateX(${innerWidth}px)`;
+    setTimeout(() => { V.style.transition = 'none'; V.style.transform = ''; back(); requestAnimationFrame(() => { V.style.transition = ''; }); }, 190);
+  } else {
+    V.style.transform = '';
+    setTimeout(() => { V.style.transition = ''; }, 220);
+  }
+});
+
+// ================= schede =================
+function poster(o){
+  const sub = [o.year, o.rating ? '★ ' + o.rating.toFixed(1) : ''].filter(Boolean).join('   ');
+  return `<button class="poster" data-k="${esc(o.key)}"><span class="pimg"><span class="ph">${esc(o.name)}</span>`
+    + (o.img ? `<img src="${esc(o.img)}" loading="lazy" alt="" onerror="this.remove()">` : '')
+    + `</span><span class="pcap"><b>${esc(o.name)}</b><small>${esc(sub) || '&nbsp;'}</small></span></button>`;
+}
+function ctile(o){
+  return `<button class="ctile" data-k="${esc(o.key)}"><span class="tlogo"><span class="ph">${initials(o.name)}</span>`
+    + (o.img ? `<img src="${esc(o.img)}" loading="lazy" alt="" onerror="this.remove()">` : '') + `<span class="live"></span></span>`
+    + `<span class="pcap"><b>${o.raw.num ? `<i>${esc(o.raw.num)}</i>` : ''}<span>${esc(o.name)}</span></b></span></button>`;
+}
+const isFav = k => favs.includes(k);
+function chRow(o, next){
+  const arch = Number(o.raw.tv_archive) === 1, f = isFav(o.key);
+  return `<div class="chrow" data-k="${esc(o.key)}" role="button" tabindex="0">`
+    + `<span class="clogo">${initials(o.name)}${o.img ? `<img src="${esc(o.img)}" loading="lazy" alt="" onerror="this.remove()">` : ''}</span>`
+    + `<span class="cmain" data-now="${esc(o.key)}"><span class="ctop">${o.raw.num ? `<i class="cnum">${esc(o.raw.num)}</i>` : ''}<b>${esc(o.name)}</b>${arch ? `<span class="carch" title="Si possono rivedere i programmi passati">${ICON.rewind}</span>` : ''}</span>`
+    + `<span class="cnow"></span>${next ? '<span class="cnext"></span>' : ''}<span class="cbar hidden"><i></i></span></span>`
+    + `<button class="cact" data-epg="${esc(o.key)}" aria-label="Programmi di ${esc(o.name)}">${ICON.guide}</button>`
+    + `<button class="cact${f ? ' on' : ''}" data-fav="${esc(o.key)}" aria-label="${f ? 'Togli dai preferiti' : 'Aggiungi ai preferiti'}">${f ? ICON.starF : ICON.star}</button></div>`;
+}
+const card = o => o.type === 'live' ? ctile(o) : poster(o);
+const R = obj => esc(JSON.stringify(obj));
+// con una destinazione il titolo si tocca ("Nuovi film ›"); con un'etichetta resta il pulsante a destra
+function sec(title, inner, route, label){
+  const head = route && !label ? `<button class="sec-h tap" data-route="${R(route)}"><h2>${esc(title)}</h2>${ICON.chev}</button>`
+    : `<div class="sec-h"><h2>${esc(title)}</h2>${route ? `<button data-route="${R(route)}">${esc(label)}</button>` : ''}</div>`;
+  return `<section class="sec">${head}${inner}</section>`;
+}
+const hs = items => `<div class="hs">${items.join('')}</div>`;
+function li({title, sub, value, route, icon, iconA, attrs = '', chev = true, extra = ''}){
+  const tag = route || attrs ? 'button' : 'div';
+  return `<${tag} class="li${icon ? ' ic' : ''}"${route ? ` data-route="${R(route)}"` : ''} ${attrs}>`
+    + (icon ? `<span class="lic${iconA ? ' a' : ''}">${icon}</span>` : '')
+    + `<span class="lt"><b>${title}</b>${sub ? `<span>${sub}</span>` : ''}</span>${extra}${value != null ? `<span class="lv">${value}</span>` : ''}`
+    + (chev ? ICON.chev.replace('<svg', '<svg class="chev"') : '') + `</${tag}>`;
+}
+function catList(type, D){
+  const T = TYPES[type];
+  return `<div class="group">` + li({title:esc(T.all), value:nf(D.items.length), route:{v:type === 'live' ? 'livecat' : 'cat', type, cat:'all'}})
+    + D.cats.map(c => li({title:esc(c.name), value:(c.locked && !S.unlocked ? ICON.lock.replace('<svg', '<svg class="lock"') + ' ' : '') + nf(c.n),
+      route:{v:type === 'live' ? 'livecat' : 'cat', type, cat:c.id}})).join('') + `</div>`;
+}
+
+// elenco lungo: le righe arrivano a gruppi mentre scorri
+const moreObserver = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && S.more) S.more(); }), {rootMargin:'600px'});
+function lazyList(box, items, html, step = STEP){
+  let shown = 0;
+  const add = () => {
+    const part = items.slice(shown, shown + step); shown += part.length;
+    const s = box.querySelector('.sentinel'); if (s) s.remove();
+    box.insertAdjacentHTML('beforeend', part.map(html).join('') + (shown < items.length ? '<div class="sentinel"></div>' : ''));
+    observeNow(box);
+    const ns2 = box.querySelector('.sentinel');
+    if (ns2) { moreObserver.disconnect(); moreObserver.observe(ns2); S.more = add; } else S.more = null;
+  };
+  box.innerHTML = '';
+  add();
+}
+
+// ================= programma in onda, riga per riga =================
+const nowQueue = []; let nowActive = 0;
+const nowObserver = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { nowObserver.unobserve(e.target); wantNow(e.target); } }), {rootMargin:'300px'});
+function observeNow(root){ $$('[data-now]:not([data-seen])', root).forEach(el => { el.dataset.seen = '1'; const o = S.byKey[el.dataset.now]; if (o && S.now[o.id]) paintNow(el, o); else nowObserver.observe(el); }); }
+function wantNow(el){ nowQueue.push(el); pumpNow(); }
+function pumpNow(){
+  while (nowActive < 2 && nowQueue.length) {
+    const el = nowQueue.shift();
+    if (!el.isConnected) continue;
+    const o = S.byKey[el.dataset.now]; if (!o) continue;
+    const c = S.now[o.id];
+    if (c && Date.now() - c.at < 10 * 60000) { paintNow(el, o); continue; }
+    nowActive++;
+    api('get_short_epg', {stream_id:o.id, limit:4}).then(d => {
+      S.now[o.id] = {at:Date.now(), list:toArr(d && d.epg_listings).map(l => ({title:decB64(l.title), start:Number(l.start_timestamp), end:Number(l.stop_timestamp || l.end_timestamp)}))
+        .filter(p => p.start && p.end > p.start).sort((a, b) => a.start - b.start)};
+    }).catch(() => { S.now[o.id] = {at:Date.now(), list:[]}; }).finally(() => {
+      nowActive--;
+      $$(`[data-now="${CSS.escape(o.key)}"]`).forEach(e => paintNow(e, o));
+      pumpNow();
+    });
+  }
+}
+function nowNext(o){
+  const c = S.now[o.id]; if (!c) return {};
+  const now = Date.now() / 1000;
+  return {cur:c.list.find(p => p.start <= now && p.end > now), next:c.list.find(p => p.start > now), now};
+}
+function paintNow(el, o){
+  const {cur:p, next, now} = nowNext(o);
+  const t = el.querySelector('.cnow'), bar = el.querySelector('.cbar'), nx = el.querySelector('.cnext');
+  if (!t) return;
+  if (p) {
+    t.innerHTML = `<b>${esc(p.title)}</b>`;
+    bar.classList.remove('hidden'); bar.firstChild.style.width = Math.min(100, Math.round((now - p.start) / (p.end - p.start) * 100)) + '%';
+  } else t.textContent = next ? `Dalle ${hm(next.start)}: ${next.title}` : '';
+  if (nx) nx.textContent = next ? `${hm(next.start)}  ${next.title}` : '';
+}
+
+// ================= Home =================
+async function pHome(r, tok){
+  r.title = 'Home';
+  setBar({title:'Home'});
+  if (!['live', 'movie', 'series'].some(t => S.ready[t])) V.innerHTML = page(`<h1 class="big">Home</h1><span class="sk" style="aspect-ratio:2/3;border-radius:24px;width:min(76vw,330px);margin:8px auto 0"></span>${skelRows()}`);
+  const res = await Promise.allSettled(['live', 'movie', 'series'].map(ensure));
+  if (!live(tok)) return;
+  const [L, M, Se] = res.map((x, i) => x.status === 'fulfilled' ? vis(['live', 'movie', 'series'][i]) : null);
+  if (!L && !M && !Se) { V.innerHTML = errBox(res[0].reason.message); return; }
+  let h = `<h1 class="big">Home</h1>`;
+  // in evidenza: gli ultimi arrivati con la locandina
+  if (!S.featKeys) {
+    const pool = [...(M ? M.recent.slice(0, 12) : []), ...(Se ? Se.recent.slice(0, 6) : [])].filter(x => x.img);
+    S.featKeys = pool.sort(() => Math.random() - .5).slice(0, 6).map(x => x.key);
+  }
+  const feat = S.featKeys.map(k => S.byKey[k]).filter(okItem);
+  if (feat.length) h += `<div class="feat" id="feat">${feat.map(featCard).join('')}</div>` + (feat.length > 1 ? `<div class="fdots" id="fdots">${feat.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : '');
+  // un tocco per tornare a quello che stavi guardando
+  const last = S.byKey[lsGet(ns('lastLive'), '')];
+  const cont = contList();
+  if (last && okItem(last)) h += sec('Torna alla diretta', lastCard(last));
+  if (cont.length) h += sec('Continua a guardare', hs(cont.map(contCard)));
+  const fl = favs.map(k => S.byKey[k]).filter(o => okItem(o) && o.type === 'live');
+  if (fl.length) h += sec('Canali preferiti', hs(fl.slice(0, 30).map(ctile)), {v:'list', mode:'live'});
+  const rc = recentLive().filter(o => okItem(o) && o !== last);
+  if (rc.length) h += sec('Visti di recente', hs(rc.map(ctile)));
+  const fv = favs.map(k => S.byKey[k]).filter(o => okItem(o) && o.type !== 'live');
+  if (fv.length) h += sec('La mia lista', hs(fv.slice(0, 30).map(poster)), {v:'list', mode:'all'});
+  if (M && M.items.length) h += sec('Nuovi film', hs(M.recent.slice(0, 24).map(poster)), {v:'cat', type:'movie', cat:'all'});
+  if (Se && Se.items.length) h += sec('Serie aggiornate', hs(Se.recent.slice(0, 24).map(poster)), {v:'cat', type:'series', cat:'all'});
+  if (L && L.items.length && !fl.length && !rc.length) h += sec('Canali', hs(L.items.slice(0, 24).map(ctile)), {v:'livecat', cat:'all'});
+  V.innerHTML = page(h);
+  observeNow(V);
+  // la luce d'ambiente e i puntini seguono la locandina al centro
+  const fe = $('#feat');
+  if (!fe) { setAmb(null); return; }
+  const sync = () => {
+    const cards = $$('.fcard', fe); if (!cards.length) return;
+    const mid = fe.scrollLeft + fe.clientWidth / 2;
+    let best = 0, bd = Infinity;
+    cards.forEach((c, i) => { const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = i; } });
+    $$('#fdots i').forEach((d, i) => d.classList.toggle('on', i === best));
+    if (cur().v === 'home') setAmb(feat[best].img);
+  };
+  fe.addEventListener('scroll', debounce(sync, 90), {passive:true});
+  if (S.featAt) fe.scrollLeft = S.featAt;
+  fe.addEventListener('scroll', () => { S.featAt = fe.scrollLeft; }, {passive:true});
+  sync();
+}
+function featCard(o){
+  const meta = [o.rating ? `<span class="score">★ ${o.rating.toFixed(1)}</span>` : '', o.year ? `<span>${esc(o.year)}</span>` : '', o.raw.genre ? `<span>${esc(String(o.raw.genre).split(/[,/]/)[0])}</span>` : ''].join('');
+  return `<div class="fcard" data-k="${esc(o.key)}" role="button" tabindex="0"><div class="bg" style="background-image:url('${esc(cssUrl(o.img))}')"></div><div class="shade"></div>`
+    + `<div class="body"><div class="kind">${o.type === 'series' ? 'Serie TV' : 'Film'}</div><h3>${esc(o.name)}</h3><div class="meta">${meta}</div>`
+    + `<div class="acts"><button class="btn primary" data-play="${esc(o.key)}">${ICON.play} ${o.type === 'series' ? 'Episodi' : 'Riproduci'}</button>`
+    + `<button class="btn gray" data-fav="${esc(o.key)}" aria-label="La mia lista">${isFav(o.key) ? ICON.check : ICON.plus}</button></div></div></div>`;
+}
+function lastCard(o){
+  return `<button class="cont wide" data-k="${esc(o.key)}"><span class="clogo">${initials(o.name)}${o.img ? `<img src="${esc(o.img)}" alt="" onerror="this.remove()">` : ''}</span>`
+    + `<span class="ct" data-now="${esc(o.key)}"><b>${esc(o.name)}</b><span class="cnow"></span><span class="cbar hidden"><i></i></span></span><span class="go">${ICON.play}</span></button>`;
+}
+const contList = type => Object.values(prog).filter(p => p.d && p.t > 30 && p.t / p.d < .95 && (!type || (type === 'movie' ? p.kind === 'movie' : p.kind === 'ep'))).sort((a, b) => b.ts - a.ts).slice(0, 20);
+function contCard(p){
+  const pct = Math.min(100, Math.round(p.t / p.d * 100));
+  const sub = (p.kind === 'ep' ? `S${p.season} E${p.epnum}, ` : '') + `mancano ${fmtDur(p.d - p.t) || 'pochi minuti'}`;
+  return `<button class="cont" data-resume="${esc(p.k)}"><span class="cimg">${p.img ? `<img src="${esc(p.img)}" loading="lazy" alt="" onerror="this.remove()">` : ''}</span>`
+    + `<span class="ct"><b>${esc(p.name)}</b><small>${esc(sub.charAt(0).toUpperCase() + sub.slice(1))}</small><span class="cp"><i style="width:${pct}%"></i></span></span><span class="go">${ICON.play}</span></button>`;
+}
+
+// ================= TV =================
+async function pLive(r, tok){
+  r.title = 'TV';
+  setBar({title:'TV'});
+  if (!S.ready.live) V.innerHTML = page(`<h1 class="big">TV</h1>${skelList(6)}`);
+  let D;
+  try { await ensure('live'); D = vis('live'); } catch(e) { if (live(tok)) V.innerHTML = errBox(e.message); return; }
+  if (!live(tok)) return;
+  const guide = S.liveMode === 'guide';
+  let h = `<h1 class="big">TV<small>${nf(D.items.length)} canali in ${nf(D.cats.length)} categorie</small></h1>`
+    + `<div class="seg"><button class="${guide ? '' : 'on'}" data-live-mode="cats">Canali</button><button class="${guide ? 'on' : ''}" data-live-mode="guide">Guida TV</button></div>`;
+  if (!guide) {
+    h += `<button class="mbanner" data-route="${R({v:'multi'})}"><span class="mgrid"><i></i><i></i><i></i><i></i></span><span class="lt"><b>Multischermo</b><span>Guarda più canali insieme, fino a ${multiMax()}</span></span>${ICON.chev}</button>`;
+    h += `<label class="sfield">${ICON.search}<input id="liveQ" type="search" placeholder="Cerca un canale" autocomplete="off" enterkeyhint="search"></label><div id="liveRes"></div><div id="liveMain">`;
+    const fl = favs.map(k => S.byKey[k]).filter(o => okItem(o) && o.type === 'live');
+    if (fl.length) h += sec('Preferiti', hs(fl.map(ctile)), {v:'list', mode:'live'}, 'Modifica');
+    const rc = recentLive().filter(okItem);
+    if (rc.length) h += sec('Visti di recente', hs(rc.map(ctile)));
+    h += `<section class="sec"><div class="sec-h"><h2>Categorie</h2><button data-route="${R({v:'cats', type:'live'})}">Organizza</button></div>${catList('live', D)}</section></div>`;
+    V.innerHTML = page(h);
+    $('#liveQ').addEventListener('input', debounce(e => liveSearch(e.target.value, D), 140));
+    return;
+  }
+  const cats = D.cats.filter(c => !c.locked || S.unlocked);
+  if (!S.guideCat || !cats.some(c => c.id === S.guideCat)) S.guideCat = cats.length ? cats[0].id : null;
+  h += `<div class="chips">${cats.map(c => `<button class="chip${c.id === S.guideCat ? ' on' : ''}" data-guide-cat="${esc(c.id)}">${esc(c.name)}</button>`).join('')}</div><div class="chlist" id="glist"></div>`;
+  V.innerHTML = page(h);
+  const on = $('.chips .chip.on'); if (on) on.scrollIntoView({inline:'center', block:'nearest'});
+  const list = S.guideCat ? (D.byCat[S.guideCat] || []).filter(okItem) : [];
+  if (!list.length) { $('#glist').outerHTML = `<div class="empty"><p>Nessun canale in questa categoria.</p></div>`; return; }
+  lazyList($('#glist'), list, o => chRow(o, true), 40);
+}
+function liveSearch(q, D){
+  const f = fold(q.trim()), box = $('#liveRes'), main = $('#liveMain');
+  if (!box) return;
+  if (!f) { box.innerHTML = ''; main.classList.remove('hidden'); return; }
+  main.classList.add('hidden');
+  const res = D.items.filter(o => o.lc.includes(f) || String(o.raw.num) === f);
+  if (!res.length) { box.innerHTML = `<div class="empty"><p>Nessun canale con questo nome.</p></div>`; return; }
+  box.innerHTML = `<div class="cap" style="margin-top:0">${nf(res.length)} ${res.length === 1 ? 'canale' : 'canali'}</div><div class="chlist" id="lres"></div>`;
+  lazyList($('#lres'), res, o => chRow(o), 40);
+}
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+
+async function pLiveCat(r, tok){
+  let D;
+  try { await ensure('live'); D = vis('live'); } catch(e) { if (live(tok)) V.innerHTML = errBox(e.message); return; }
+  if (!live(tok)) return;
+  const name = r.cat === 'all' ? TYPES.live.all : (D.catName[r.cat] || 'Categoria');
+  r.title = name;
+  setBar({title:name, acts:''});
+  const items = r.cat === 'all' ? D.items : (D.byCat[r.cat] || []).filter(okItem);
+  V.innerHTML = page(`<h1 class="big">${esc(name)}<small>${nf(items.length)} ${items.length === 1 ? 'canale' : 'canali'}</small></h1>`
+    + `<label class="sfield">${ICON.search}<input id="catQ" type="search" placeholder="Filtra i canali" autocomplete="off" enterkeyhint="search"></label>`
+    + (items.length ? `<div class="chlist" id="clist"></div>` : `<div class="empty"><p>In questa categoria non c'è niente.</p></div>`));
+  if (!items.length) return;
+  lazyList($('#clist'), items, o => chRow(o));
+  $('#catQ').addEventListener('input', debounce(e => {
+    const f = fold(e.target.value.trim());
+    const res = f ? items.filter(o => o.lc.includes(f) || String(o.raw.num) === f) : items;
+    if (!res.length) { $('#clist').innerHTML = `<div class="empty" style="padding:30px"><p style="margin:0">Nessun canale trovato.</p></div>`; return; }
+    lazyList($('#clist'), res, o => chRow(o));
+  }, 140));
+}
+
+// ---------- programmi di un canale ----------
+async function loadGuideEpg(o){
+  const c = S.epg[o.id];
+  if (c && Date.now() - c.at < 20 * 60000) return c.list;
+  const arch = Number(o.raw.tv_archive) === 1;
+  let d;
+  try { d = arch ? await api('get_simple_data_table', {stream_id:o.id}) : await api('get_short_epg', {stream_id:o.id, limit:24}); }
+  catch(_) { return []; }
+  const now = Date.now() / 1000, archDays = Number(o.raw.tv_archive_duration) || 0, seen = new Set();
+  const list = toArr(d && d.epg_listings).map(l => {
+    const start = Number(l.start_timestamp), end = Number(l.stop_timestamp || l.end_timestamp);
+    return {title:decB64(l.title) || 'Programma', desc:decB64(l.description), start, end, startStr:String(l.start || ''),
+      archive:end < now && (Number(l.has_archive) === 1 || (arch && start > now - archDays * 86400))};
+  }).filter(p => p.start && p.end > p.start && !seen.has(p.start) && seen.add(p.start)).sort((a, b) => a.start - b.start);
+  S.epg[o.id] = {at:Date.now(), list};
+  return list;
+}
+async function pEpg(r, tok){
+  const o = S.byKey[r.key];
+  if (!o) { back(); return; }
+  r.title = o.name;
+  setBar({title:o.name, acts:`<button class="ib" data-fav="${esc(o.key)}" aria-label="Preferito">${isFav(o.key) ? ICON.starF : ICON.star}</button>`});
+  const arch = Number(o.raw.tv_archive) === 1;
+  const head = `<div class="chhead"><span class="clogo">${initials(o.name)}${o.img ? `<img src="${esc(o.img)}" alt="" onerror="this.remove()">` : ''}</span><div><h1>${esc(o.name)}</h1><small>${o.raw.num ? 'Canale ' + esc(o.raw.num) : ''}${arch ? (o.raw.num ? ', ' : '') + 'con i programmi passati da rivedere' : ''}</small></div></div>`
+    + `<button class="btn primary block" data-k="${esc(o.key)}">${ICON.play} Guarda in diretta</button>`;
+  V.innerHTML = page(head + `<div style="margin-top:18px">${skelList(4)}</div>`);
+  const list = await loadGuideEpg(o);
+  if (!live(tok)) return;
+  if (!list.length) { V.innerHTML = page(head + `<div class="empty"><p>La guida non è disponibile per questo canale.</p></div>`); return; }
+  const now = Date.now() / 1000;
+  const days = {};
+  list.filter(p => p.end > now - (arch ? 7 * 86400 : 3 * 3600)).forEach(p => {
+    const d = new Date(p.start * 1000).toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'});
+    (days[d] || (days[d] = [])).push(p);
+  });
+  let h = '';
+  for (const [d, progs] of Object.entries(days)) {
+    h += `<div class="day">${esc(d)}</div><div class="group">` + progs.map(p => {
+      const state = p.end <= now ? 'past' : (p.start <= now ? 'now' : 'future');
+      const act = state === 'now' ? `<span class="onair">IN ONDA</span>` : (p.archive ? `<span class="btn tint small">${ICON.rewind} Rivedi</span>` : '');
+      return `<button class="prog ${state}" data-prog="${esc(o.key)}|${p.start}"><span class="pt">${hm(p.start)}</span><span class="pm"><b>${esc(p.title)}</b>${p.desc ? `<span class="clamp">${esc(p.desc)}</span>` : ''}</span>${act ? `<span class="pa">${act}</span>` : ''}</button>`;
+    }).join('') + `</div>`;
+  }
+  V.innerHTML = page(head + h);
+  const n = $('.prog.now'); if (n) scrollTo(0, Math.max(0, n.getBoundingClientRect().top + scrollY - innerHeight * .35));
+}
+async function playProg(el){
+  const [k, st] = el.dataset.prog.split('|'), o = S.byKey[k];
+  const p = o && (S.epg[o.id] ? S.epg[o.id].list : []).find(q => String(q.start) === st);
+  if (!o || !p) return;
+  const now = Date.now() / 1000;
+  if (p.start <= now && p.end > now) return playLive(o);
+  if (p.end <= now) {
+    if (p.archive) return playCatchup(o, p);
+    const sp = el.querySelector('.pm span'); if (sp) sp.classList.toggle('clamp');
+    return toast('Questo canale non permette di rivedere i programmi passati');
+  }
+  const sp = el.querySelector('.pm span'); if (sp) sp.classList.toggle('clamp');
+  toast('Inizia alle ' + hm(p.start));
+}
+// L'indirizzo "timeshift" di Xtream vuole l'ora d'inizio nel formato del server (AAAA-MM-GG:HH-MM)
+async function playCatchup(o, p){
+  if (blocked('live', o.cat) && !(await unlock())) return;
+  let st = p.startStr.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}):(\d{2})/);
+  st = st ? `${st[1]}:${st[2]}-${st[3]}` : (() => { const d = new Date(p.start * 1000), z = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}:${z(d.getHours())}-${z(d.getMinutes())}`; })();
+  const dur = Math.max(1, Math.ceil((p.end - p.start) / 60));
+  const [s, u, pw] = authParts();
+  openPlayer({title:p.title, sub:`${o.name}, ${hm(p.start)}–${hm(p.end)}`, url:`${s}/timeshift/${u}/${pw}/${dur}/${st}/${o.id}.ts`, catchup:true, item:o});
+}
+
+// ================= Film e Serie =================
+async function pType(r, tok){
+  const type = r.v, T = TYPES[type];
+  r.title = T.label;
+  setBar({title:T.label});
+  if (!S.ready[type]) V.innerHTML = page(`<h1 class="big">${T.full}</h1>${skelRows()}`);
+  let D;
+  try { await ensure(type); D = vis(type); } catch(e) { if (live(tok)) V.innerHTML = errBox(e.message); return; }
+  if (!live(tok)) return;
+  const mode = S.typeMode[type];
+  let h = `<h1 class="big">${T.full}<small>${nf(D.items.length)} ${T.noun} in ${nf(D.cats.length)} categorie</small></h1>`
+    + `<div class="seg"><button class="${mode === 'discover' ? 'on' : ''}" data-type-mode="discover">Scopri</button><button class="${mode === 'cats' ? 'on' : ''}" data-type-mode="cats">Categorie</button></div>`;
+  if (mode === 'cats') {
+    h += `<section class="sec" style="margin-top:4px"><div class="sec-h"><h2>Categorie</h2><button data-route="${R({v:'cats', type})}">Organizza</button></div>${catList(type, D)}</section>`;
+    V.innerHTML = page(h);
+    return;
+  }
+  h += `<label class="sfield">${ICON.search}<input id="typeQ" type="search" placeholder="Cerca ${type === 'movie' ? 'un film' : 'una serie'}" autocomplete="off" enterkeyhint="search"></label><div id="typeRes"></div><div id="typeMain">`;
+  if (type === 'series') {
+    const mine = mySeries().filter(okItem);
+    if (mine.length) h += sec('Le mie serie', hs(mine.map(poster)));
+  }
+  const cont = contList(type);
+  if (cont.length) h += sec('Continua a guardare', hs(cont.map(contCard)));
+  h += sec(type === 'movie' ? 'Aggiunti di recente' : 'Aggiornate di recente', hs(D.recent.slice(0, 24).map(poster)), {v:'cat', type, cat:'all'});
+  const top = D.items.filter(o => o.rating > 0).sort((a, b) => b.rating - a.rating).slice(0, 24);
+  if (top.length >= 6) h += sec('I più votati', hs(top.map(poster)), {v:'cat', type, cat:'all', sort:'rating'});
+  D.cats.filter(c => c.n >= 3 && !(c.locked && !S.unlocked)).slice(0, 10).forEach(c => {
+    h += sec(c.name, hs(D.byCat[c.id].filter(okItem).slice(0, 20).map(poster)), {v:'cat', type, cat:c.id});
+  });
+  V.innerHTML = page(h + '</div>');
+  $('#typeQ').addEventListener('input', debounce(e => typeSearch(type, e.target.value, D), 140));
+}
+function typeSearch(type, q, D){
+  const f = fold(q.trim()), box = $('#typeRes'), main = $('#typeMain');
+  if (!box) return;
+  if (!f) { box.innerHTML = ''; main.classList.remove('hidden'); return; }
+  main.classList.add('hidden');
+  const res = D.items.filter(o => o.lc.includes(f));
+  if (!res.length) { box.innerHTML = `<div class="empty"><p>Nessun titolo con questo nome.</p></div>`; return; }
+  box.innerHTML = `<div class="cap" style="margin-top:0">${nf(res.length)} ${res.length === 1 ? 'titolo' : 'titoli'}</div><div class="grid3" id="tres"></div>`;
+  lazyList($('#tres'), res, poster);
+}
+function mySeries(){
+  const seen = new Set(), out = [];
+  Object.values(prog).filter(p => p.kind === 'ep').sort((a, b) => b.ts - a.ts).forEach(p => {
+    const o = S.byKey['series:' + p.seriesId];
+    if (o && !seen.has(o.key)) { seen.add(o.key); out.push(o); }
+  });
+  return out.slice(0, 20);
+}
+function sorted(items, sort){
+  const a = [...items];
+  if (sort === 'az') a.sort((x, y) => x.name.localeCompare(y.name, 'it', {sensitivity:'base'}));
+  else if (sort === 'rating') a.sort((x, y) => y.rating - x.rating);
+  else if (sort === 'year') a.sort((x, y) => (Number(y.year) || 0) - (Number(x.year) || 0));
+  else a.sort((x, y) => y.added - x.added);
+  return a;
+}
+async function pCat(r, tok){
+  const type = r.type, T = TYPES[type];
+  let D;
+  try { await ensure(type); D = vis(type); } catch(e) { if (live(tok)) V.innerHTML = errBox(e.message); return; }
+  if (!live(tok)) return;
+  const name = r.cat === 'all' ? T.all : (D.catName[r.cat] || 'Categoria');
+  r.title = name;
+  r.sort = r.sort || 'recent';
+  setBar({title:name, acts:''});
+  const base = r.cat === 'all' ? D.items : (D.byCat[r.cat] || []).filter(okItem);
+  const label = SORTS.find(s => s[0] === r.sort)[1];
+  V.innerHTML = page(`<h1 class="big">${esc(name)}<small>${nf(base.length)} ${base.length === 1 ? (type === 'movie' ? 'film' : 'serie') : T.noun}</small></h1>`
+    + `<div class="toolbar"><label class="sfield">${ICON.search}<input id="catQ" type="search" placeholder="Filtra" autocomplete="off" enterkeyhint="search"></label><button class="btn gray" data-sort aria-label="Ordina: ${esc(label)}">${ICON.sort}</button></div>`
+    + `<div class="cap" style="margin:0 2px 12px" id="sortLbl">${esc(label)}</div>`
+    + (base.length ? `<div class="grid3" id="cgrid"></div>` : `<div class="empty"><p>In questa categoria non c'è niente.</p></div>`));
+  if (!base.length) return;
+  const paint = () => {
+    const f = fold(($('#catQ').value || '').trim());
+    const res = sorted(f ? base.filter(o => o.lc.includes(f)) : base, r.sort);
+    if (!res.length) { $('#cgrid').innerHTML = `<p class="note" style="grid-column:1/-1">Nessun titolo trovato.</p>`; return; }
+    lazyList($('#cgrid'), res, poster);
+  };
+  S.repaintCat = paint;
+  paint();
+  $('#catQ').addEventListener('input', debounce(paint, 140));
+}
+function sortSheet(){
+  const r = cur();
+  openSheet(`<div class="grab"></div><h3>Ordina</h3><div class="group">${SORTS.map(([id, l]) => `<button class="li" data-sort-pick="${id}"><span class="lt"><b>${l}</b></span>${id === r.sort ? `<span style="color:var(--accent)">${ICON.check}</span>` : ''}</button>`).join('')}</div>`);
+}
+
+// ================= scheda di film o serie =================
+function metaHtml(o, inf = {}, extra = ''){
+  const r = parseFloat(inf.rating) || o.rating;
+  const year = (String(inf.releasedate || inf.releaseDate || inf.release_date || '').match(/\d{4}/) || [])[0] || o.year;
+  const genre = inf.genre || o.raw.genre || '';
+  const dur = o.type === 'movie' ? fmtDur(inf.duration_secs || inf.duration) : '';
+  return [r ? `<span class="score">★ ${r.toFixed(1)}</span>` : '', year ? `<span>${esc(year)}</span>` : '',
+    dur ? `<span>${esc(dur)}</span>` : '', extra, genre ? `<span>${esc(genre)}</span>` : ''].join('');
+}
+function normEpisodes(d){
+  const eps = d && d.episodes, by = {};
+  if (Array.isArray(eps)) eps.forEach((arr, i) => { const a = toArr(arr); if (a.length) by[String(a[0].season ?? i + 1)] = a; });
+  else for (const k in (eps || {})) { const a = toArr(eps[k]); if (a.length) by[k] = a; }
+  return by;
+}
+const epsOf = o => o.eps || (o.info ? (o.eps = normEpisodes(o.info)) : {});
+const seasonKeys = o => Object.keys(epsOf(o)).sort((a, b) => Number(a) - Number(b));
+function lastEp(seriesId){
+  return Object.values(prog).filter(p => p.kind === 'ep' && String(p.seriesId) === String(seriesId)).sort((a, b) => b.ts - a.ts)[0];
+}
+const watched = () => lsGet(ns('watched'), []);
+function markWatched(id){
+  id = String(id); const w = watched();
+  if (!w.includes(id)) lsSet(ns('watched'), [id, ...w].slice(0, 3000));
+}
+async function pDetail(r, tok){
+  const o = S.byKey[r.key];
+  if (!o) { back(); return; }
+  r.title = o.name;
+  setBar({title:o.name, over:true, acts:''});
+  paintDetail(o, r);
+  if (o.info) return;
+  try {
+    o.info = o.type === 'movie' ? await api('get_vod_info', {vod_id:o.id}) : await api('get_series_info', {series_id:o.id});
+    o.eps = null;
+  } catch(e) {
+    if (!live(tok)) return;
+    o.infoErr = e.message;
+  }
+  if (live(tok)) paintDetail(o, r);
+}
+function paintDetail(o, r){
+  const d = o.info, inf = infoOf(d), raw = o.raw;
+  const bd = firstImg(inf.backdrop_path) || firstImg(raw.backdrop_path);
+  const pimg = inf.movie_image || inf.cover || o.img;
+  const plot = inf.plot || inf.description || raw.plot || '';
+  const cast = inf.cast || inf.actors || raw.cast || '', dir = inf.director || raw.director || '';
+  const waiting = o.type === 'series' && !d && !o.infoErr;
+  let label = 'Riproduci';
+  if (o.type === 'movie') { const p = prog['movie:' + o.id]; if (p) label = 'Riprendi da ' + fmtTime(p.t); }
+  else { const lp = lastEp(o.id); label = lp ? `Riprendi S${lp.season} E${lp.epnum}` : 'Guarda il primo episodio'; }
+  const keys = o.type === 'series' && d ? seasonKeys(o) : [];
+  const extra = keys.length ? `<span>${keys.length} ${keys.length === 1 ? 'stagione' : 'stagioni'}</span>` : '';
+  let h = `<div class="dhero${bd ? '' : ' poster'}"><div class="bg" style="background-image:url('${esc(cssUrl(bd || pimg))}')"></div><div class="fade"></div>`
+    + (!bd && pimg ? `<img class="dp" src="${esc(pimg)}" alt="" onerror="this.remove()">` : '') + `</div>`
+    + `<h1 class="dtitle">${esc(o.name)}</h1><div class="meta">${metaHtml(o, inf, extra)}</div>`
+    + `<div class="dacts"><button class="btn primary block" data-act="play"${waiting || (o.type === 'series' && d && !keys.length) ? ' disabled' : ''}>${ICON.play} ${esc(label)}</button>`
+    + `<div class="drow"><button class="btn gray" data-act="fav">${isFav(o.key) ? ICON.check + ' Nella lista' : ICON.plus + ' La mia lista'}</button>`
+    + (o.type === 'movie' ? `<button class="btn gray" data-act="vlc">${ICON.ext} Apri in VLC</button>` : '') + `</div></div>`
+    + (plot ? `<p class="plot clamp" id="plot">${esc(plot)}</p><button class="plotmore hidden" id="plotMore">Altro</button>` : '')
+    + (cast || dir ? `<p class="credits">${cast ? `<span><b>Cast</b>${esc(cast)}</span>` : ''}${dir ? `<span><b>Regia</b>${esc(dir)}</span>` : ''}</p>` : '')
+    + (o.infoErr ? `<p class="note" style="margin:16px 0 0">Dettagli non disponibili: ${esc(o.infoErr)}</p>` : '');
+  if (o.type === 'series') {
+    if (waiting) h += `<div class="sec"><span class="sk" style="height:32px;width:60%;margin-bottom:16px"></span>${'<span class="sk" style="height:74px;margin-bottom:10px"></span>'.repeat(3)}</div>`;
+    else if (keys.length) {
+      const lp = lastEp(o.id);
+      if (!r.season || !keys.includes(r.season)) r.season = lp && keys.includes(String(lp.season)) ? String(lp.season) : keys[0];
+      h += `<section class="sec"><div class="sec-h"><h2>Episodi</h2></div>`
+        + (keys.length > 1 ? `<div class="chips">${keys.map(k => `<button class="chip${k === r.season ? ' on' : ''}" data-season="${esc(k)}">Stagione ${esc(k)}</button>`).join('')}</div>` : '')
+        + `<div class="eps" id="eps">${episodesHtml(o, r.season)}</div></section>`;
+    } else if (d) h += `<div class="empty"><p>Non ci sono episodi disponibili per questa serie.</p></div>`;
+  }
+  V.innerHTML = page(h, 'detail');
+  setAmb(pimg || bd);
+  const pl = $('#plot');
+  if (pl && pl.scrollHeight > pl.clientHeight + 2) $('#plotMore').classList.remove('hidden');
+  const on = $('.chips .chip.on'); if (on) on.scrollIntoView({inline:'center', block:'nearest'});
+}
+function episodesHtml(o, season){
+  const w = watched();
+  return (epsOf(o)[season] || []).map((ep, i) => {
+    const n = ep.episode_num ?? i + 1, inf = (ep.info && !Array.isArray(ep.info)) ? ep.info : {};
+    const p = prog['ep:' + ep.id], pct = p && p.d ? Math.round(p.t / p.d * 100) : 0;
+    const seen = w.includes(String(ep.id));
+    const dur = fmtDur(inf.duration_secs || inf.duration);
+    return `<button class="ep" data-ep="${i}"><span class="eth"><span class="n">${esc(n)}</span>${inf.movie_image ? `<img src="${esc(inf.movie_image)}" loading="lazy" alt="" onerror="this.remove()">` : ''}`
+      + (pct ? `<span class="pbar"><i style="width:${pct}%"></i></span>` : '') + (seen ? `<span class="seen">${ICON.check}</span>` : '') + `</span>`
+      + `<span class="et"><b>${esc(n)}. ${esc(ep.title && !/^\s*$/.test(ep.title) ? ep.title.replace(/^.*?\bS\d+\s*E\d+\s*[-–:]\s*/i, '') : 'Episodio ' + n)}</b>${dur ? `<small>${esc(dur)}</small>` : ''}${inf.plot ? `<span>${esc(inf.plot)}</span>` : ''}</span></button>`;
+  }).join('');
+}
+
+// ================= La mia lista =================
+async function pList(r, tok){
+  r.title = 'La mia lista';
+  if (r.mode) { S.listMode = r.mode; delete r.mode; }
+  setBar({title:'La mia lista', acts:''});
+  if (!['live', 'movie', 'series'].every(t => S.ready[t])) V.innerHTML = page(`<h1 class="big">La mia lista</h1>${skelRows()}`);
+  await Promise.allSettled(['live', 'movie', 'series'].map(ensure));
+  if (!live(tok)) return;
+  const items = favs.map(k => S.byKey[k]).filter(okItem);
+  const by = {live:items.filter(o => o.type === 'live'), movie:items.filter(o => o.type === 'movie'), series:items.filter(o => o.type === 'series')};
+  const m = S.listMode;
+  let h = `<h1 class="big">La mia lista</h1><div class="seg">${[['all', 'Tutto'], ['live', 'Canali'], ['movie', 'Film'], ['series', 'Serie']].map(([id, l]) => `<button class="${m === id ? 'on' : ''}" data-list-mode="${id}">${l}</button>`).join('')}</div>`;
+  const cont = contList();
+  if (m === 'all' && cont.length) h += sec('Continua a guardare', hs(cont.map(contCard)));
+  const show = m === 'all' ? ['live', 'movie', 'series'] : [m];
+  let any = false;
+  for (const t of show) {
+    if (!by[t].length) continue;
+    any = true;
+    const title = {live:'Canali preferiti', movie:'Film', series:'Serie'}[t];
+    h += sec(title, t === 'live' ? `<div class="chlist">${by[t].map(o => chRow(o)).join('')}</div>` : `<div class="grid3">${by[t].map(poster).join('')}</div>`);
+  }
+  if (!any) h += `<div class="empty"><h3>${m === 'live' ? 'Nessun canale preferito' : 'La lista è vuota'}</h3><p>${m === 'live' ? 'Tocca la stella accanto a un canale per ritrovarlo qui e in cima alla Home.' : 'Aggiungi film e serie con il pulsante “La mia lista” nella loro scheda.'}</p><button class="btn primary" data-tab="${m === 'live' ? 'live' : (m === 'series' ? 'series' : 'movie')}">Esplora</button></div>`;
+  V.innerHTML = page(h);
+  observeNow(V);
+}
+function toggleFav(k){
+  const was = isFav(k);
+  favs = was ? favs.filter(x => x !== k) : [k, ...favs];
+  lsSet(ns('favs'), favs); S.dirty = true;
+  return !was;
+}
+
+// ================= ricerca in tutto il catalogo =================
+async function pSearch(r, tok){
+  r.title = 'Cerca';
+  r.q = r.q || ''; r.f = r.f || 'all';
+  setBar({title:'Cerca'});
+  V.innerHTML = page(`<h1 class="big">Cerca</h1><label class="sfield">${ICON.search}<input id="sq" type="search" placeholder="Canali, film e serie" autocomplete="off" enterkeyhint="search" value="${esc(r.q)}"></label>`
+    + `<div class="chips">${[['all', 'Tutto'], ['live', 'Canali'], ['movie', 'Film'], ['series', 'Serie']].map(([id, l]) => `<button class="chip${r.f === id ? ' on' : ''}" data-sf="${id}">${l}</button>`).join('')}</div><div id="sres"></div>`);
+  const input = $('#sq');
+  input.addEventListener('input', debounce(() => { r.q = input.value; searchResults(r); }, 160));
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') { input.blur(); rememberSearch(input.value); } });
+  await Promise.allSettled(['live', 'movie', 'series'].map(ensure));
+  if (live(tok)) searchResults(r);
+}
+function rememberSearch(q){
+  q = q.trim(); if (q.length < 2) return;
+  lsSet(ns('searches'), [q, ...lsGet(ns('searches'), []).filter(x => fold(x) !== fold(q))].slice(0, 8));
+}
+function searchResults(r){
+  const box = $('#sres'); if (!box) return;
+  const q = fold(r.q.trim());
+  if (!q) {
+    const past = lsGet(ns('searches'), []);
+    box.innerHTML = past.length ? `<div class="cap" style="margin-top:4px">Ricerche recenti</div><div class="group">${past.map(p => `<button class="li" data-past="${esc(p)}"><span class="lt"><b>${esc(p)}</b></span></button>`).join('')}</div>` : `<p class="note" style="margin:6px 2px">Scrivi almeno una parte del nome: cerco tra canali, film e serie insieme.</p>`;
+    return;
+  }
+  const MAX = 30;
+  let h = '', n = 0;
+  for (const t of ['live', 'movie', 'series']) {
+    if (r.f !== 'all' && r.f !== t) continue;
+    const D = vis(t); if (!D) continue;
+    const res = D.items.filter(o => o.lc.includes(q)); n += res.length;
+    if (!res.length) continue;
+    const lim = r.f === t ? res : res.slice(0, MAX);
+    const title = `${{live:'Canali', movie:'Film', series:'Serie'}[t]}`;
+    const more = res.length > lim.length ? `<button class="more-row" data-sf="${t}">Mostra tutti i ${nf(res.length)} risultati</button>` : '';
+    h += `<section class="sec" style="margin-top:8px"><div class="sec-h"><h2>${title}</h2><span style="color:var(--muted);font-size:14px">${nf(res.length)}</span></div>`
+      + (t === 'live' ? `<div class="chlist" data-res="${t}"></div>` : `<div class="grid3" data-res="${t}"></div>`) + more + `</section>`;
+    S['res_' + t] = lim;
+  }
+  if (!n) { box.innerHTML = `<div class="empty"><h3>Nessun risultato</h3><p>Prova con un'altra parola, o solo con una parte del nome.</p></div>`; return; }
+  box.innerHTML = h;
+  for (const t of ['live', 'movie', 'series']) {
+    const el = box.querySelector(`[data-res="${t}"]`);
+    if (el) { el.innerHTML = S['res_' + t].slice(0, 120).map(t === 'live' ? (o => chRow(o)) : poster).join(''); }
+  }
+  observeNow(box);
+}
+
+// ================= impostazioni =================
+function pSettings(r){
+  r.title = 'Impostazioni';
+  setBar({title:'Impostazioni', acts:''});
+  const tg = (id, on) => `<button class="tg${on ? ' on' : ''}" data-set="${id}" role="switch" aria-checked="${on}"></button>`;
+  const fill = lsGet('xp_fit', 'contain') === 'cover';
+  const pin = parentalOn();
+  const cfg = catCfg();
+  const sum = t => { const h = (cfg.hidden[t] || []).length, p = (cfg.pinned[t] || []).length; return [p ? `${p} in cima` : '', h ? `${h} nascoste` : ''].filter(Boolean).join(', ') || 'Tutte visibili'; };
+  V.innerHTML = page(`<h1 class="big">Impostazioni</h1>`
+    + `<div class="cap">Riproduzione</div><div class="group">`
+    + `<div class="li"><span class="lt"><b>Prossimo episodio automatico</b><span>Alla fine di un episodio parte il successivo</span></span>${tg('autonext', lsGet('xp_autonext', true))}</div>`
+    + `<div class="li"><span class="lt"><b>Riapri l'ultimo canale</b><span>All'avvio riparte il canale che guardavi</span></span>${tg('startlast', lsGet('xp_startlast', false))}</div>`
+    + `<div class="li"><span class="lt"><b>Video a tutto schermo</b><span>Riempie lo schermo tagliando i bordi</span></span>${tg('fill', fill)}</div></div>`
+    + `<p class="note">Il Picture in Picture parte da solo quando esci dall'app mentre guardi qualcosa. Se non succede, controlla in Impostazioni dell'iPhone, Generali, Picture in Picture.</p>`
+    + `<div class="cap">Colore dell'app</div><div class="group"><div class="swatches">${swatches()}</div><div class="sw-name">Colore: ${esc(themeOf(curTheme()).name)}</div></div>`
+    + `<div class="cap">Organizza le sezioni</div><div class="group">`
+    + li({title:'TV in diretta', sub:sum('live'), icon:ICON.tv, route:{v:'cats', type:'live'}})
+    + li({title:'Film', sub:sum('movie'), icon:ICON.film, route:{v:'cats', type:'movie'}})
+    + li({title:'Serie TV', sub:sum('series'), icon:ICON.series, route:{v:'cats', type:'series'}}) + `</div>`
+    + `<p class="note">Per ogni sezione scegli le categorie da tenere in cima, quelle da nascondere e quelle da proteggere con il PIN.</p>`
+    + `<div class="cap">Controllo genitori</div><div class="group">`
+    + (pin ? li({title:'Cambia PIN', icon:ICON.shield, attrs:'data-pin="change"'}) + li({title:'<span class="danger">Disattiva il controllo genitori</span>', attrs:'data-pin="off"', chev:false})
+           : li({title:'Imposta un PIN', sub:'Blocca le categorie per adulti e quelle che scegli', icon:ICON.shield, attrs:'data-pin="on"'})) + `</div>`
+    + `<div class="cap">Catalogo</div><div class="group">`
+    + li({title:'Aggiorna il catalogo', sub:'Scarica di nuovo canali, film e serie', icon:ICON.refresh, attrs:'data-reload', chev:false})
+    + li({title:'Le mie playlist', icon:ICON.list, route:{v:'playlists'}}) + `</div>`
+    + `<p class="note" style="margin-top:26px;text-align:center">Xtream per iPhone, versione 3.0</p>`);
+}
+async function editCats(type, fn){
+  if (parentalOn() && !(await unlock('Per cambiare le categorie serve il PIN.'))) return;
+  const cfg = catCfg(); fn(cfg, type); lsSet(ns('cats'), cfg); S.visVer++;
+  const y = scrollY; renderRoute(false); scrollTo(0, y);
+}
+const toggleIn = (arr, id) => arr.includes(id) ? arr.filter(x => x !== id) : [...arr, id];
+async function pCats(r, tok){
+  const type = r.type, T = TYPES[type];
+  r.title = 'Organizza';
+  setBar({title:'Organizza ' + T.label, acts:''});
+  try { await ensure(type); } catch(e) { if (live(tok)) V.innerHTML = errBox(e.message); return; }
+  if (!live(tok)) return;
+  const D = S.ready[type], cfg = catCfg(), pin = parentalOn();
+  const pinned = cfg.pinned[type] || [], hidden = cfg.hidden[type] || [], locked = cfg.locked[type] || [];
+  const cats = [...D.cats].sort((a, b) => {
+    const pa = pinned.indexOf(a.id), pb = pinned.indexOf(b.id);
+    return (pa < 0) === (pb < 0) ? (pa < 0 ? 0 : pa - pb) : (pa < 0 ? 1 : -1);
+  });
+  const row = c => {
+    const p = pinned.includes(c.id), hd = hidden.includes(c.id), lk = locked.includes(c.id);
+    return `<div class="li"><button class="pin${p ? ' on' : ''}" data-cat-pin="${esc(c.id)}" aria-label="${p ? 'Togli dalla cima' : 'Tieni in cima'}">${p ? ICON.starF : ICON.star}</button>`
+      + `<span class="lt"><b style="${hd ? 'color:var(--muted)' : ''}">${esc(c.name)}</b><span>${nf(c.n)} ${T.noun}${hd ? ', nascosta' : ''}</span></span>`
+      + (pin ? `<button class="lk${lk ? ' on' : ''}" data-cat-lock="${esc(c.id)}" aria-label="${lk ? 'Sblocca' : 'Proteggi con il PIN'}">${ICON.lock}</button>` : '')
+      + `<button class="tg${hd ? '' : ' on'}" data-cat-hide="${esc(c.id)}" role="switch" aria-checked="${!hd}" aria-label="Mostra ${esc(c.name)}"></button></div>`;
+  };
+  V.innerHTML = page(`<h1 class="big">${T.full}<small>${nf(D.cats.length)} categorie</small></h1>`
+    + `<p class="note" style="margin:0 2px 16px">Tocca la stella per tenere una categoria in cima (nell'ordine in cui le scegli). Spegni l'interruttore per nasconderla${pin ? ', tocca il lucchetto per proteggerla con il PIN' : ''}.</p>`
+    + (pinned.length || hidden.length ? `<div class="drow" style="margin-bottom:18px"><button class="btn gray small" data-cats-reset>Ripristina</button></div>` : '')
+    + `<div class="group">${cats.map(row).join('')}</div>`);
+}
+function pPlaylists(r){
+  r.title = 'Playlist';
+  setBar({title:'Playlist', acts:''});
+  const list = playlists().sort((a, b) => (b.last || 0) - (a.last || 0)), act = activePl();
+  V.innerHTML = page(`<h1 class="big">Playlist<small>${list.length} ${list.length === 1 ? 'salvata' : 'salvate'}</small></h1><div class="group">`
+    + list.map(p => {
+      const on = act && act.id === p.id;
+      return `<div class="li tap" data-pl-menu="${esc(p.id)}" role="button"><span class="lt"><b>${esc(p.name)}</b><span>${esc(p.username)} su ${esc(hostOf(p.server))}. ${esc(expText(p.exp))}</span></span>${on ? '<span class="badge">In uso</span>' : ''}<button class="ib" style="color:var(--muted)" data-pl-menu="${esc(p.id)}" aria-label="Opzioni">${ICON.more}</button></div>`;
+    }).join('')
+    + li({title:'<span style="color:var(--accent)">Aggiungi una playlist</span>', icon:ICON.plus, iconA:true, attrs:'data-pl-add', chev:false}) + `</div>`);
+}
+function plMenu(id){
+  const p = playlists().find(x => x.id === id); if (!p) return;
+  openSheet(`<div class="grab"></div><h3>${esc(p.name)}</h3><div class="group">`
+    + li({title:'Apri', icon:ICON.play, attrs:`data-pl-login="${esc(id)}"`, chev:false})
+    + li({title:'Rinomina', icon:ICON.edit, attrs:`data-pl-rename="${esc(id)}"`, chev:false})
+    + li({title:'<span class="danger">Elimina</span>', icon:ICON.trash, attrs:`data-pl-del="${esc(id)}"`, chev:false}) + `</div>`);
+}
+
+// ================= finestre dal basso =================
+function openSheet(html){
+  const bg = $('#sheetbg');
+  $('#sheet').innerHTML = html;
+  bg.classList.remove('hidden');
+  requestAnimationFrame(() => requestAnimationFrame(() => bg.classList.add('open')));
+}
+function closeSheet(){
+  const bg = $('#sheetbg');
+  if (bg.classList.contains('hidden')) return;
+  bg.classList.remove('open');
+  setTimeout(() => { if (!bg.classList.contains('open')) { bg.classList.add('hidden'); $('#sheet').innerHTML = ''; } }, 260);
+}
+$('#sheetbg').addEventListener('click', e => { if (e.target.id === 'sheetbg') closeSheet(); });
+function accountSheet(){
+  const ui = S.acct || {}, name = ui.username || S.creds.username, act = activePl();
+  const cons = ui.max_connections ? `Connessioni in uso: ${ui.active_cons ?? 0} su ${ui.max_connections}` : '';
+  openSheet(`<div class="grab"></div><div class="acct"><span class="avatar">${esc(name.slice(0, 1).toUpperCase())}</span><div><b>${esc(act ? act.name : name)}</b><span>${esc(expText(ui.exp_date && ui.exp_date !== 'null' ? Number(ui.exp_date) : null))}</span>${cons ? `<span>${esc(cons)}</span>` : ''}</div></div>`
+    + `<div class="group">` + li({title:'La mia lista', icon:ICON.bookmark, route:{v:'list'}}) + li({title:'Impostazioni', icon:ICON.sliders, route:{v:'settings'}}) + li({title:'Cambia playlist', icon:ICON.list, route:{v:'playlists'}}) + `</div>`
+    + `<div class="cap">Colore dell'app</div><div class="group"><div class="swatches">${swatches()}</div><div class="sw-name">Colore: ${esc(themeOf(curTheme()).name)}</div></div>`
+    + `<div class="cap"></div><div class="group">` + li({title:'<span class="danger">Esci dall\'account</span>', icon:ICON.logout, attrs:'data-logout', chev:false}) + `</div>`);
+}
+
+// ================= riproduzione =================
+// Sull'iPhone la diretta va in HLS (.m3u8), il formato che iOS legge da solo; se il fornitore non lo permette resta .ts
+function iosSource(cfg){
+  if (!cfg.live && !cfg.catchup) return cfg.url;
+  const fm = S.acct && S.acct.allowed_output_formats;
+  const hlsOk = !Array.isArray(fm) || !fm.length || fm.includes('m3u8');
+  return hlsOk ? cfg.url.replace(/\.ts(\?|$)/, '.m3u8$1') : cfg.url;
+}
+function playMovie(o){
+  const [s, u, p] = authParts(), ext = o.raw.container_extension || 'mp4';
+  openPlayer({title:o.name, sub:[o.year, fmtDur(infoOf(o.info).duration_secs)].filter(Boolean).join('   '), url:`${s}/movie/${u}/${p}/${o.id}.${ext}`,
+    pk:'movie:' + o.id, item:o, meta:{kind:'movie', id:o.id, name:o.name, img:o.img, ext}});
+}
+async function playSeries(o){
+  if (!o.info) { try { o.info = await api('get_series_info', {series_id:o.id}); o.eps = null; } catch(e) { toast(e.message); return; } }
+  const lp = lastEp(o.id), E = epsOf(o);
+  if (lp && E[lp.season]) { const ep = E[lp.season].find(e => String(e.id) === String(lp.epId)); if (ep) return playEpisode(o, String(lp.season), ep); }
+  const keys = seasonKeys(o);
+  if (keys.length) playEpisode(o, keys[0], E[keys[0]][0]); else toast('Nessun episodio disponibile');
+}
+function playEpisode(o, season, ep){
+  const [s, u, p] = authParts(), n = ep.episode_num ?? '', ext = ep.container_extension || 'mp4';
+  openPlayer({title:o.name, sub:`Stagione ${season}, episodio ${n}` + (ep.title ? `: ${ep.title}` : ''), url:`${s}/series/${u}/${p}/${ep.id}.${ext}`,
+    pk:'ep:' + ep.id, item:o, meta:{kind:'ep', name:o.name, img:o.img, seriesId:o.id, season, epnum:n, epId:ep.id, ext, eptitle:ep.title || ''},
+    next:nextEpisode(o, season, ep)});
+}
+function nextEpisode(o, season, ep){
+  const E = epsOf(o), list = E[season]; if (!list) return null;
+  const i = list.findIndex(e => String(e.id) === String(ep.id));
+  if (i >= 0 && i < list.length - 1) return {o, season, ep:list[i + 1]};
+  const keys = seasonKeys(o), k = keys.indexOf(String(season));
+  if (k >= 0 && k < keys.length - 1 && E[keys[k + 1]].length) return {o, season:keys[k + 1], ep:E[keys[k + 1]][0]};
+  return null;
+}
+async function playLive(o){
+  try { await ensure('live'); } catch(e) { toast(e.message); return; }
+  if (blocked('live', o.cat) && !(await unlock())) return;
+  const D = vis('live');
+  const list = (D.byCat[o.cat] || D.items).filter(okItem);
+  noteLive(o);
+  const [s, u, p] = authParts();
+  openPlayer({title:o.name, sub:D.catName[o.cat] || 'In diretta', url:`${s}/live/${u}/${p}/${o.id}.ts`, live:true, item:o,
+    zap:{list, i:Math.max(0, list.indexOf(o)), name:D.catName[o.cat] || 'Canali'}});
+}
+async function resume(k){
+  const p = prog[k]; if (!p) return;
+  const [s, u, pw] = authParts();
+  if (p.kind === 'movie') {
+    const o = S.byKey['movie:' + p.id];
+    if (o) return playMovie(o);
+    return openPlayer({title:p.name, url:`${s}/movie/${u}/${pw}/${p.id}.${p.ext}`, pk:k, meta:p});
+  }
+  const o = S.byKey['series:' + p.seriesId];
+  if (o) {
+    if (!o.info) { try { o.info = await api('get_series_info', {series_id:o.id}); o.eps = null; } catch(_) {} }
+    const ep = (epsOf(o)[p.season] || []).find(e => String(e.id) === String(p.epId));
+    if (ep) return playEpisode(o, String(p.season), ep);
+  }
+  openPlayer({title:p.name, sub:`Stagione ${p.season}, episodio ${p.epnum}` + (p.eptitle ? `: ${p.eptitle}` : ''), url:`${s}/series/${u}/${pw}/${p.epId}.${p.ext}`, pk:k, meta:p});
+}
+const nextTitle = nx => `Stagione ${nx.season}, episodio ${nx.ep.episode_num ?? ''}` + (nx.ep.title ? `: ${nx.ep.title}` : '');
+
+function openPlayer(cfg){
+  S.pl = cfg;
+  const p = cfg.pk && prog[cfg.pk];
+  const start = p && p.t > 30 && (!p.d || p.t < p.d - 60) ? p.t : 0;
+  const z = cfg.zap;
+  const msg = {cmd:'open', url:iosSource(cfg), vlc:cfg.url, title:cfg.title, sub:cfg.sub || '', live:!!cfg.live, catchup:!!cfg.catchup, start,
+    zap:z ? {i:z.i, name:z.name, list:z.list.map(c => ({name:c.name, num:String(c.raw.num ?? '')}))} : null,
+    next:cfg.next ? {title:nextTitle(cfg.next)} : null, autonext:lsGet('xp_autonext', true),
+    fav:cfg.live && cfg.item ? isFav(cfg.item.key) : null, fill:lsGet('xp_fit', 'contain') === 'cover', accent:accentHex()};
+  if (NATIVE_PLAYER) native('player', msg); else htmlPlayer(msg);
+  if (cfg.live && cfg.item) loadNowForPlayer(cfg);
+}
+async function loadNowForPlayer(cfg){
+  const o = cfg.item;
+  try {
+    const d = await api('get_short_epg', {stream_id:o.id, limit:2});
+    if (S.pl !== cfg) return;
+    const l = toArr(d && d.epg_listings); if (!l.length) return;
+    const upd = {cmd:'update', sub:`Ora: ${decB64(l[0].title)}, ${hm(l[0].start_timestamp)}–${hm(l[0].stop_timestamp)}`};
+    if (l[1]) upd.info = `Dopo, alle ${hm(l[1].start_timestamp)}: ${decB64(l[1].title)}`;
+    if (NATIVE_PLAYER) native('player', upd); else { $('#hpT').textContent = cfg.title + ' — ' + upd.sub; }
+  } catch(_) {}
+}
+function closePlayer(){
+  if (!S.pl) return;
+  if (NATIVE_PLAYER) native('player', {cmd:'close'}); else hpClose(false);
+  S.pl = null;
+}
+function saveProgressAt(t, d, force){
+  const c = S.pl; if (!c || c.live || c.catchup || !c.pk) return;
+  if (!isFinite(d) || d < 60 || !isFinite(t)) return;
+  if (!force && Date.now() - (S.lastSave || 0) < 4000) return;
+  S.lastSave = Date.now();
+  if (t / d > .95) delete prog[c.pk];
+  else if (t > 30) prog[c.pk] = {...c.meta, k:c.pk, t, d, ts:Date.now()};
+  if (c.meta && c.meta.kind === 'ep' && t / d > .9) markWatched(c.meta.epId);
+  Object.keys(prog).sort((a, b) => prog[b].ts - prog[a].ts).slice(80).forEach(k => delete prog[k]);
+  lsSet(ns('progress'), prog); S.dirty = true;
+}
+// eventi in arrivo dal player dell'iPhone
+window.XP = {ev(name, d){
+  d = d || {};
+  try {
+    if (name === 'time') saveProgressAt(d.t, d.d, false);
+    else if (name === 'closed') { saveProgressAt(d.t, d.d, true); S.pl = null; afterPlayer(); }
+    else if (name === 'ended') {
+      const c = S.pl;
+      if (c && c.pk) { delete prog[c.pk]; lsSet(ns('progress'), prog); S.dirty = true; }
+      if (c && c.meta && c.meta.kind === 'ep') markWatched(c.meta.epId);
+    }
+    else if (name === 'zap') { const z = S.pl && S.pl.zap; if (z && z.list[d.i]) playLive(z.list[d.i]); }
+    else if (name === 'next') { const c = S.pl; if (c && c.next) playEpisode(c.next.o, c.next.season, c.next.ep); }
+    else if (name === 'fav') { const o = S.pl && S.pl.item; if (o) { const on = toggleFav(o.key); native('player', {cmd:'update', fav:on}); } }
+    else if (name === 'fit') lsSet('xp_fit', d.fill ? 'cover' : 'contain');
+    else if (name === 'multi') { const o = S.pl && S.pl.item; S.pl = null; if (o) startMulti([o.key]); }
+    else if (name === 'multiClosed' || name === 'multiFull') {
+      S.multi = (d.ids || []).map(id => 'live:' + id).filter(k => S.byKey[k]);
+      lsSet(ns('multi'), S.multi);
+      if (name === 'multiFull') { const o = S.byKey['live:' + d.id]; if (o) playLive(o); }
+      else if (cur().v === 'multi') renderRoute();
+    }
+  } catch(e) { console.error(e); }
+}};
+window.nativeExternalFailed = () => toast('Per aprirlo serve VLC: installalo gratis dall\'App Store');
+// dopo la riproduzione aggiorna "Continua a guardare", episodi visti e preferiti senza perdere il punto della pagina
+function afterPlayer(){
+  if (!S.dirty || !S.creds || $('#app').classList.contains('hidden')) return;
+  S.dirty = false;
+  const r = cur();
+  if (['home', 'list', 'detail', 'movie', 'series', 'live'].includes(r.v)) { const y = scrollY; renderRoute(false); scrollTo(0, y); }
+}
+
+// player del browser: serve solo per provare l'interfaccia fuori dall'iPhone
+const HV = $('#hv');
+function htmlPlayer(msg){
+  $('#hp').classList.remove('hidden'); $('#hpT').textContent = msg.title;
+  HV.src = msg.url; HV.currentTime = msg.start || 0; HV.play().catch(() => {});
+  S.hpMsg = msg;
+}
+function hpClose(notify){
+  const t = HV.currentTime, d = HV.duration;
+  HV.pause(); HV.removeAttribute('src'); HV.load();
+  $('#hp').classList.add('hidden');
+  if (notify) XP.ev('closed', isFinite(d) ? {t, d} : {});
+}
+$('#hpClose').onclick = () => hpClose(true);
+HV.addEventListener('timeupdate', () => { if (isFinite(HV.duration)) XP.ev('time', {t:HV.currentTime, d:HV.duration}); });
+
+// ================= multischermo: più canali insieme =================
+// Quanti riquadri: al massimo 4, e non più delle connessioni che l'abbonamento permette
+const multiMax = () => { const mc = Number(S.acct && S.acct.max_connections) || 0; return mc > 1 ? Math.min(4, mc) : (mc === 1 ? 2 : 4); };
+async function pMulti(r, tok){
+  r.title = 'Multischermo';
+  setBar({title:'Multischermo', acts:''});
+  let D;
+  try { await ensure('live'); D = vis('live'); } catch(e) { if (live(tok)) V.innerHTML = errBox(e.message); return; }
+  if (!live(tok)) return;
+  const max = multiMax(), mc = Number(S.acct && S.acct.max_connections) || 0;
+  S.multi = (S.multi || lsGet(ns('multi'), [])).filter(k => okItem(S.byKey[k])).slice(0, max);
+  const note = mc === 1 ? 'Il tuo abbonamento permette una sola connessione alla volta: con due canali insieme è probabile che uno dei due si blocchi.'
+    : (mc ? `Il tuo abbonamento permette ${mc} connessioni insieme, quindi puoi affiancare fino a ${max} canali.` : 'Quanti canali puoi vedere insieme dipende dalle connessioni permesse dal tuo abbonamento.');
+  V.innerHTML = page(`<h1 class="big">Multischermo<small>${max > 2 ? `Scegli da 2 a ${max} canali` : 'Scegli 2 canali'} da guardare insieme</small></h1><div class="mslots" id="mslots"></div>`
+    + `<p class="note" style="margin:0 2px 22px">${esc(note)} Si sente l'audio del canale che tocchi.</p>`
+    + `<label class="sfield">${ICON.search}<input id="mq" type="search" placeholder="Cerca un canale da aggiungere" autocomplete="off" enterkeyhint="search"></label><div class="chlist" id="mlist"></div>`
+    + `<button class="btn primary block" id="mgo" data-mgo></button>`);
+  paintSlots();
+  const favFirst = [...favs.map(k => S.byKey[k]).filter(o => okItem(o) && o.type === 'live'), ...D.items.filter(o => !isFav(o.key))];
+  const paint = () => {
+    const f = fold(($('#mq').value || '').trim());
+    const res = f ? favFirst.filter(o => o.lc.includes(f) || String(o.raw.num) === f) : favFirst;
+    if (!res.length) { $('#mlist').innerHTML = `<div class="empty" style="padding:30px"><p style="margin:0">Nessun canale trovato.</p></div>`; return; }
+    lazyList($('#mlist'), res, mRow);
+  };
+  paint();
+  $('#mq').addEventListener('input', debounce(paint, 140));
+}
+function mRow(o){
+  const on = S.multi.includes(o.key);
+  return `<div class="chrow${on ? ' picked' : ''}" data-mpick="${esc(o.key)}" role="button" tabindex="0"><span class="clogo">${initials(o.name)}${o.img ? `<img src="${esc(o.img)}" loading="lazy" alt="" onerror="this.remove()">` : ''}</span>`
+    + `<span class="cmain"><span class="ctop">${o.raw.num ? `<i class="cnum">${esc(o.raw.num)}</i>` : ''}<b>${esc(o.name)}</b></span></span><span class="cact">${on ? ICON.check : ICON.plus}</span></div>`;
+}
+function paintSlots(){
+  const box = $('#mslots'); if (!box) return;
+  const max = multiMax();
+  box.innerHTML = Array.from({length:max}, (_, i) => {
+    const o = S.byKey[S.multi[i]];
+    return o ? `<div class="mslot">${o.img ? `<img src="${esc(o.img)}" alt="" onerror="this.remove()">` : `<span class="ph">${initials(o.name)}</span>`}<b>${esc(o.name)}</b><button class="rm" data-mrm="${esc(o.key)}" aria-label="Togli ${esc(o.name)}">${ICON.x}</button></div>`
+      : `<div class="mslot empty">Canale ${i + 1}</div>`;
+  }).join('');
+  const b = $('#mgo'), n = S.multi.length;
+  b.disabled = n < 2;
+  b.innerHTML = n < 2 ? (n ? 'Scegli almeno un altro canale' : 'Scegli almeno 2 canali') : `${ICON.multi} Guarda ${n} canali insieme`;
+}
+function toggleMulti(key){
+  const max = multiMax(), on = S.multi.includes(key);
+  if (!on && S.multi.length >= max) return toast(`Puoi affiancare al massimo ${max} canali: togline uno per cambiarlo`);
+  S.multi = on ? S.multi.filter(k => k !== key) : [...S.multi, key];
+  lsSet(ns('multi'), S.multi);
+  paintSlots();
+  $$(`[data-mpick="${CSS.escape(key)}"]`).forEach(el => { el.classList.toggle('picked', !on); el.querySelector('.cact').innerHTML = on ? ICON.plus : ICON.check; });
+}
+async function startMulti(keys){
+  try { await ensure('live'); } catch(e) { toast(e.message); return; }
+  const D = vis('live'), items = keys.map(k => S.byKey[k]).filter(okItem);
+  if (!items.length) return;
+  if (!NATIVE_MULTI) return toast('Il multischermo funziona nell\'app installata sull\'iPhone');
+  const [s, u, p] = authParts();
+  const sample = iosSource({live:true, url:`${s}/live/${u}/${p}/0.ts`});
+  const m = o => ({id:String(o.id), name:o.name, num:String(o.raw.num ?? '')});
+  S.pl = null;
+  native('multi', {cmd:'open', prefix:`${s}/live/${u}/${p}/`, suffix:sample.slice(sample.lastIndexOf('.')), max:multiMax(), accent:accentHex(), items:items.map(m), pool:D.items.slice(0, 4000).map(m)});
+}
+
+// ================= canali recenti e ultimo canale =================
+const recentLive = () => lsGet(ns('recentLive'), []).map(k => S.byKey[k]).filter(Boolean);
+function noteLive(o){
+  lsSet(ns('recentLive'), [o.key, ...lsGet(ns('recentLive'), []).filter(k => k !== o.key)].slice(0, 20));
+  lsSet(ns('lastLive'), o.key);
+  S.dirty = true;
+}
+async function maybeStartLast(){
+  if (!lsGet('xp_startlast', false)) return;
+  const k = lsGet(ns('lastLive'), null); if (!k) return;
+  try { await ensure('live'); } catch(_) { return; }
+  const o = S.byKey[k];
+  if (o && okItem(o) && !S.pl) playLive(o);
+}
+
+// ================= tocchi =================
+document.addEventListener('click', async e => {
+  const t = e.target;
+  if ($('#app').classList.contains('hidden')) return;
+  const th = t.closest('[data-theme-pick]'); if (th) { setTheme(th.dataset.themePick); return; }
+  if (t.closest('[data-back]')) return back();
+  const tb = t.closest('[data-tab]'); if (tb) return setTab(tb.dataset.tab);
+  if (t.closest('[data-account]')) return accountSheet();
+  if (t.closest('[data-logout]')) return logout();
+  if (t.closest('[data-retry]')) return renderRoute(false);
+
+  const fv = t.closest('[data-fav]');
+  if (fv) {
+    e.stopPropagation();
+    const on = toggleFav(fv.dataset.fav);
+    toast(on ? 'Aggiunto alla tua lista' : 'Tolto dalla tua lista');
+    if (fv.classList.contains('cact')) { fv.classList.toggle('on', on); fv.innerHTML = on ? ICON.starF : ICON.star; }
+    else if (fv.classList.contains('ib')) fv.innerHTML = on ? ICON.starF : ICON.star;
+    else fv.innerHTML = on ? ICON.check : ICON.plus;
+    return;
+  }
+  const mr = t.closest('[data-mrm]'); if (mr) return toggleMulti(mr.dataset.mrm);
+  const mp = t.closest('[data-mpick]'); if (mp) return toggleMulti(mp.dataset.mpick);
+  if (t.closest('[data-mgo]')) return startMulti(S.multi);
+  const ep = t.closest('[data-epg]'); if (ep) return push({v:'epg', key:ep.dataset.epg});
+  const pr = t.closest('[data-prog]'); if (pr) return playProg(pr);
+  const rs = t.closest('[data-resume]'); if (rs) return resume(rs.dataset.resume);
+  const pl = t.closest('[data-play]');
+  if (pl) { const o = S.byKey[pl.dataset.play]; if (o) o.type === 'movie' ? playMovie(o) : push({v:'detail', key:o.key}); return; }
+  const k = t.closest('[data-k]');
+  if (k) {
+    const o = S.byKey[k.dataset.k]; if (!o) return;
+    if (o.type === 'live') return playLive(o);
+    if (blocked(o.type, o.cat) && !(await unlock())) return;
+    return push({v:'detail', key:o.key});
+  }
+  const ro = t.closest('[data-route]');
+  if (ro) {
+    const route = JSON.parse(ro.dataset.route);
+    if (route.cat && route.cat !== 'all' && (route.v === 'livecat' || route.v === 'cat')) {
+      const type = route.v === 'livecat' ? 'live' : route.type;
+      if (isLockedCat(type, route.cat) && !(await unlock('Questa categoria è protetta dal controllo genitori.'))) return;
+    }
+    if (route.v === 'list') { if (route.mode) S.listMode = route.mode; if (cur().v === 'list') return closeSheet(); return push({v:'list'}); }
+    return push(route);
+  }
+  // scheda: riproduci, lista, VLC, stagioni, episodi
+  const r = cur();
+  if (r.v === 'detail') {
+    const o = S.byKey[r.key];
+    const act = t.closest('[data-act]');
+    if (act && o) {
+      const a = act.dataset.act;
+      if (a === 'play') return o.type === 'movie' ? playMovie(o) : playSeries(o);
+      if (a === 'fav') { const on = toggleFav(o.key); act.innerHTML = on ? ICON.check + ' Nella lista' : ICON.plus + ' La mia lista'; toast(on ? 'Aggiunto alla tua lista' : 'Tolto dalla tua lista'); return; }
+      if (a === 'vlc') { const [s, u, p] = authParts(); native('external', {url:`${s}/movie/${u}/${p}/${o.id}.${o.raw.container_extension || 'mp4'}`, title:o.name}) || toast('Disponibile nell\'app per iPhone'); return; }
+    }
+    if (t.closest('#plotMore')) { $('#plot').classList.toggle('clamp'); $('#plotMore').textContent = $('#plot').classList.contains('clamp') ? 'Altro' : 'Meno'; return; }
+    const sb = t.closest('[data-season]'); if (sb && o) { r.season = sb.dataset.season; $$('[data-season]').forEach(b => b.classList.toggle('on', b === sb)); $('#eps').innerHTML = episodesHtml(o, r.season); return; }
+    const eb = t.closest('[data-ep]'); if (eb && o) return playEpisode(o, r.season, epsOf(o)[r.season][+eb.dataset.ep]);
+  }
+  const lm = t.closest('[data-live-mode]'); if (lm) { S.liveMode = lm.dataset.liveMode; lsSet('xp_livemode', S.liveMode); return renderRoute(false); }
+  const gc = t.closest('[data-guide-cat]');
+  if (gc) { S.guideCat = gc.dataset.guideCat; const y = scrollY; renderRoute(false); scrollTo(0, y); return; }
+  const tm = t.closest('[data-type-mode]'); if (tm) { S.typeMode[r.v] = tm.dataset.typeMode; lsSet('xp_typemode', S.typeMode); return renderRoute(false); }
+  const lsm = t.closest('[data-list-mode]'); if (lsm) { S.listMode = lsm.dataset.listMode; return renderRoute(false); }
+  if (t.closest('[data-sort]')) return sortSheet();
+  const sp = t.closest('[data-sort-pick]');
+  if (sp) { r.sort = sp.dataset.sortPick; closeSheet(); $('#sortLbl').textContent = SORTS.find(s => s[0] === r.sort)[1]; if (S.repaintCat) S.repaintCat(); return; }
+  const sf = t.closest('[data-sf]'); if (sf && r.v === 'search') { r.f = sf.dataset.sf; $$('[data-sf].chip').forEach(b => b.classList.toggle('on', b.dataset.sf === r.f)); searchResults(r); scrollTo(0, 0); return; }
+  const past = t.closest('[data-past]'); if (past) { r.q = past.dataset.past; $('#sq').value = r.q; searchResults(r); return; }
+  // impostazioni
+  const sw = t.closest('[data-set]');
+  if (sw) {
+    const id = sw.dataset.set;
+    if (id === 'fill') lsSet('xp_fit', lsGet('xp_fit', 'contain') === 'cover' ? 'contain' : 'cover');
+    else { const key = {autonext:'xp_autonext', startlast:'xp_startlast'}[id]; lsSet(key, !lsGet(key, id === 'autonext')); }
+    sw.classList.toggle('on'); sw.setAttribute('aria-checked', sw.classList.contains('on'));
+    return;
+  }
+  if (t.closest('[data-reload]')) {
+    await IDB.clear(); S.data = {}; S.ready = {}; S.visCache = {}; S.featKeys = null;
+    toast('Scarico di nuovo il catalogo…');
+    await Promise.allSettled(['live', 'movie', 'series'].map(ensure));
+    toast('Catalogo aggiornato'); return;
+  }
+  const pb = t.closest('[data-pin]'); if (pb) return pinAction(pb.dataset.pin);
+  const cp = t.closest('[data-cat-pin]'); if (cp) return editCats(r.type, c => { c.pinned[r.type] = toggleIn(c.pinned[r.type] || [], cp.dataset.catPin); });
+  const ch = t.closest('[data-cat-hide]'); if (ch) return editCats(r.type, c => { c.hidden[r.type] = toggleIn(c.hidden[r.type] || [], ch.dataset.catHide); });
+  const cl = t.closest('[data-cat-lock]'); if (cl) return editCats(r.type, c => { c.locked[r.type] = toggleIn(c.locked[r.type] || [], cl.dataset.catLock); });
+  if (t.closest('[data-cats-reset]')) return editCats(r.type, c => { c.pinned[r.type] = []; c.hidden[r.type] = []; });
+  // playlist
+  if (t.closest('[data-pl-add]')) return showLogin(true);
+  const pm = t.closest('[data-pl-menu]'); if (pm) return plMenu(pm.dataset.plMenu);
+  const rn = t.closest('[data-pl-rename]');
+  if (rn) {
+    closeSheet();
+    const list = playlists(), p = list.find(x => x.id === rn.dataset.plRename); if (!p) return;
+    const v = (prompt('Nuovo nome della playlist', p.name) || '').trim();
+    if (v) { p.name = v.slice(0, 40); lsSet(PL_KEY, list); toast('Nome salvato'); renderRoute(false); }
+    return;
+  }
+  const dl = t.closest('[data-pl-del]');
+  if (dl) {
+    closeSheet();
+    const list = playlists(), p = list.find(x => x.id === dl.dataset.plDel); if (!p) return;
+    if (!confirm(`Eliminare la playlist “${p.name}” da questo iPhone?`)) return;
+    lsSet(PL_KEY, list.filter(x => x.id !== p.id));
+    toast('Playlist eliminata');
+    if (S.creds && plKey(p) === plKey(S.creds)) logout(); else renderRoute(false);
+  }
+});
+async function pinAction(act){
+  if (act === 'off' || act === 'change') {
+    const curPin = await askPin('PIN attuale', 'Scrivi il PIN che usi adesso.');
+    if (curPin === null) return;
+    if (pinHash(curPin) !== lsGet('xp_pin', null)) return toast('PIN sbagliato');
+    if (act === 'off') { lsSet('xp_pin', null); S.unlocked = false; S.visVer++; toast('Controllo genitori disattivato'); return renderRoute(false); }
+  }
+  const a = await askPin('Nuovo PIN', 'Scegli 4 cifre facili da ricordare per te.'); if (a === null) return;
+  const b = await askPin('Conferma il PIN', 'Scrivi di nuovo le stesse 4 cifre.'); if (b === null) return;
+  if (a !== b) return toast('I due PIN non coincidono: riprova');
+  const first = !parentalOn();
+  lsSet('xp_pin', pinHash(a)); S.unlocked = false;
+  if (first) {
+    // alla prima attivazione blocca da solo le categorie per adulti di tutte le sezioni
+    await Promise.allSettled(['live', 'movie', 'series'].map(ensure));
+    const cfg = catCfg(); let n = 0;
+    for (const type of ['live', 'movie', 'series']) {
+      const D = S.ready[type]; if (!D) continue;
+      const adult = D.cats.filter(c => ADULT_RE.test(c.name)).map(c => c.id);
+      n += adult.length; cfg.locked[type] = [...new Set([...(cfg.locked[type] || []), ...adult])];
+    }
+    lsSet(ns('cats'), cfg);
+    toast(n ? `PIN attivo: ho bloccato ${n} categorie per adulti` : 'PIN attivo: scegli le categorie da bloccare in Organizza');
+  } else toast('PIN cambiato');
+  S.visVer++; renderRoute(false);
+}
+
+// ================= avvio =================
+(async () => {
+  try { STORE = (await (await fetch('/store')).json()) || {}; } catch(_) { STORE = {}; }
+  S.liveMode = lsGet('xp_livemode', 'cats') === 'guide' ? 'guide' : 'cats';
+  const tm = lsGet('xp_typemode', null); if (tm && typeof tm === 'object') S.typeMode = {movie:tm.movie === 'cats' ? 'cats' : 'discover', series:tm.series === 'cats' ? 'cats' : 'discover'};
+  setTheme(lsGet('xp_theme', 'nero'));
+  const saved = lsGet('xp_creds', null);
+  if (saved && saved.server && !playlists().some(p => plKey(p) === plKey(saved))) {
+    lsSet(PL_KEY, [...playlists(), {id:Date.now().toString(36), name:hostOf(saved.server), server:saved.server, username:saved.username, password:saved.password, last:Date.now()}]);
+  }
+  renderSavedLogin();
+  if (saved && saved.server) {
+    $('#fServer').value = saved.server; $('#fUser').value = saved.username || ''; $('#fPass').value = saved.password || '';
+    $('#login').classList.add('auto');
+    login(saved, true, 2);
+  }
+})();
+</script>
+</body>
+</html>
