@@ -3,16 +3,18 @@ workflows:
   ios-ipa:
     name: Compila app iPhone
     instance_type: mac_mini_m2
-    max_build_duration: 30
+    max_build_duration: 45
     scripts:
       - name: Installa XcodeGen
         script: brew install xcodegen
       - name: Crea il progetto Xcode
         script: xcodegen generate
+      - name: Scarica VLC per il player universale
+        script: pod install
       - name: Compila
         script: |
           xcodebuild \
-            -project XtreamPlayer.xcodeproj \
+            -workspace XtreamPlayer.xcworkspace \
             -scheme XtreamPlayer \
             -configuration Release \
             -sdk iphoneos \
@@ -24,6 +26,8 @@ workflows:
         script: |
           APP="build/Build/Products/Release-iphoneos/XtreamPlayer.app"
           test -d "$APP"
+          VLC="$APP/Frameworks/MobileVLCKit.framework/MobileVLCKit"
+          if [ -f "$VLC" ]; then xcrun bitcode_strip -r "$VLC" -o "$VLC" || true; fi
           mkdir -p Payload
           cp -R "$APP" Payload/
           zip -qry XtreamPlayer.ipa Payload

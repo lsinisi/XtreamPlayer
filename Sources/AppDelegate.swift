@@ -16,6 +16,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.backgroundColor = Theme.background
+        window.overrideUserInterfaceStyle = Theme.savedStyle
         window.rootViewController = WebViewController()
         window.makeKeyAndVisible()
         self.window = window
@@ -31,6 +32,28 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 enum Theme {
-    /// Tutti i temi dell'app per iPhone sono su fondo nero
-    static let background = UIColor.black
+    /// Fondo dell'app: quasi nero nel tema scuro, grigio chiaro nel tema chiaro (come la pagina)
+    static let background = UIColor { traits in
+        traits.userInterfaceStyle == .light
+            ? UIColor(red: 0.949, green: 0.949, blue: 0.969, alpha: 1)   // #f2f2f7
+            : UIColor(red: 0.035, green: 0.035, blue: 0.043, alpha: 1)   // #09090b
+    }
+
+    /// Tema scelto nelle impostazioni: "auto" segue l'iPhone, "light" chiaro, "dark" scuro.
+    static func style(for mode: String?) -> UIUserInterfaceStyle {
+        switch mode {
+        case "light": return .light
+        case "dark": return .dark
+        default: return .unspecified
+        }
+    }
+
+    /// Il tema salvato, letto all'avvio (così non c'è il lampo di colore sbagliato).
+    static var savedStyle: UIUserInterfaceStyle {
+        guard let json = SettingsStore.shared.value("xp_mode"),
+              let data = json.data(using: .utf8),
+              let mode = (try? JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])) as? String
+        else { return .unspecified }
+        return style(for: mode)
+    }
 }

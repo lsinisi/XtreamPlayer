@@ -1,7 +1,25 @@
-# Xtream per iPhone (versione 3.2)
+# Xtream per iPhone (versione 3.4)
 
-App per iPhone fatta apposta per il telefono, in verticale e con tema scuro.
+App per iPhone fatta apposta per il telefono, in verticale, con tema scuro e tema chiaro.
+
+Novità della versione 3.4:
+- Tema chiaro e tema scuro: in Impostazioni (o toccando l'iniziale in alto a destra), alla voce
+  "Aspetto", scegli Automatico (segue l'iPhone), Chiaro o Scuro. Il colore dell'app si sceglie
+  come prima, e vale per tutti e due i temi. I player restano sempre scuri, per vedere meglio i video.
+- Grafica rifinita: barre in vetro smerigliato, pulsanti con una luce morbida del colore dell'app,
+  piccoli rimbalzi al tocco su locandine e pulsanti, filtri e icone colorati, schermata di accesso
+  con un alone colorato, avvisi e finestre più leggibili.
 Parla direttamente con il server Xtream (non serve il PC acceso).
+
+Novità della versione 3.3:
+- Player universale dentro l'app (basato su VLC): legge MKV, AVI, audio Dolby AC3 e DTS, HEVC,
+  sottotitoli interni e quasi tutti gli altri formati. Parte da solo per i film e gli episodi che
+  il player dell'iPhone non legge, e quando un video non si apre ci passa in automatico dallo
+  stesso punto. Nella scheda del film c'è il pulsante "Player universale"; in Impostazioni >
+  Riproduzione puoi scegliere di usarlo sempre. Con lui non ci sono Picture in Picture e AirPlay.
+- Ora si possono scaricare anche i film MKV, AVI e simili.
+- La compilazione su GitHub scarica la libreria VLC (file Podfile): ci mette qualche minuto in più
+  e l'app pesa circa 50-70 MB in più.
 
 Novità della versione 3.2:
 - Anteprima: tieni premuto un canale e parte in un riquadro, senza aprire il player.

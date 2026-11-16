@@ -136,7 +136,11 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     private let sleepItem = PlayerViewController.actionButton("moon.zzz", "Timer")
     private let speedItem = PlayerViewController.actionButton("speedometer", "Velocità")
     private let favItem = PlayerViewController.actionButton("star", "Preferito")
+    #if canImport(MobileVLCKit)
+    private let vlcItem = PlayerViewController.actionButton("play.rectangle.on.rectangle", "Universale")
+    #else
     private let vlcItem = PlayerViewController.actionButton("arrow.up.right.square", "VLC")
+    #endif
     private let numberItem = PlayerViewController.actionButton("number", "Numero")
     private let skipItem = PlayerViewController.actionButton("forward.end", "Salta 90 s")
     private let errorBox = UIVisualEffectView(effect: UIBlurEffect(style: .systemMaterialDark))
@@ -388,8 +392,13 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
                       "Probabilmente hai raggiunto il numero massimo di connessioni del tuo abbonamento. Chiudi l'app sugli altri dispositivi, aspetta qualche secondo e riprova.")
         } else if timeout || status == 404 || status >= 500 || domain == NSURLErrorDomain {
             showError(what + " non risponde",
-                      (isLive ? "Potrebbe essere offline in questo momento." : "Il server non lo sta inviando in questo momento.") + " Riprova tra poco, oppure aprilo in VLC.")
+                      (isLive ? "Potrebbe essere offline in questo momento." : "Il server non lo sta inviando in questo momento.") + " Riprova tra poco, oppure prova " + PlayerViewController.otherPlayer + ".")
         } else {
+            #if canImport(MobileVLCKit)
+            // formato che l'iPhone non legge: passa da solo al player universale, dal punto in cui eri
+            host?.playerOpenExternal(self, url: externalURL)
+            return
+            #endif
             showError("Formato non supportato",
                       what + " usa un formato che il player dell'iPhone non legge (per esempio MKV o audio Dolby). In VLC si vede normalmente.")
         }
@@ -1292,7 +1301,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         errorMessage.numberOfLines = 0
         errorMessage.textAlignment = .center
         PlayerViewController.style(retryButton, title: "Riprova", filled: false)
-        PlayerViewController.style(errorVLCButton, title: "Apri in VLC", filled: true)
+        PlayerViewController.style(errorVLCButton, title: PlayerViewController.otherButton, filled: true)
         retryButton.addTarget(self, action: #selector(retryTapped), for: .touchUpInside)
         errorVLCButton.addTarget(self, action: #selector(vlcTapped), for: .touchUpInside)
         let buttons = UIStackView(arrangedSubviews: [retryButton, errorVLCButton])
@@ -1398,6 +1407,20 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
             UIColor.white.setFill()
             context.cgContext.fillEllipse(in: CGRect(origin: .zero, size: size))
         }
+    }
+
+    #if canImport(MobileVLCKit)
+    static let otherPlayer = "il player universale"
+    static let otherButton = "Player universale"
+    #else
+    static let otherPlayer = "ad aprirlo in VLC"
+    static let otherButton = "Apri in VLC"
+    #endif
+
+    /// Punto raggiunto: serve per passare al player universale senza perdere il segno.
+    var playbackSeconds: Double {
+        let s = player.currentTime().seconds
+        return s.isFinite ? s : 0
     }
 
     static func format(_ seconds: Double) -> String {

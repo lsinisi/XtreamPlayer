@@ -38,6 +38,11 @@ final class SettingsStore {
         }
     }
 
+    /// Un valore salvato (testo JSON), se c'è.
+    func value(_ key: String) -> String? {
+        return queue.sync { values[key] }
+    }
+
     /// Tutte le impostazioni come un unico oggetto JSON, per la pagina.
     func json() -> String {
         return queue.sync {

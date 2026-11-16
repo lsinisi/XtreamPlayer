@@ -9,12 +9,19 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
 
     private var webView: WKWebView!
     private let schemeHandler = AppSchemeHandler()
-    private var lightContent = true
+    /// nil finché la pagina non dice il tema: la barra di stato segue il sistema
+    private var lightPage: Bool?
     private var playerController: PlayerViewController?
     private var multiController: MultiViewController?
+    /// Ultimo video aperto: serve per passare al player universale dallo stesso punto.
+    private var lastPlayerBody: [String: Any]?
+    #if canImport(MobileVLCKit)
+    private var universalController: UniversalPlayerViewController?
+    #endif
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return lightContent ? .lightContent : .darkContent
+        guard let light = lightPage else { return .default }
+        return light ? .darkContent : .lightContent
     }
 
     /// L'interfaccia resta in verticale; il player invece ruota.
@@ -41,6 +48,10 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
         controller.add(bridge, name: "download")
         controller.add(bridge, name: "backup")
         controller.add(bridge, name: "open")
+        #if canImport(MobileVLCKit)
+        // la pagina sa che c'è il player universale
+        controller.addUserScript(WKUserScript(source: "window.XP_VLC = true;", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        #endif
         config.userContentController = controller
 
         let web = WKWebView(frame: .zero, configuration: config)
@@ -78,8 +89,15 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
                 openInVLC(url)
             }
         case "theme":
+            // tema chiaro / scuro scelto nella pagina: vale anche per i menu e le finestre di iOS
+            if let mode = body["mode"] as? String, let window = view.window {
+                let style = Theme.style(for: mode)
+                if window.overrideUserInterfaceStyle != style {
+                    window.overrideUserInterfaceStyle = style
+                }
+            }
             if let light = body["light"] as? Bool {
-                lightContent = !light
+                lightPage = light
                 setNeedsStatusBarAppearanceUpdate()
             }
         case "player":
@@ -105,6 +123,23 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
         let command = (body["cmd"] as? String) ?? ""
         switch command {
         case "open":
+            lastPlayerBody = body
+            #if canImport(MobileVLCKit)
+            if (body["engine"] as? String) == "vlc" {
+                openUniversal(body)
+                return
+            }
+            if let universal = universalController {
+                // si torna al player dell'iPhone: chiude prima quello universale
+                universal.host = nil
+                universal.close(notify: false)
+                universalController = nil
+                if universal.presentingViewController != nil {
+                    universal.dismiss(animated: false) { [weak self] in self?.handlePlayer(body) }
+                    return
+                }
+            }
+            #endif
             let player = playerController ?? PlayerViewController()
             player.host = self
             playerController = player
@@ -115,12 +150,60 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
             }
         case "update":
             playerController?.update(body)
+            #if canImport(MobileVLCKit)
+            universalController?.update(body)
+            #endif
         case "close":
             playerController?.close(notify: false)
+            #if canImport(MobileVLCKit)
+            universalController?.close(notify: false)
+            #endif
         default:
             break
         }
     }
+
+    #if canImport(MobileVLCKit)
+    /// Apre il player universale (VLC). Se è aperto il player dell'iPhone o il multischermo, li chiude prima.
+    private func openUniversal(_ body: [String: Any]) {
+        if let universal = universalController, universal.presentingViewController != nil {
+            universal.load(body)
+            return
+        }
+        let show: () -> Void = { [weak self] in
+            guard let self = self else { return }
+            let universal = UniversalPlayerViewController()
+            universal.host = self
+            self.universalController = universal
+            universal.load(body)
+            universal.modalPresentationStyle = .fullScreen
+            self.present(universal, animated: true)
+        }
+        if let player = playerController {
+            player.host = nil
+            player.close(notify: false)
+            playerController = nil
+            if player.presentingViewController != nil {
+                player.dismiss(animated: false, completion: show)
+                return
+            }
+        }
+        if let multi = multiController {
+            multiController = nil
+            multi.host = nil
+            multi.close()
+            if multi.presentingViewController != nil {
+                multi.dismiss(animated: false, completion: show)
+                return
+            }
+        }
+        if presentedViewController != nil {
+            dismiss(animated: false, completion: show)
+            return
+        }
+        show()
+    }
+    #endif
 
     /// Multischermo: più canali insieme. Se c'è il player aperto lo chiude prima.
     private func handleMulti(_ body: [String: Any]) {
@@ -316,10 +399,40 @@ extension WebViewController: PlayerHost {
         }
     }
 
+    /// Pulsante "Universale" o formato non letto dall'iPhone: continua nel player universale dallo stesso punto.
+    /// Senza il player universale apre l'app VLC.
     func playerOpenExternal(_ player: PlayerViewController, url: String) {
+        #if canImport(MobileVLCKit)
+        if var body = lastPlayerBody {
+            body["engine"] = "vlc"
+            if let raw = body["vlc"] as? String, !raw.isEmpty { body["url"] = raw }
+            let t = player.playbackSeconds
+            if t > 5 { body["start"] = t }
+            openUniversal(body)
+            return
+        }
+        #endif
         openInVLC(url)
     }
 }
+
+#if canImport(MobileVLCKit)
+extension WebViewController: UniversalPlayerHost {
+
+    func universal(_ player: UniversalPlayerViewController, event: String, data: [String: Any]) {
+        sendEvent(event, data)
+    }
+
+    func universalDidClose(_ player: UniversalPlayerViewController) {
+        if player.presentingViewController != nil {
+            player.dismiss(animated: true, completion: nil)
+        }
+        if universalController === player {
+            universalController = nil
+        }
+    }
+}
+#endif
 
 // MARK: eventi del multischermo verso la pagina
 

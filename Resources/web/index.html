@@ -3,16 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#000000">
 <title>Xtream</title>
-<script>try{var t=JSON.parse(localStorage.getItem('xp_theme'));if(t&&t!=='nero')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{var t=JSON.parse(localStorage.getItem('xp_theme'));if(t&&t!=='nero')document.documentElement.dataset.theme=t}catch(e){}
+try{var m=JSON.parse(localStorage.getItem('xp_mode'))||'auto';if(m==='light'||(m==='auto'&&matchMedia('(prefers-color-scheme: light)').matches))document.documentElement.dataset.mode='light'}catch(e){}</script>
 <style>
 @font-face{font-family:'Archivo Expanded';font-style:normal;font-display:swap;font-weight:100 900;src:url(/assets/archivo-x-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:'Archivo Expanded';font-style:normal;font-display:swap;font-weight:100 900;src:url(/assets/archivo-x-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 @font-face{font-family:'Archivo Condensed';font-style:normal;font-display:swap;font-weight:100 900;src:url(/assets/archivo-c-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F}
 
-/* ---------- colori: tutti i temi sono su fondo nero, cambia solo il colore d'accento ---------- */
+/* ---------- colori: qui il tema scuro; il tema chiaro è nel blocco "VERSIONE 4" più sotto ---------- */
 :root{
   color-scheme:dark;
   --bg:#000;--s1:#0f0f11;--s2:#19191c;--s3:#242428;--s4:#323237;
@@ -520,6 +521,168 @@ html.scr #sb{opacity:1}
 .brand i::after{left:12px;top:9px;border-left-width:9px;border-top-width:6px;border-bottom-width:6px}
 .form{border-radius:16px;box-shadow:inset 0 0 0 .5px var(--line)}
 
+/* =====================================================================
+   VERSIONE 4 — grafica rifinita e tema chiaro / scuro.
+   Il tema scuro e quello chiaro usano le stesse regole: cambiano solo
+   le variabili qui sotto (html[data-mode="light"] per il chiaro).
+   ===================================================================== */
+:root{
+  --bg-rgb:9,9,11;--grafc:#f5f5f7;
+  --barbg:rgba(9,9,11,.82);
+  --tabbg:rgba(26,26,31,.78);
+  --tabon:rgba(var(--accent-rgb),.16);
+  --hair:rgba(255,255,255,.14);
+  --hair2:rgba(255,255,255,.08);
+  --sheetbg:#141417;--sheetgrp:rgba(255,255,255,.07);
+  --dlgbg:#1c1c20;--fieldbg:#2a2a2f;
+  --toastbg:rgba(44,44,50,.92);
+  --scrim:rgba(0,0,0,.55);
+  --elev:0 1px 0 rgba(255,255,255,.04) inset;
+  --float:0 18px 48px rgba(0,0,0,.6);
+  --glow:0 10px 26px rgba(var(--accent-rgb),.38);
+  --aurora:.34;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+html[data-mode="light"]{
+  color-scheme:light;
+  --bg:#f2f2f7;--bg-rgb:242,242,247;--grafc:#1c1c1e;
+  --o1:#ffffff;--o2:#f2f2f7;--o3:#e5e5ea;
+  --s1:#ffffff;--s2:rgba(118,118,128,.12);--s3:rgba(118,118,128,.18);--s4:rgba(118,118,128,.26);
+  --line:rgba(60,60,67,.12);--line2:rgba(60,60,67,.18);
+  --text:#0b0b0f;--text2:#3a3a3c;--muted:#6e6e73;--faint:#aeaeb2;
+  --barbg:rgba(242,242,247,.84);
+  --tabbg:rgba(255,255,255,.84);
+  --tabon:rgba(var(--accent-rgb),.12);
+  --hair:rgba(0,0,0,.07);--hair2:rgba(0,0,0,.05);
+  --sheetbg:#f2f2f7;--sheetgrp:#ffffff;
+  --dlgbg:#ffffff;--fieldbg:#eeeef2;
+  --toastbg:rgba(255,255,255,.94);
+  --scrim:rgba(0,0,0,.32);
+  --elev:0 1px 2px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.04);
+  --float:0 14px 40px rgba(0,0,0,.14);
+  --glow:0 8px 22px rgba(var(--accent-rgb),.3);
+  --aurora:.22;
+}
+/* nel tema chiaro alcuni accenti diventano un po' più scuri, per leggersi bene sul bianco */
+html[data-mode="light"]:not([data-theme]){--accent:#2f62f5;--accent-rgb:47,98,245}
+html[data-mode="light"][data-theme="rubino"]{--accent:#e0352b;--accent-rgb:224,53,43}
+html[data-mode="light"][data-theme="ambra"]{--accent:#d48700;--accent-rgb:212,135,0;--on-accent:#fff}
+html[data-mode="light"][data-theme="smeraldo"]{--accent:#1f9d47;--accent-rgb:31,157,71;--on-accent:#fff}
+html[data-mode="light"][data-theme="ametista"]{--accent:#9b3fd6;--accent-rgb:155,63,214}
+html[data-mode="light"][data-theme="ghiaccio"]{--accent:#0a8fc4;--accent-rgb:10,143,196;--on-accent:#fff}
+html[data-mode="light"][data-theme="grafite"]{--accent:#1c1c1e;--accent-rgb:28,28,30;--on-accent:#fff}
+
+html,body{transition:background-color .35s var(--ease),color .35s var(--ease)}
+::selection{background:rgba(var(--accent-rgb),.3)}
+
+/* barre: vetro smerigliato che segue il tema */
+.bar.scrolled{background:var(--barbg);-webkit-backdrop-filter:blur(26px) saturate(1.8);backdrop-filter:blur(26px) saturate(1.8);box-shadow:0 .5px 0 var(--line2)}
+.tabs{background:var(--tabbg);box-shadow:inset 0 0 0 .5px var(--hair),var(--float)}
+.tabs button{position:relative;transition:background-color .25s var(--ease),color .25s var(--ease),transform .15s}
+.tabs button:active{transform:scale(.92)}
+.tabs button.on{background:var(--tabon);color:var(--accent)}
+.tabs button.on svg{stroke-width:2.2}
+#app::after{background:linear-gradient(rgba(var(--bg-rgb),0),rgba(var(--bg-rgb),.94) 72%)}
+
+/* superfici e liste */
+.group,.chlist,.form{box-shadow:inset 0 0 0 .5px var(--line),var(--elev)}
+.sheet{background:var(--sheetbg);box-shadow:0 -10px 40px rgba(0,0,0,.25),inset 0 .5px 0 var(--hair)}
+.sheet .group{background:var(--sheetgrp)}
+.sheetbg{background:var(--scrim)}
+.dlg{background:var(--scrim);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.dlg form{background:var(--dlgbg);box-shadow:var(--float);border-radius:22px}
+.dlg input{background:var(--fieldbg)}
+.toast{background:var(--toastbg);color:var(--text);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);box-shadow:inset 0 0 0 .5px var(--hair),var(--float);border-radius:16px}
+.pimg::after,.tlogo::after{box-shadow:inset 0 0 0 .5px var(--hair)}
+.li .lic{background:rgba(var(--accent-rgb),.15);color:var(--accent);border-radius:9px}
+.li .lic.a{background:var(--accent);color:var(--on-accent)}
+.li .chev{color:var(--faint)}
+
+/* pulsanti: l'accento ha una luce morbida, la pressione si sente */
+.btn{transition:transform .15s var(--ease),opacity .15s,background-color .2s}
+.btn:active{transform:scale(.97);opacity:.85}
+.btn.primary{background-image:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,0));box-shadow:var(--glow)}
+.btn.primary:disabled{box-shadow:none}
+.btn.tint{background:rgba(var(--accent-rgb),.14)}
+.ib{transition:transform .15s,opacity .15s}
+.ib:active{transform:scale(.9)}
+
+/* controlli */
+.seg{background:var(--s2);box-shadow:inset 0 0 0 .5px var(--hair2)}
+.seg button{transition:background-color .2s,color .2s,box-shadow .2s}
+.seg button.on{background:var(--s4);color:var(--text)}
+html[data-mode="light"] .seg button.on{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08),0 3px 8px rgba(0,0,0,.08)}
+.sfield{box-shadow:inset 0 0 0 .5px var(--hair2);transition:box-shadow .2s}
+.sfield:focus-within{box-shadow:inset 0 0 0 1.5px rgba(var(--accent-rgb),.6)}
+html[data-mode="light"] .sfield{background:rgba(118,118,128,.12)}
+.chip{transition:background-color .2s,color .2s,transform .15s}
+.chip:active{transform:scale(.95)}
+.chip.on{background:var(--accent);color:var(--on-accent);box-shadow:0 6px 16px rgba(var(--accent-rgb),.28)}
+.meta .tag{background:var(--s2);box-shadow:inset 0 0 0 .5px var(--hair2)}
+
+/* locandine e canali: un piccolo rimbalzo al tocco */
+.pimg,.tlogo,.fcard,.cont,.chrow,.mslot{transition:transform .2s var(--ease),opacity .2s,background-color .2s}
+.poster:active .pimg,.ctile:active .tlogo{opacity:1;transform:scale(.96)}
+.fcard:active{transform:scale(.985)}
+.cont:active{transform:scale(.98)}
+.pimg{box-shadow:0 6px 18px rgba(0,0,0,.22)}
+html[data-mode="light"] .pimg{box-shadow:0 4px 14px rgba(0,0,0,.12)}
+html[data-mode="light"] .tlogo{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+html[data-mode="light"] .clogo{background:rgba(118,118,128,.1)}
+html[data-mode="light"] .cont{background:#fff;box-shadow:inset 0 0 0 .5px var(--line),var(--elev)}
+html[data-mode="light"] .dl{background:#fff;box-shadow:inset 0 0 0 .5px var(--line),var(--elev)}
+html[data-mode="light"] .fcard{box-shadow:0 22px 50px rgba(0,0,0,.22)}
+.cont .go{box-shadow:var(--glow)}
+.tlogo .live,.ggnow{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+.prog .onair{box-shadow:0 0 0 3px rgba(255,69,58,.18)}
+.fdots i.on{background:var(--accent)}
+
+/* titoli */
+.big{letter-spacing:-.04em}
+.sec-h h2{letter-spacing:-.03em}
+.sec-h.tap svg{color:var(--accent)}
+
+/* luce d'ambiente: nel tema chiaro è più tenue e luminosa */
+html[data-mode="light"] #amb i{filter:blur(50px) saturate(1.5) brightness(1.15)}
+html[data-mode="light"] #amb.on{opacity:.4}
+html[data-mode="light"] .dhero.poster .bg{filter:blur(28px) brightness(1.05) saturate(1.2)}
+
+/* accesso: un alone del colore dell'app dietro al titolo */
+#login{position:relative;z-index:1}
+#login::before{content:"";position:fixed;left:0;right:0;top:0;height:70vh;z-index:-1;pointer-events:none;opacity:var(--aurora);
+  background:radial-gradient(60% 55% at 15% 0%,rgba(var(--accent-rgb),1),transparent 70%),radial-gradient(50% 45% at 95% 12%,rgba(var(--accent-rgb),.55),transparent 70%);
+  -webkit-mask-image:linear-gradient(#000 30%,transparent);mask-image:linear-gradient(#000 30%,transparent)}
+.brand i{background:linear-gradient(145deg,rgba(255,255,255,.28),rgba(255,255,255,0) 55%),var(--accent);box-shadow:var(--glow)}
+#login h1{font-size:38px;letter-spacing:-.045em}
+.form label span{color:var(--text2)}
+.form input::placeholder{color:var(--faint)}
+#loginBtn{height:52px;border-radius:16px;font-size:17px}
+
+/* scelta del tema */
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px}
+.mode{display:flex;flex-direction:column;align-items:center;gap:8px;font:600 13px var(--body);color:var(--text2);text-align:center}
+.mode .mprev{position:relative;width:100%;aspect-ratio:3/4;max-width:92px;border-radius:14px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line2);transition:box-shadow .2s,transform .15s}
+.mode:active .mprev{transform:scale(.95)}
+.mode.on{color:var(--accent)}
+.mode.on .mprev{box-shadow:0 0 0 2px var(--accent),0 6px 18px rgba(var(--accent-rgb),.3)}
+.mprev .half{position:absolute;inset:0;display:flex;flex-direction:column;gap:5px;padding:9px 8px}
+.mprev .half.d{background:#0d0d10}
+.mprev .half.l{background:#f2f2f7}
+.mprev .half i{display:block;height:7px;border-radius:4px}
+.mprev .half.d i{background:rgba(255,255,255,.14)}
+.mprev .half.l i{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.mprev .half i:first-child{width:55%;height:9px}
+.mprev .half i.a{width:70%;background:var(--accent)!important;margin-top:auto}
+.mprev .split{clip-path:inset(0 0 0 50%)}
+.mode .chk{width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--faint);display:grid;place-items:center}
+.mode.on .chk{background:var(--accent);box-shadow:none;color:var(--on-accent)}
+.mode .chk svg{width:12px;height:12px;stroke-width:3.4;opacity:0}
+.mode.on .chk svg{opacity:1}
+.sw{background:var(--bg);transition:transform .15s}
+.sw:active{transform:scale(.9)}
+.sw i{width:22px;height:22px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -585,6 +748,18 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const MH = window.webkit && window.webkit.messageHandlers;
 const IOS = !!(MH && MH.store);
 const NATIVE_PLAYER = !!(MH && MH.player);
+// player universale (VLC) dentro l'app: legge MKV, AVI, audio Dolby e quasi tutti gli altri formati
+const HAS_VLC = !!window.XP_VLC;
+const extOf = u => ((String(u || '').split('?')[0].match(/\.([a-z0-9]{2,5})$/i) || [])[1] || '').toLowerCase();
+// formati che il player dell'iPhone legge da solo (con Picture in Picture e AirPlay)
+const IOS_FORMATS = ['mp4', 'm4v', 'mov', 'm3u8'];
+function useVlc(cfg){
+  if (!HAS_VLC) return false;
+  if (cfg.engine) return cfg.engine === 'vlc';
+  if (lsGet('xp_vlc_always', false)) return true;
+  if (cfg.live || cfg.catchup) return false;   // le dirette arrivano in un formato che l'iPhone legge
+  return !IOS_FORMATS.includes(extOf(cfg.url));
+}
 const NATIVE_MULTI = !!(MH && MH.multi);
 const native = (name, body) => { try { MH[name].postMessage(body); return true; } catch(_) { return false; } };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -641,7 +816,7 @@ const THEMES = [
   {id:'smeraldo', name:'Smeraldo', c:'#30d158'},
   {id:'ametista', name:'Ametista', c:'#bf5af2'},
   {id:'ghiaccio', name:'Ghiaccio', c:'#64d2ff'},
-  {id:'grafite',  name:'Grafite',  c:'#f5f5f7'}
+  {id:'grafite',  name:'Grafite',  c:'var(--grafc)'}
 ];
 const SORTS = [['recent','Aggiunti di recente'], ['az','Dalla A alla Z'], ['rating','Voto più alto'], ['year','Anno più recente']];
 const STEP = 60;
@@ -698,14 +873,42 @@ function setTheme(id){
   id = themeOf(id).id;
   if (id === 'nero') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = id;
   lsSet('xp_theme', id);
-  if (IOS) native('theme', {light:false});
   $$('.swatches').forEach(el => el.innerHTML = swatches());
   $$('.sw-name').forEach(el => el.textContent = 'Colore: ' + themeOf(id).name);
+  $$('.modes').forEach(el => el.innerHTML = modes());
 }
+// tema chiaro / scuro: "auto" segue l'impostazione dell'iPhone
+const MODES = [['auto', 'Automatico'], ['light', 'Chiaro'], ['dark', 'Scuro']];
+const lightMQ = matchMedia('(prefers-color-scheme: light)');
+const curMode = () => { const m = lsGet('xp_mode', 'auto'); return MODES.some(x => x[0] === m) ? m : 'auto'; };
+function applyMode(){
+  const m = curMode(), light = m === 'light' || (m === 'auto' && lightMQ.matches);
+  if (light) document.documentElement.dataset.mode = 'light'; else delete document.documentElement.dataset.mode;
+  const tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.content = light ? '#f2f2f7' : '#09090b';
+  if (IOS) native('theme', {light, mode:m});
+}
+function setMode(m){
+  lsSet('xp_mode', m);
+  applyMode();
+  $$('.modes').forEach(el => el.innerHTML = modes());
+}
+const onSystemMode = () => { if (curMode() === 'auto') applyMode(); };
+if (lightMQ.addEventListener) lightMQ.addEventListener('change', onSystemMode); else lightMQ.addListener(onSystemMode);
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function modes(){
+  const cur = curMode();
+  const half = c => `<span class="half ${c}"><i></i><i></i><i></i><i class="a"></i></span>`;
+  const prev = {auto:half('l') + half('d split'), light:half('l'), dark:half('d')};
+  return MODES.map(([id, name]) => `<button class="mode${id === cur ? ' on' : ''}" data-mode-pick="${id}" aria-pressed="${id === cur}"><span class="mprev">${prev[id]}</span><span class="chk">${CHECK}</span>${name}</button>`).join('');
+}
+const appearance = () => `<div class="cap">Aspetto</div><div class="group"><div class="modes">${modes()}</div></div>`
+  + `<p class="note">Con "Automatico" l'app diventa chiara o scura insieme all'iPhone (Impostazioni, Schermo e luminosità).</p>`
+  + `<div class="cap">Colore dell'app</div><div class="group"><div class="swatches">${swatches()}</div><div class="sw-name">Colore: ${esc(themeOf(curTheme()).name)}</div></div>`;
 function swatches(){
   return THEMES.map(t => `<button class="sw${t.id === curTheme() ? ' on' : ''}" data-theme-pick="${t.id}" style="--c:${t.c}" aria-label="Colore ${t.name}"><i></i></button>`).join('');
 }
-const accentHex = () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+// colore d'accento per i player nativi, che restano sempre scuri: si usa la versione per il tema scuro
+const accentHex = () => { const t = themeOf(curTheme()); return t.id === 'grafite' ? '#f5f5f7' : t.c; };
 
 // ================= server Xtream =================
 // Al massimo 2 richieste insieme: molti server bloccano chi ne fa troppe.
@@ -1699,7 +1902,7 @@ function paintDetail(o, r){
     + `<div class="drow"><button class="btn gray" data-act="fav">${isFav(o.key) ? ICON.check + ' Nella lista' : ICON.plus + ' La mia lista'}</button>`
     + (o.type === 'movie' ? `<button class="btn gray" data-act="dl" id="dlbtn">${dlBtnHtml('movie:' + o.id)}</button>` : '') + `</div>`
     + `<div class="drow"><button class="btn gray" data-act="trailer">${ICON.play} Trailer</button>`
-    + (o.type === 'movie' ? `<button class="btn gray" data-act="vlc">${ICON.ext} Apri in VLC</button>` : '') + `</div></div>`
+    + (o.type === 'movie' ? `<button class="btn gray" data-act="vlc">${ICON.ext} ${HAS_VLC ? 'Player universale' : 'Apri in VLC'}</button>` : '') + `</div></div>`
     + (plot ? `<p class="plot clamp" id="plot">${esc(plot)}</p><button class="plotmore hidden" id="plotMore">Altro</button>` : '')
     + (cast || dir ? `<p class="credits">${cast ? `<span><b>Cast</b>${esc(cast)}</span>` : ''}${dir ? `<span><b>Regia</b>${esc(dir)}</span>` : ''}</p>` : '')
     + (tmdbUrl(o, inf) ? `<button class="plotmore" style="margin-top:12px" data-open="${esc(tmdbUrl(o, inf))}">Voti e recensioni su TMDB</button>` : '')
@@ -1939,9 +2142,11 @@ function pSettings(r){
     + `<div class="li"><span class="lt"><b>Prossimo episodio automatico</b><span>Alla fine di un episodio parte il successivo</span></span>${tg('autonext', lsGet('xp_autonext', true))}</div>`
     + `<div class="li"><span class="lt"><b>Riapri l'ultimo canale</b><span>All'avvio riparte il canale che guardavi</span></span>${tg('startlast', lsGet('xp_startlast', false))}</div>`
     + `<div class="li"><span class="lt"><b>Canale di riserva</b><span>Se un canale non parte, provo la sua versione HD o FHD</span></span>${tg('fallback', lsGet('xp_fallback', false))}</div>`
-    + `<div class="li"><span class="lt"><b>Video a tutto schermo</b><span>Riempie lo schermo tagliando i bordi</span></span>${tg('fill', fill)}</div></div>`
+    + `<div class="li"><span class="lt"><b>Video a tutto schermo</b><span>Riempie lo schermo tagliando i bordi</span></span>${tg('fill', fill)}</div>`
+    + (HAS_VLC ? `<div class="li"><span class="lt"><b>Usa sempre il player universale</b><span>Anche per film e canali che l'iPhone legge da solo</span></span>${tg('vlcalways', lsGet('xp_vlc_always', false))}</div>` : '') + `</div>`
+    + (HAS_VLC ? `<p class="note">Il player universale parte da solo per i formati che l'iPhone non legge (MKV, AVI, audio Dolby) e quando un video non si apre. Con lui non ci sono Picture in Picture e AirPlay.</p>` : '')
     + `<p class="note">Il Picture in Picture parte da solo quando esci dall'app mentre guardi qualcosa. Se non succede, controlla in Impostazioni dell'iPhone, Generali, Picture in Picture.</p>`
-    + `<div class="cap">Colore dell'app</div><div class="group"><div class="swatches">${swatches()}</div><div class="sw-name">Colore: ${esc(themeOf(curTheme()).name)}</div></div>`
+    + appearance()
     + `<div class="cap">Organizza le sezioni</div><div class="group">`
     + li({title:'TV in diretta', sub:sum('live'), icon:ICON.tv, route:{v:'cats', type:'live'}})
     + li({title:'Film', sub:sum('movie'), icon:ICON.film, route:{v:'cats', type:'movie'}})
@@ -1959,7 +2164,7 @@ function pSettings(r){
     + `<div class="cap">Catalogo</div><div class="group">`
     + li({title:'Aggiorna il catalogo', sub:'Scarica di nuovo canali, film e serie', icon:ICON.refresh, attrs:'data-reload', chev:false})
     + li({title:'Le mie playlist', icon:ICON.list, route:{v:'playlists'}}) + `</div>`
-    + `<p class="note" style="margin-top:26px;text-align:center">Xtream per iPhone, versione 3.2</p>`);
+    + `<p class="note" style="margin-top:26px;text-align:center">Xtream per iPhone, versione 3.3</p>`);
 }
 async function editCats(type, fn){
   if (parentalOn() && !(await unlock('Per cambiare le categorie serve il PIN.'))) return;
@@ -2030,7 +2235,7 @@ function accountSheet(){
   const cons = ui.max_connections ? `Connessioni in uso: ${ui.active_cons ?? 0} su ${ui.max_connections}` : '';
   openSheet(`<div class="grab"></div><div class="acct"><span class="avatar">${esc(name.slice(0, 1).toUpperCase())}</span><div><b>${esc(act ? act.name : name)}</b><span>${esc(expText(ui.exp_date && ui.exp_date !== 'null' ? Number(ui.exp_date) : null))}</span>${cons ? `<span>${esc(cons)}</span>` : ''}</div></div>`
     + `<div class="group">` + li({title:'La mia lista', icon:ICON.bookmark, route:{v:'list'}}) + li({title:'Scaricati', icon:ICON.dl, value:dlList().length || null, route:{v:'downloads'}}) + li({title:'Impostazioni', icon:ICON.sliders, route:{v:'settings'}}) + li({title:'Cambia playlist', icon:ICON.list, route:{v:'playlists'}}) + `</div>`
-    + `<div class="cap">Colore dell'app</div><div class="group"><div class="swatches">${swatches()}</div><div class="sw-name">Colore: ${esc(themeOf(curTheme()).name)}</div></div>`
+    + appearance()
     + `<div class="cap"></div><div class="group">` + li({title:'<span class="danger">Esci dall\'account</span>', icon:ICON.logout, attrs:'data-logout', chev:false}) + `</div>`);
 }
 
@@ -2042,10 +2247,10 @@ function iosSource(cfg){
   const hlsOk = !Array.isArray(fm) || !fm.length || fm.includes('m3u8');
   return hlsOk ? cfg.url.replace(/\.ts(\?|$)/, '.m3u8$1') : cfg.url;
 }
-function playMovie(o){
+function playMovie(o, engine){
   const [s, u, p] = authParts(), ext = o.raw.container_extension || 'mp4';
   const loc = dlLocal('movie:' + o.id);
-  openPlayer({title:o.name, sub:[o.year, fmtDur(infoOf(o.info).duration_secs)].filter(Boolean).join('   '), url:loc || `${s}/movie/${u}/${p}/${o.id}.${ext}`, dl:!!loc,
+  openPlayer({engine, title:o.name, sub:[o.year, fmtDur(infoOf(o.info).duration_secs)].filter(Boolean).join('   '), url:loc || `${s}/movie/${u}/${p}/${o.id}.${ext}`, dl:!!loc,
     pk:'movie:' + o.id, item:o, meta:{kind:'movie', id:o.id, name:o.name, img:o.img, ext}});
 }
 async function playSeries(o){
@@ -2107,7 +2312,8 @@ function openPlayer(cfg){
     .filter(Boolean).sort((a, b) => (b.ts || 0) - (a.ts || 0))[0];
   const start = p && p.t > 30 && (!p.d || p.t < p.d - 60) ? p.t : 0;
   const z = cfg.zap;
-  const msg = {cmd:'open', url:iosSource(cfg), vlc:cfg.dl ? '' : cfg.url, title:cfg.title, sub:cfg.sub || '', live:!!cfg.live, catchup:!!cfg.catchup, start,
+  const vlcEngine = useVlc(cfg);
+  const msg = {cmd:'open', url:vlcEngine ? cfg.url : iosSource(cfg), vlc:cfg.dl ? '' : cfg.url, engine:vlcEngine ? 'vlc' : 'native', title:cfg.title, sub:cfg.sub || '', live:!!cfg.live, catchup:!!cfg.catchup, start,
     zap:z ? {i:z.i, name:z.name, list:z.list.map(c => ({name:c.name, num:String(c.raw.num ?? '')}))} : null,
     next:cfg.next ? {title:nextTitle(cfg.next)} : null, autonext:lsGet('xp_autonext', true),
     fav:cfg.live && cfg.item ? isFav(cfg.item.key) : null, fill:lsGet('xp_fit', 'contain') === 'cover', accent:accentHex(),
@@ -2282,7 +2488,8 @@ async function startMulti(keys){
 
 // ================= video scaricati: film ed episodi da vedere senza connessione =================
 const NATIVE_DL = !!(MH && MH.download);
-const DL_OK = ['mp4', 'm4v', 'mov'];   // i formati che l'iPhone legge da solo
+const DL_OK = HAS_VLC ? ['mp4', 'm4v', 'mov', 'mkv', 'avi', 'ts', 'webm', 'flv', 'wmv', 'mpg', 'mpeg', 'm2ts', 'mts', '3gp', 'divx', 'ogv', 'vob']
+  : ['mp4', 'm4v', 'mov'];   // senza il player universale: solo i formati che l'iPhone legge da solo
 let DL = {}, DLORDER = [];
 const curAcc = () => S.creds ? S.creds.username + '@' + S.creds.server : '';
 const dlProg = () => lsGet('xp_dlprog', {});
@@ -2311,7 +2518,7 @@ function onDownloads(items){
 function startDownload(d){
   if (!NATIVE_DL) return toast('I download funzionano nell\'app installata sull\'iPhone');
   const ext = String(d.ext || '').toLowerCase();
-  if (!DL_OK.includes(ext)) return toast(`Questo video è in formato ${ext.toUpperCase() || 'sconosciuto'}: l'iPhone non lo legge da solo, quindi non si può scaricare`);
+  if (!DL_OK.includes(ext)) return toast(HAS_VLC ? `Il formato ${ext.toUpperCase() || 'sconosciuto'} non si può scaricare` : `Questo video è in formato ${ext.toUpperCase() || 'sconosciuto'}: l'iPhone non lo legge da solo, quindi non si può scaricare`);
   const mc = Number(S.acct && S.acct.max_connections) || 0;
   if (mc === 1 && !Object.values(DL).some(x => x.state === 'loading')
     && !confirm('Il tuo abbonamento permette una sola connessione alla volta: finché il download non finisce potresti non riuscire a guardare altro. Vuoi scaricare lo stesso?')) return;
@@ -2556,6 +2763,7 @@ document.addEventListener('click', async e => {
   const t = e.target;
   if ($('#app').classList.contains('hidden')) return;
   const th = t.closest('[data-theme-pick]'); if (th) { setTheme(th.dataset.themePick); return; }
+  const md = t.closest('[data-mode-pick]'); if (md) { setMode(md.dataset.modePick); return; }
   if (t.closest('[data-back]')) return back();
   const tb = t.closest('[data-tab]'); if (tb) return setTab(tb.dataset.tab);
   if (t.closest('[data-account]')) return accountSheet();
@@ -2627,6 +2835,7 @@ document.addEventListener('click', async e => {
       if (a === 'fav') { const on = toggleFav(o.key); act.innerHTML = on ? ICON.check + ' Nella lista' : ICON.plus + ' La mia lista'; toast(on ? 'Aggiunto alla tua lista' : 'Tolto dalla tua lista'); return; }
       if (a === 'trailer') return openLink(trailerUrl(o));
       if (a === 'dl') return dlTap('movie:' + o.id, () => dlMovie(o));
+      if (a === 'vlc' && HAS_VLC) return playMovie(o, 'vlc');
       if (a === 'vlc') { const [s, u, p] = authParts(); native('external', {url:`${s}/movie/${u}/${p}/${o.id}.${o.raw.container_extension || 'mp4'}`, title:o.name}) || toast('Disponibile nell\'app per iPhone'); return; }
     }
     if (t.closest('#plotMore')) { $('#plot').classList.toggle('clamp'); $('#plotMore').textContent = $('#plot').classList.contains('clamp') ? 'Altro' : 'Meno'; return; }
@@ -2650,7 +2859,7 @@ document.addEventListener('click', async e => {
   if (sw) {
     const id = sw.dataset.set;
     if (id === 'fill') lsSet('xp_fit', lsGet('xp_fit', 'contain') === 'cover' ? 'contain' : 'cover');
-    else { const key = {autonext:'xp_autonext', startlast:'xp_startlast', fallback:'xp_fallback'}[id]; lsSet(key, !lsGet(key, id === 'autonext')); }
+    else { const key = {autonext:'xp_autonext', startlast:'xp_startlast', fallback:'xp_fallback', vlcalways:'xp_vlc_always'}[id]; lsSet(key, !lsGet(key, id === 'autonext')); }
     sw.classList.toggle('on'); sw.setAttribute('aria-checked', sw.classList.contains('on'));
     return;
   }
@@ -2721,6 +2930,7 @@ async function pinAction(act){
   S.liveMode = lsGet('xp_livemode', 'cats') === 'guide' ? 'guide' : 'cats';
   const tm = lsGet('xp_typemode', null); if (tm && typeof tm === 'object') S.typeMode = {movie:tm.movie === 'cats' ? 'cats' : 'discover', series:tm.series === 'cats' ? 'cats' : 'discover'};
   setTheme(lsGet('xp_theme', 'nero'));
+  applyMode();
   if (NATIVE_DL) native('download', {cmd:'list'});
   const saved = lsGet('xp_creds', null);
   if (saved && saved.server && !playlists().some(p => plKey(p) === plKey(saved))) {

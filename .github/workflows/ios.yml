@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: macos-15
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Scarica il progetto
         uses: actions/checkout@v4
@@ -21,10 +21,13 @@ jobs:
       - name: Crea il progetto Xcode
         run: xcodegen generate
 
+      - name: Scarica VLC per il player universale
+        run: pod install
+
       - name: Compila
         run: |
           xcodebuild \
-            -project XtreamPlayer.xcodeproj \
+            -workspace XtreamPlayer.xcworkspace \
             -scheme XtreamPlayer \
             -configuration Release \
             -sdk iphoneos \
@@ -38,6 +41,14 @@ jobs:
           APP="build/Build/Products/Release-iphoneos/XtreamPlayer.app"
           test -d "$APP"
           test -f "$APP/web/index.html"
+          VLC="$APP/Frameworks/MobileVLCKit.framework/MobileVLCKit"
+          if [ -f "$VLC" ]; then
+            xcrun bitcode_strip -r "$VLC" -o "$VLC" || true
+            echo "Player universale incluso"
+          else
+            echo "ATTENZIONE: il player universale non è stato incluso"
+            exit 1
+          fi
           mkdir -p Payload
           cp -R "$APP" Payload/
           zip -qry XtreamPlayer.ipa Payload
