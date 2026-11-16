@@ -15,7 +15,7 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
     private var multiController: MultiViewController?
     /// Ultimo video aperto: serve per passare al player universale dallo stesso punto.
     private var lastPlayerBody: [String: Any]?
-    #if canImport(MobileVLCKit)
+    #if canImport(VLCKit)
     private var universalController: UniversalPlayerViewController?
     #endif
 
@@ -48,7 +48,7 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
         controller.add(bridge, name: "download")
         controller.add(bridge, name: "backup")
         controller.add(bridge, name: "open")
-        #if canImport(MobileVLCKit)
+        #if canImport(VLCKit)
         // la pagina sa che c'è il player universale
         controller.addUserScript(WKUserScript(source: "window.XP_VLC = true;", injectionTime: .atDocumentStart, forMainFrameOnly: true))
         #endif
@@ -124,7 +124,7 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
         switch command {
         case "open":
             lastPlayerBody = body
-            #if canImport(MobileVLCKit)
+            #if canImport(VLCKit)
             if (body["engine"] as? String) == "vlc" {
                 openUniversal(body)
                 return
@@ -150,12 +150,12 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
             }
         case "update":
             playerController?.update(body)
-            #if canImport(MobileVLCKit)
+            #if canImport(VLCKit)
             universalController?.update(body)
             #endif
         case "close":
             playerController?.close(notify: false)
-            #if canImport(MobileVLCKit)
+            #if canImport(VLCKit)
             universalController?.close(notify: false)
             #endif
         default:
@@ -163,7 +163,7 @@ final class WebViewController: UIViewController, WKNavigationDelegate, WKUIDeleg
         }
     }
 
-    #if canImport(MobileVLCKit)
+    #if canImport(VLCKit)
     /// Apre il player universale (VLC). Se è aperto il player dell'iPhone o il multischermo, li chiude prima.
     private func openUniversal(_ body: [String: Any]) {
         if let universal = universalController, universal.presentingViewController != nil {
@@ -402,7 +402,7 @@ extension WebViewController: PlayerHost {
     /// Pulsante "Universale" o formato non letto dall'iPhone: continua nel player universale dallo stesso punto.
     /// Senza il player universale apre l'app VLC.
     func playerOpenExternal(_ player: PlayerViewController, url: String) {
-        #if canImport(MobileVLCKit)
+        #if canImport(VLCKit)
         if var body = lastPlayerBody {
             body["engine"] = "vlc"
             if let raw = body["vlc"] as? String, !raw.isEmpty { body["url"] = raw }
@@ -416,7 +416,7 @@ extension WebViewController: PlayerHost {
     }
 }
 
-#if canImport(MobileVLCKit)
+#if canImport(VLCKit)
 extension WebViewController: UniversalPlayerHost {
 
     func universal(_ player: UniversalPlayerViewController, event: String, data: [String: Any]) {

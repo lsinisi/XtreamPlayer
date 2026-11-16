@@ -2144,7 +2144,7 @@ function pSettings(r){
     + `<div class="li"><span class="lt"><b>Canale di riserva</b><span>Se un canale non parte, provo la sua versione HD o FHD</span></span>${tg('fallback', lsGet('xp_fallback', false))}</div>`
     + `<div class="li"><span class="lt"><b>Video a tutto schermo</b><span>Riempie lo schermo tagliando i bordi</span></span>${tg('fill', fill)}</div>`
     + (HAS_VLC ? `<div class="li"><span class="lt"><b>Usa sempre il player universale</b><span>Anche per film e canali che l'iPhone legge da solo</span></span>${tg('vlcalways', lsGet('xp_vlc_always', false))}</div>` : '') + `</div>`
-    + (HAS_VLC ? `<p class="note">Il player universale parte da solo per i formati che l'iPhone non legge (MKV, AVI, audio Dolby) e quando un video non si apre. Con lui non ci sono Picture in Picture e AirPlay.</p>` : '')
+    + (HAS_VLC ? `<p class="note">Il player universale parte da solo per i formati che l'iPhone non legge (MKV, AVI, audio Dolby) e quando un video non si apre. Anche lui ha il Picture in Picture; non ha AirPlay.</p>` : '')
     + `<p class="note">Il Picture in Picture parte da solo quando esci dall'app mentre guardi qualcosa. Se non succede, controlla in Impostazioni dell'iPhone, Generali, Picture in Picture.</p>`
     + appearance()
     + `<div class="cap">Organizza le sezioni</div><div class="group">`

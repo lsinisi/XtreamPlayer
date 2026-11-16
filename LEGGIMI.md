@@ -9,6 +9,10 @@ Novità della versione 3.4:
 - Grafica rifinita: barre in vetro smerigliato, pulsanti con una luce morbida del colore dell'app,
   piccoli rimbalzi al tocco su locandine e pulsanti, filtri e icone colorati, schermata di accesso
   con un alone colorato, avvisi e finestre più leggibili.
+- Player universale aggiornato a VLCKit 4: ora anche lui ha il Picture in Picture (miniplayer).
+  Parte da solo quando esci dall'app mentre guardi qualcosa, oppure con il pulsante "Mini".
+  Con lo schermo bloccato l'audio continua e funzionano play, pausa, avanti e indietro.
+  VLCKit 4 è ancora una versione di prova ("alpha") di VideoLAN: se qualcosa non va, segnalalo.
 Parla direttamente con il server Xtream (non serve il PC acceso).
 
 Novità della versione 3.3:

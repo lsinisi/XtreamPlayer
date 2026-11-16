@@ -41,7 +41,7 @@ jobs:
           APP="build/Build/Products/Release-iphoneos/XtreamPlayer.app"
           test -d "$APP"
           test -f "$APP/web/index.html"
-          VLC="$APP/Frameworks/MobileVLCKit.framework/MobileVLCKit"
+          VLC="$APP/Frameworks/VLCKit.framework/VLCKit"
           if [ -f "$VLC" ]; then
             xcrun bitcode_strip -r "$VLC" -o "$VLC" || true
             echo "Player universale incluso"

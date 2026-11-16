@@ -136,7 +136,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     private let sleepItem = PlayerViewController.actionButton("moon.zzz", "Timer")
     private let speedItem = PlayerViewController.actionButton("speedometer", "Velocità")
     private let favItem = PlayerViewController.actionButton("star", "Preferito")
-    #if canImport(MobileVLCKit)
+    #if canImport(VLCKit)
     private let vlcItem = PlayerViewController.actionButton("play.rectangle.on.rectangle", "Universale")
     #else
     private let vlcItem = PlayerViewController.actionButton("arrow.up.right.square", "VLC")
@@ -395,7 +395,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
             showError(what + " non risponde",
                       (isLive ? "Potrebbe essere offline in questo momento." : "Il server non lo sta inviando in questo momento.") + " Riprova tra poco, oppure prova " + PlayerViewController.otherPlayer + ".")
         } else {
-            #if canImport(MobileVLCKit)
+            #if canImport(VLCKit)
             // formato che l'iPhone non legge: passa da solo al player universale, dal punto in cui eri
             host?.playerOpenExternal(self, url: externalURL)
             return
@@ -1410,7 +1410,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         }
     }
 
-    #if canImport(MobileVLCKit)
+    #if canImport(VLCKit)
     static let otherPlayer = "il player universale"
     static let otherButton = "Player universale"
     #else
