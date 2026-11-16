@@ -46,6 +46,10 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
     private var pollTimer: Timer?
     private var nextTimer: Timer?
     private var accent = UIColor.systemBlue
+    /// traccia video spenta mentre l'app è in background (così l'audio continua)
+    private var hiddenVideoTrack: Int?
+    private var appObservers: [NSObjectProtocol] = []
+    private var remoteTargets: [(MPRemoteCommand, Any)] = []
 
     // MARK: viste
     private let videoHolder = UIView()
@@ -88,6 +92,8 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         pollTimer?.invalidate()
         hideTimer?.invalidate()
         nextTimer?.invalidate()
+        appObservers.forEach { NotificationCenter.default.removeObserver($0) }
+        remoteTargets.forEach { $0.0.removeTarget($0.1) }
     }
 
     // MARK: comandi dalla pagina
@@ -147,6 +153,11 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         nextTimer?.invalidate()
         let (t, d) = times()
         vlc.stop()
+        remoteTargets.forEach { $0.0.removeTarget($0.1) }
+        remoteTargets = []
+        appObservers.forEach { NotificationCenter.default.removeObserver($0) }
+        appObservers = []
+        hiddenVideoTrack = nil
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
         if notify {
             host?.universal(self, event: "closed", data: (!isLive && d > 0) ? ["t": t, "d": d] : [:])
@@ -178,6 +189,10 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         if isLive { media.addOption(":http-continuous") }
         vlc.drawable = videoView
         vlc.media = media
+        PlaybackAudio.activate()
+        hiddenVideoTrack = nil
+        if remoteTargets.isEmpty { setupRemoteCommands() }
+        if appObservers.isEmpty { observeApp() }
         vlc.play()
         if speed != 1 { vlc.rate = speed }
         pollTimer?.invalidate()
@@ -337,7 +352,76 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         var info: [String: Any] = [MPMediaItemPropertyTitle: titleLabel.text ?? ""]
         if let sub = subLabel.text, !sub.isEmpty { info[MPMediaItemPropertyArtist] = sub }
         info[MPNowPlayingInfoPropertyIsLiveStream] = isLive
+        let (t, d) = times()
+        if !isLive && d > 0 {
+            info[MPMediaItemPropertyPlaybackDuration] = d
+            info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = t
+        }
+        info[MPNowPlayingInfoPropertyPlaybackRate] = vlc.isPlaying ? Double(speed) : 0.0
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+    }
+
+    // MARK: background e schermo bloccato
+
+    /// In background la parte video di VLC si ferma: si spegne la traccia video e l'audio continua;
+    /// quando si torna nell'app la traccia video si riaccende.
+    private func observeApp() {
+        let center = NotificationCenter.default
+        appObservers.append(center.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.enteredBackground()
+        })
+        appObservers.append(center.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.enteringForeground()
+        })
+    }
+
+    private func enteredBackground() {
+        guard !closing, hiddenVideoTrack == nil else { return }
+        PlaybackAudio.activate()
+        let track = Int(vlc.currentVideoTrackIndex)
+        guard track >= 0 else { return }
+        hiddenVideoTrack = track
+        vlc.currentVideoTrackIndex = -1
+        lastMove = Date()
+        updateNowPlaying()
+    }
+
+    private func enteringForeground() {
+        guard let track = hiddenVideoTrack else { return }
+        hiddenVideoTrack = nil
+        vlc.currentVideoTrackIndex = numericCast(track)
+        vlc.drawable = videoView
+        lastMove = Date()
+        if fill { applyFill() }
+    }
+
+    /// Comandi dello schermo bloccato e del Centro di Controllo (play, pausa, avanti e indietro).
+    private func setupRemoteCommands() {
+        let commands = MPRemoteCommandCenter.shared()
+        func add(_ command: MPRemoteCommand, _ action: @escaping (UniversalPlayerViewController) -> Void) {
+            command.isEnabled = true
+            let token = command.addTarget { [weak self] _ in
+                guard let self = self, !self.closing else { return .noActionableNowPlayingItem }
+                action(self)
+                self.lastMove = Date()
+                self.updateNowPlaying()
+                return .success
+            }
+            remoteTargets.append((command, token))
+        }
+        add(commands.playCommand) { $0.vlc.play() }
+        add(commands.pauseCommand) { $0.vlc.pause() }
+        add(commands.togglePlayPauseCommand) { p in
+            if p.vlc.isPlaying { p.vlc.pause() } else { p.vlc.play() }
+        }
+        commands.skipForwardCommand.preferredIntervals = [10]
+        add(commands.skipForwardCommand) { p in
+            if !p.isLive { p.vlc.jumpForward(10) }
+        }
+        commands.skipBackwardCommand.preferredIntervals = [10]
+        add(commands.skipBackwardCommand) { p in
+            if !p.isLive { p.vlc.jumpBackward(10) }
+        }
     }
 
     // MARK: pulsanti
@@ -347,6 +431,7 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
     @objc private func playTapped() {
         if vlc.isPlaying { vlc.pause() } else { vlc.play() }
         lastMove = Date()
+        updateNowPlaying()
         scheduleHide()
     }
 

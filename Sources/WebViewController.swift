@@ -424,6 +424,7 @@ extension WebViewController: UniversalPlayerHost {
     }
 
     func universalDidClose(_ player: UniversalPlayerViewController) {
+        PlaybackAudio.activate()
         if player.presentingViewController != nil {
             player.dismiss(animated: true, completion: nil)
         }

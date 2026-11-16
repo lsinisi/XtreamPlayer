@@ -151,6 +151,7 @@ final class MultiTile: UIView {
         failObserver = NotificationCenter.default.addObserver(forName: .AVPlayerItemFailedToPlayToEndTime, object: item, queue: .main) { [weak self] _ in
             self?.failed()
         }
+        PlaybackAudio.activate()
         player.replaceCurrentItem(with: item)
         player.play()
         watchdog?.invalidate()

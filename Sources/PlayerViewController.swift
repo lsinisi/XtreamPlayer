@@ -318,6 +318,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         itemObservers.append(center.addObserver(forName: .AVPlayerItemFailedToPlayToEndTime, object: item, queue: .main) { [weak self] note in
             self?.failed(note.userInfo?[AVPlayerItemFailedToPlayToEndTimeErrorKey] as? Error, timeout: false)
         })
+        PlaybackAudio.activate()
         player.replaceCurrentItem(with: item)
         player.play()
         armWatchdog()

@@ -9,10 +9,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Audio "da film": continua con lo schermo bloccato e permette il Picture in Picture
-        let session = AVAudioSession.sharedInstance()
-        try? session.setCategory(.playback, mode: .moviePlayback, options: [])
-        try? session.setActive(true)
+        PlaybackAudio.activate()
 
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.backgroundColor = Theme.background
@@ -28,6 +25,20 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String,
                      completionHandler: @escaping () -> Void) {
         DownloadManager.shared.backgroundCompletion = completionHandler
+    }
+}
+
+/// Audio "da film": continua con lo schermo bloccato e permette il Picture in Picture.
+/// Va riattivato prima di ogni riproduzione: il player universale (VLC), quando si ferma,
+/// spegne la sessione audio e senza questo il player dell'iPhone perderebbe
+/// la riproduzione in background, con lo schermo bloccato e il Picture in Picture automatico.
+enum PlaybackAudio {
+    static func activate() {
+        let session = AVAudioSession.sharedInstance()
+        if session.category != .playback || session.mode != .moviePlayback || !session.categoryOptions.isEmpty {
+            try? session.setCategory(.playback, mode: .moviePlayback, options: [])
+        }
+        try? session.setActive(true)
     }
 }
 
