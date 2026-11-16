@@ -549,7 +549,7 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
 
     // menu delle tracce: audio e sottotitoli che ci sono dentro il file
     private func trackMenuItems() -> [UIMenuElement] {
-        func list(_ tracks: [VLCMediaPlayerTrack], none: (() -> Void)?) -> [UIAction] {
+        func list(_ tracks: [VLCMediaPlayer.Track], none: (() -> Void)?) -> [UIAction] {
             var out: [UIAction] = []
             if let none = none, !tracks.isEmpty {
                 out.append(UIAction(title: "Nessuno", state: tracks.contains { $0.isSelected } ? .off : .on) { _ in none() })
