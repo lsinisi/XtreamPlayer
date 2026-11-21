@@ -1,8 +1,8 @@
-# Xtream per iPhone (versione 3.4)
+# Xtream per iPhone (versione 3.5)
 
 App per iPhone fatta apposta per il telefono, in verticale, con tema scuro e tema chiaro.
 
-Novità della versione 3.4:
+Novità delle versioni 3.4 e 3.5:
 - Tema chiaro e tema scuro: in Impostazioni (o toccando l'iniziale in alto a destra), alla voce
   "Aspetto", scegli Automatico (segue l'iPhone), Chiaro o Scuro. Il colore dell'app si sceglie
   come prima, e vale per tutti e due i temi. I player restano sempre scuri, per vedere meglio i video.
@@ -13,6 +13,13 @@ Novità della versione 3.4:
   Parte da solo quando esci dall'app mentre guardi qualcosa, oppure con il pulsante "Mini".
   Con lo schermo bloccato l'audio continua e funzionano play, pausa, avanti e indietro.
   VLCKit 4 è ancora una versione di prova ("alpha") di VideoLAN: se qualcosa non va, segnalalo.
+- Riproduzione più stabile: se l'immagine si blocca mentre l'audio va avanti (nell'app o nel
+  miniplayer) il player se ne accorge e si ripara da solo in pochi secondi, senza tornare
+  all'inizio; lo stesso se il video resta fermo a caricare a metà.
+- Miniplayer dopo il blocco dello schermo: allo sblocco l'immagine torna da sola.
+- Con lo schermo bloccato mentre guardi nell'app (senza miniplayer) l'audio continua.
+- Se un film si interrompe e riparte da solo, riprende dal punto in cui era (prima tornava all'inizio).
+- Chiudendo il miniplayer del player universale con la X il video si mette in pausa (prima l'audio continuava).
 Parla direttamente con il server Xtream (non serve il PC acceso).
 
 Novità della versione 3.3:

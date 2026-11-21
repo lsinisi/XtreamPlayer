@@ -1,5 +1,6 @@
 #if canImport(VLCKit)
 import UIKit
+import AVFoundation
 import VLCKit
 import MediaPlayer
 
@@ -51,6 +52,14 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
     private var pip: VLCPictureInPictureWindowControlling?
     private var pipActive = false
     private var startedAt = Date()
+    // controllo dell'immagine bloccata: conta i fotogrammi mostrati da VLC
+    private var lastPictures: UInt64 = 0
+    private var lastPictureAt = Date()
+    private var picturesSeen = false
+    private var repairs = 0
+    private var blindRepairs = 0
+    private var lastRepairAt = Date.distantPast
+    private var playingSince: Date?
     private var appObservers: [NSObjectProtocol] = []
     private var remoteTargets: [(MPRemoteCommand, Any)] = []
 
@@ -174,6 +183,76 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
 
     // MARK: riproduzione
 
+    /// Per film ed episodi: il prossimo avvio riparte da qui, non dall'inizio.
+    private func rememberPosition() {
+        guard !isLive else { return }
+        let t = didStart ? max(lastTime, times().0) : 0
+        if t > 1 { startAt = t }
+    }
+
+    /// Ricarica il video dal punto in cui era (la diretta riparte dal momento attuale).
+    private func reloadHere() {
+        rememberPosition()
+        vlc.stop()
+        startPlayback()
+    }
+
+    /// La "lavagna" dove VLC disegna il video (anche nel Picture in Picture).
+    private func displayLayer() -> AVSampleBufferDisplayLayer? {
+        func find(_ layer: CALayer) -> AVSampleBufferDisplayLayer? {
+            if let found = layer as? AVSampleBufferDisplayLayer { return found }
+            for sub in layer.sublayers ?? [] {
+                if let found = find(sub) { return found }
+            }
+            return nil
+        }
+        return find(videoView.layer)
+    }
+
+    /// Dopo il blocco dello schermo iOS può "rompere" la lavagna del video: resta nera finché non viene svuotata.
+    /// VLC la ripara solo quando l'app torna in primo piano; qui la ripariamo anche nel Picture in Picture.
+    @discardableResult
+    private func repairDisplayLayer() -> Bool {
+        guard let layer = displayLayer(), layer.status == .failed else { return false }
+        objc_sync_enter(layer)
+        layer.flush()
+        objc_sync_exit(layer)
+        lastPictureAt = Date()
+        return true
+    }
+
+    /// Immagine ferma mentre l'audio va avanti: si ripara da sola (al massimo 3 volte al minuto).
+    private func checkPictures(playing: Bool) {
+        let now = Date()
+        if repairDisplayLayer() { return }
+        guard didStart, playing, let media = vlc.media else { lastPictureAt = now; return }
+        let shown = media.statistics.displayedPictures
+        if shown != lastPictures {
+            if shown > 0 { picturesSeen = true }
+            if shown > lastPictures { blindRepairs = 0 }
+            lastPictures = shown
+            lastPictureAt = now
+            return
+        }
+        let app = UIApplication.shared
+        let watching = (app.applicationState == .active || pipActive) && app.isProtectedDataAvailable
+        let advancing = now.timeIntervalSince(lastMove) < 2
+        guard picturesSeen, watching, advancing, vlc.hasVideoOut else { lastPictureAt = now; return }
+        guard now.timeIntervalSince(lastPictureAt) > 5 else { return }
+        lastPictureAt = now
+        if now.timeIntervalSince(lastRepairAt) > 60 { repairs = 0 }
+        guard repairs < 3 && blindRepairs < 2 else { return }
+        blindRepairs += 1
+        repairs += 1
+        lastRepairAt = now
+        if repairs == 1 && !isLive && vlc.isSeekable {
+            // primo tentativo: un salto sul punto attuale svuota il decodificatore
+            seek(to: times().0)
+            return
+        }
+        reloadHere()
+    }
+
     private func startPlayback() {
         guard let url = target else {
             showError("Indirizzo non valido", "Non riesco ad aprire questo contenuto.")
@@ -186,6 +265,10 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         spinner.startAnimating()
         lastTime = -1
         lastMove = Date()
+        lastPictures = 0
+        lastPictureAt = Date()
+        picturesSeen = false
+        playingSince = nil
         guard let media = VLCMedia(url: url) else {
             showError("Indirizzo non valido", "Non riesco ad aprire questo contenuto.")
             return
@@ -251,6 +334,15 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
             failed()
             return
         }
+        // dopo un po' di riproduzione senza problemi, i tentativi automatici ripartono da zero
+        if playing && didStart {
+            if playingSince == nil { playingSince = Date() }
+            if let since = playingSince, Date().timeIntervalSince(since) > 30 { retried = false }
+        } else {
+            playingSince = nil
+        }
+        checkPictures(playing: playing)
+        if closing { return }
         playButton.setImage(symbol(playing ? "pause.fill" : "play.fill", 30), for: .normal)
         if !isLive && !isCatchup && d > 0 && !scrubbing {
             slider.value = Float(t / d)
@@ -285,8 +377,9 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
 
     private func failed() {
         if !retried {
-            // un secondo tentativo automatico
+            // un secondo tentativo automatico (un film riparte dal punto in cui era)
             retried = true
+            rememberPosition()
             vlc.stop()
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
                 guard let self = self, !self.closing else { return }
@@ -376,12 +469,9 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
 
     // MARK: background e schermo bloccato
 
-    /// Quando esci dall'app mentre il video va, parte da solo il Picture in Picture (come nel player dell'iPhone).
+    /// Quando esci dall'app mentre il video va, il Picture in Picture parte da solo (lo chiede VLC a iOS).
     private func observeApp() {
         let center = NotificationCenter.default
-        appObservers.append(center.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.leavingApp()
-        })
         appObservers.append(center.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { [weak self] _ in
             PlaybackAudio.activate()
             self?.lastMove = Date()
@@ -390,11 +480,17 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         appObservers.append(center.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak self] _ in
             self?.lastMove = Date()
         })
-    }
-
-    private func leavingApp() {
-        guard !closing, !pipActive, vlc.isPlaying, presentedViewController == nil, let pip = pip else { return }
-        pip.startPictureInPicture()
+        // al ritorno nell'app e allo sblocco dello schermo: si ripara subito la lavagna del video
+        for name in [UIApplication.didBecomeActiveNotification, UIApplication.protectedDataDidBecomeAvailableNotification] {
+            appObservers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                guard let self = self, !self.closing else { return }
+                self.repairs = 0
+                self.blindRepairs = 0
+                self.lastPictureAt = Date()
+                self.repairDisplayLayer()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in self?.repairDisplayLayer() }
+            })
+        }
     }
 
     // MARK: Picture in Picture
@@ -407,7 +503,19 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
                 guard let self = self else { return }
                 self.pipActive = started
                 self.lastMove = Date()
-                if !started { self.showControls() }
+                self.lastPictureAt = Date()
+                if !started {
+                    self.showControls()
+                    // chiuso con la X senza tornare nell'app: niente audio "fantasma"
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+                        guard let self = self, !self.closing, !self.pipActive,
+                              UIApplication.shared.applicationState == .background else { return }
+                        self.vlc.pause()
+                        self.updateNowPlaying()
+                    }
+                } else {
+                    self.repairDisplayLayer()
+                }
             }
         }
         pipItem.isHidden = false

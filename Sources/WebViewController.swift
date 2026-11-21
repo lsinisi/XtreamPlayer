@@ -382,12 +382,22 @@ extension WebViewController: PlayerHost {
 
     /// Dalla finestrina si torna al player a tutto schermo.
     func playerRestoreFromPictureInPicture(_ player: PlayerViewController, completion: @escaping (Bool) -> Void) {
-        if player.presentingViewController != nil || presentedViewController != nil {
+        if player.presentingViewController != nil {
             completion(true)
             return
         }
-        player.modalPresentationStyle = .fullScreen
-        present(player, animated: true) { completion(true) }
+        let show: () -> Void = { [weak self] in
+            guard let self = self else { completion(false); return }
+            player.modalPresentationStyle = .fullScreen
+            self.present(player, animated: true) { completion(true) }
+        }
+        // prima c'era un'altra finestra aperta (un avviso, la condivisione…) e il video spariva:
+        // ora si chiude quella e il player torna a tutto schermo
+        if let other = presentedViewController {
+            other.dismiss(animated: false, completion: show)
+        } else {
+            show()
+        }
     }
 
     func playerDidClose(_ player: PlayerViewController) {

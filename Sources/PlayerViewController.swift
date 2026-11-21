@@ -104,6 +104,23 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     private var watchdog: Timer?
     private var toastTimer: Timer?
     private var pipController: AVPictureInPictureController?
+    private var remoteTargets: [(MPRemoteCommand, Any)] = []
+    private var appObservers: [NSObjectProtocol] = []
+
+    // MARK: controllo dell'immagine bloccata
+    // Legge i fotogrammi che arrivano dal video: se il tempo va avanti (l'audio si sente)
+    // ma da qualche secondo non arriva un fotogramma nuovo, l'immagine è bloccata e il player si ripara da solo.
+    private var videoOutput: AVPlayerItemVideoOutput?
+    private var lastFrameAt = Date()
+    private var sawFrames = false
+    private var repairs = 0
+    private var blindRepairs = 0       // riparazioni dopo le quali non è tornato nessun fotogramma
+    private var lastRepairAt = Date.distantPast
+    private var stallSince: Date?
+    private var playingSince: Date?
+    private var hasStarted = false
+    private var layerDetached = false
+    private var healthTimer: Timer?
 
     // MARK: interfaccia
 
@@ -177,6 +194,10 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         }
         pipButton.isHidden = pipController == nil
 
+        // controllo dell'immagine ogni secondo (anche quando il video è fermo a caricare)
+        healthTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            self?.checkPicture()
+        }
         timeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 600), queue: .main) { [weak self] _ in
             self?.tick()
         }
@@ -186,11 +207,50 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         setupRemoteCommands()
         buildSleepMenu()
         buildSpeedMenu()
+        observeApp()
     }
 
     deinit {
         if let observer = timeObserver { player.removeTimeObserver(observer) }
         itemObservers.forEach { NotificationCenter.default.removeObserver($0) }
+        appObservers.forEach { NotificationCenter.default.removeObserver($0) }
+        remoteTargets.forEach { $0.0.removeTarget($0.1) }
+    }
+
+    /// Uscita dall'app, blocco e sblocco dello schermo.
+    private func observeApp() {
+        let center = NotificationCenter.default
+        // con lo schermo bloccato (senza Picture in Picture) il video si stacca dalla vista: così l'audio continua
+        appObservers.append(center.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { [weak self] _ in
+            guard let self = self, !self.closing, self.player.currentItem != nil else { return }
+            let pipOn = self.isInPictureInPicture || (self.pipController?.isPictureInPictureActive ?? false)
+            if !pipOn {
+                self.videoView.playerLayer.player = nil
+                self.layerDetached = true
+            }
+        })
+        appObservers.append(center.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.reattachVideo(force: true)
+        })
+        // al ritorno nell'app e allo sblocco dello schermo l'immagine viene controllata subito
+        for name in [UIApplication.didBecomeActiveNotification, UIApplication.protectedDataDidBecomeAvailableNotification] {
+            appObservers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                guard let self = self else { return }
+                self.reattachVideo(force: true)
+                self.repairs = 0
+                self.blindRepairs = 0
+                self.lastFrameAt = Date().addingTimeInterval(-2.5)
+            })
+        }
+    }
+
+    /// Rimette il video nella vista (non in background: lì il sistema fermerebbe la riproduzione).
+    private func reattachVideo(force: Bool = false) {
+        guard layerDetached else { return }
+        if !force && UIApplication.shared.applicationState == .background { return }
+        layerDetached = false
+        videoView.playerLayer.player = player
+        lastFrameAt = Date()
     }
 
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
@@ -295,6 +355,11 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         if let pip = pipController, pip.isPictureInPictureActive { pip.stopPictureInPicture() }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
         removeRemoteCommands()
+        appObservers.forEach { NotificationCenter.default.removeObserver($0) }
+        appObservers = []
+        healthTimer?.invalidate()
+        healthTimer = nil
+        reattachVideo(force: true)
         host?.playerDidClose(self)
     }
 
@@ -308,6 +373,15 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         spinner.startAnimating()
         let item = AVPlayerItem(url: target)
         if isLive { item.preferredForwardBufferDuration = 8 }
+        let output = AVPlayerItemVideoOutput(pixelBufferAttributes: nil)
+        item.add(output)
+        videoOutput = output
+        lastFrameAt = Date()
+        sawFrames = false
+        stallSince = nil
+        playingSince = nil
+        hasStarted = false
+        reattachVideo()
         itemStatusObservation = item.observe(\.status, options: [.new]) { [weak self] observed, _ in
             DispatchQueue.main.async { self?.itemStatusChanged(observed) }
         }
@@ -326,6 +400,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     }
 
     private func clearItemObservers() {
+        videoOutput = nil
         itemStatusObservation?.invalidate()
         itemStatusObservation = nil
         itemObservers.forEach { NotificationCenter.default.removeObserver($0) }
@@ -368,6 +443,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         if !retried && !refused && (isLive || isCatchup || timeout) {
             // un secondo tentativo automatico: le dirette a volte non rispondono al primo colpo
             retried = true
+            rememberPosition()
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
                 guard let self = self, !self.closing else { return }
                 self.startPlayback()
@@ -403,6 +479,72 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
             showError("Formato non supportato",
                       what + " usa un formato che il player dell'iPhone non legge (per esempio MKV o audio Dolby). In VLC si vede normalmente.")
         }
+    }
+
+    /// Per film ed episodi: il prossimo avvio riparte da qui, non dall'inizio.
+    private func rememberPosition() {
+        guard !isLive else { return }
+        let t = player.currentTime().seconds
+        if t.isFinite && t > 1 { startAt = t }
+    }
+
+    /// Ricarica il video dal punto in cui era (la diretta riparte dal momento attuale).
+    private func reloadHere() {
+        rememberPosition()
+        startPlayback()
+    }
+
+    /// Controlla che l'immagine vada avanti insieme all'audio, e che il video non resti fermo a caricare.
+    private func checkPicture() {
+        guard !closing, let item = player.currentItem, item.status == .readyToPlay else { return }
+        let now = Date()
+        if let output = videoOutput {
+            let time = output.itemTime(forHostTime: CACurrentMediaTime())
+            if output.hasNewPixelBuffer(forItemTime: time) {
+                _ = output.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
+                lastFrameAt = now
+                sawFrames = true
+                blindRepairs = 0
+            }
+        }
+        // fermo a caricare da troppo tempo a metà video: si ricarica
+        if let since = stallSince, hasStarted, now.timeIntervalSince(since) > 12 {
+            stallSince = nil
+            repair(force: true)
+            return
+        }
+        // dopo un po' di riproduzione senza problemi, i tentativi automatici ripartono da zero
+        if let since = playingSince, now.timeIntervalSince(since) > 30 {
+            retried = false
+            if now.timeIntervalSince(lastRepairAt) > 60 { repairs = 0 }
+        }
+        let app = UIApplication.shared
+        let watching = (app.applicationState == .active || isInPictureInPicture) && app.isProtectedDataAvailable && !layerDetached
+        guard sawFrames, watching, player.timeControlStatus == .playing, item.presentationSize != .zero else {
+            if !watching || player.timeControlStatus != .playing { lastFrameAt = now }
+            return
+        }
+        if now.timeIntervalSince(lastFrameAt) > 4 { repair(force: false) }
+    }
+
+    /// Immagine bloccata: prima un piccolo salto sul punto attuale (svuota il decodificatore),
+    /// poi, se non basta, il video si ricarica. Al massimo 3 volte al minuto.
+    private func repair(force: Bool) {
+        let now = Date()
+        lastFrameAt = now
+        if now.timeIntervalSince(lastRepairAt) > 60 { repairs = 0 }
+        // se dopo due riparazioni non torna nessun fotogramma (per esempio con lo schermo bloccato)
+        // ci si ferma: niente interruzioni dell'audio a vuoto
+        guard force || (repairs < 3 && blindRepairs < 2) else { return }
+        if !force { blindRepairs += 1 }
+        repairs += 1
+        lastRepairAt = now
+        let t = player.currentTime()
+        if !force && !isLive && repairs == 1 && t.seconds.isFinite {
+            player.seek(to: t, toleranceBefore: .zero, toleranceAfter: .zero)
+            return
+        }
+        reloadHere()
     }
 
     private func didReachEnd() {
@@ -451,12 +593,20 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
             spinner.stopAnimating()
             watchdog?.invalidate()
             pausedAt = nil
+            hasStarted = true
+            stallSince = nil
+            if playingSince == nil { playingSince = Date() }
+            lastFrameAt = Date()
             if !isLive && speed != 1 && abs(player.rate - speed) > 0.01 { player.rate = speed }
             scheduleHide()
         case .waitingToPlayAtSpecifiedRate:
             if errorBox.isHidden { spinner.startAnimating() }
+            if stallSince == nil { stallSince = Date() }
+            playingSince = nil
         case .paused:
             spinner.stopAnimating()
+            stallSince = nil
+            playingSince = nil
             if pausedAt == nil { pausedAt = Date() }
             reportTime()
         @unknown default:
@@ -993,50 +1143,58 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
 
     private func setupRemoteCommands() {
         let commands = MPRemoteCommandCenter.shared()
-        commands.playCommand.addTarget { [weak self] _ in
-            self?.player.play()
+        func add(_ command: MPRemoteCommand, _ handler: @escaping (MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus) {
+            remoteTargets.append((command, command.addTarget(handler: handler)))
+        }
+        add(commands.playCommand) { [weak self] _ in
+            guard let self = self, !self.closing else { return .noActionableNowPlayingItem }
+            self.player.play()
+            self.applySpeed()
             return .success
         }
-        commands.pauseCommand.addTarget { [weak self] _ in
-            self?.player.pause()
+        add(commands.pauseCommand) { [weak self] _ in
+            guard let self = self, !self.closing else { return .noActionableNowPlayingItem }
+            self.player.pause()
             return .success
         }
-        commands.togglePlayPauseCommand.addTarget { [weak self] _ in
-            self?.togglePlay()
+        add(commands.togglePlayPauseCommand) { [weak self] _ in
+            guard let self = self, !self.closing else { return .noActionableNowPlayingItem }
+            self.togglePlay()
             return .success
         }
-        commands.nextTrackCommand.addTarget { [weak self] _ in
-            guard let self = self, self.isLive else { return .noActionableNowPlayingItem }
+        add(commands.nextTrackCommand) { [weak self] _ in
+            guard let self = self, !self.closing, self.isLive else { return .noActionableNowPlayingItem }
             self.zap(1)
             return .success
         }
-        commands.previousTrackCommand.addTarget { [weak self] _ in
-            guard let self = self, self.isLive else { return .noActionableNowPlayingItem }
+        add(commands.previousTrackCommand) { [weak self] _ in
+            guard let self = self, !self.closing, self.isLive else { return .noActionableNowPlayingItem }
             self.zap(-1)
             return .success
         }
         commands.skipForwardCommand.preferredIntervals = [10]
-        commands.skipForwardCommand.addTarget { [weak self] _ in
-            self?.seek(by: 10)
+        add(commands.skipForwardCommand) { [weak self] _ in
+            guard let self = self, !self.closing else { return .noActionableNowPlayingItem }
+            self.seek(by: 10)
             return .success
         }
         commands.skipBackwardCommand.preferredIntervals = [10]
-        commands.skipBackwardCommand.addTarget { [weak self] _ in
-            self?.seek(by: -10)
+        add(commands.skipBackwardCommand) { [weak self] _ in
+            guard let self = self, !self.closing else { return .noActionableNowPlayingItem }
+            self.seek(by: -10)
             return .success
         }
-        commands.changePlaybackPositionCommand.addTarget { [weak self] event in
-            guard let self = self, let change = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
+        add(commands.changePlaybackPositionCommand) { [weak self] event in
+            guard let self = self, !self.closing, let change = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
             self.player.seek(to: CMTime(seconds: change.positionTime, preferredTimescale: 600))
             return .success
         }
     }
 
+    /// Toglie solo i comandi di questo player (non quelli del player universale).
     private func removeRemoteCommands() {
-        let commands = MPRemoteCommandCenter.shared()
-        [commands.playCommand, commands.pauseCommand, commands.togglePlayPauseCommand,
-         commands.nextTrackCommand, commands.previousTrackCommand, commands.skipForwardCommand,
-         commands.skipBackwardCommand, commands.changePlaybackPositionCommand].forEach { $0.removeTarget(nil) }
+        remoteTargets.forEach { $0.0.removeTarget($0.1) }
+        remoteTargets = []
     }
 
     private func updateNowPlaying() {

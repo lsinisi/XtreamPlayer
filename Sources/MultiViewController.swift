@@ -29,6 +29,7 @@ final class MultiTile: UIView {
     private var controlObservation: NSKeyValueObservation?
     private var failObserver: NSObjectProtocol?
     private var watchdog: Timer?
+    private var stallTimer: Timer?
     private var url: URL?
     private var retried = false
 
@@ -130,6 +131,7 @@ final class MultiTile: UIView {
 
     func stop() {
         watchdog?.invalidate()
+        stallTimer?.invalidate()
         clearObservers()
         player.pause()
         player.replaceCurrentItem(with: nil)
@@ -192,9 +194,19 @@ final class MultiTile: UIView {
         case .playing:
             spinner.stopAnimating()
             watchdog?.invalidate()
+            stallTimer?.invalidate()
             messageLabel.isHidden = true
+            retried = false   // dopo una ripartenza riuscita, il prossimo problema ha di nuovo il suo tentativo
         case .waitingToPlayAtSpecifiedRate:
             if messageLabel.isHidden { spinner.startAnimating() }
+            // fermo a caricare a metà diretta per più di 12 secondi: il riquadro riparte dal momento attuale
+            if player.currentTime().seconds > 1 && stallTimer?.isValid != true {
+                stallTimer = Timer.scheduledTimer(withTimeInterval: 12, repeats: false) { [weak self] _ in
+                    guard let self = self, self.url != nil, self.superview != nil,
+                          self.player.timeControlStatus == .waitingToPlayAtSpecifiedRate else { return }
+                    self.restart()
+                }
+            }
         default:
             break
         }

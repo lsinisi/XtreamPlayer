@@ -170,15 +170,19 @@ final class AppSchemeHandler: NSObject, WKURLSchemeHandler {
 
     /// Controllo veloce: inizia con { o [ e finisce con } o ] (una risposta troncata non passa).
     private static func looksLikeJSON(_ data: Data) -> Bool {
-        let bytes = [UInt8](data)
-        var i = 0
-        var j = bytes.count - 1
-        if bytes.count >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF { i = 3 }
-        while i <= j && isSpace(bytes[i]) { i += 1 }
-        while j >= i && isSpace(bytes[j]) { j -= 1 }
-        if i > j { return false }
-        let first = bytes[i], last = bytes[j]
-        return (first == 0x7B && last == 0x7D) || (first == 0x5B && last == 0x5D)
+        // legge solo l'inizio e la fine (gli elenchi dei film possono pesare decine di MB)
+        return data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Bool in
+            let bytes = raw.bindMemory(to: UInt8.self)
+            guard !bytes.isEmpty else { return false }
+            var i = 0
+            var j = bytes.count - 1
+            if bytes.count >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF { i = 3 }
+            while i <= j && isSpace(bytes[i]) { i += 1 }
+            while j >= i && isSpace(bytes[j]) { j -= 1 }
+            if i > j { return false }
+            let first = bytes[i], last = bytes[j]
+            return (first == 0x7B && last == 0x7D) || (first == 0x5B && last == 0x5D)
+        }
     }
 
     private static func isSpace(_ b: UInt8) -> Bool {
