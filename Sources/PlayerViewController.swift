@@ -66,6 +66,9 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     private var isCatchup = false
     private var startAt: Double = 0
     private var zapNames: [String] = []
+    private var zapLogos: [String] = []
+    private let zapPreview = ZapPreview()
+    private let lockView = PlayerLockView()
     private var zapIndex = 0
     private var zapTitle = "Canali"
     private var nextTitle: String?
@@ -161,6 +164,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     #endif
     private let numberItem = PlayerViewController.actionButton("number", "Numero")
     private let skipItem = PlayerViewController.actionButton("forward.end", "Salta 90 s")
+    private let lockItem = PlayerViewController.actionButton("lock", "Blocca")
     private let errorBox = UIVisualEffectView(effect: UIBlurEffect(style: .systemMaterialDark))
     private let errorTitle = UILabel()
     private let errorMessage = UILabel()
@@ -296,12 +300,15 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
                 let name = (item["name"] as? String) ?? ""
                 return num.isEmpty ? name : num + "   " + name
             }
+            zapLogos = list.map { ($0["logo"] as? String) ?? "" }
             zapIndex = (zap["i"] as? NSNumber)?.intValue ?? 0
             zapTitle = (zap["name"] as? String) ?? "Canali"
         } else {
             zapNames = []
+            zapLogos = []
             zapIndex = 0
         }
+        zapPreview.loaded()
         if let fill = body["fill"] as? Bool {
             videoView.playerLayer.videoGravity = fill ? .resizeAspectFill : .resizeAspect
             refreshFitItem()
@@ -322,6 +329,9 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         if let sub = body["sub"] as? String { subtitleLabel.text = sub }
         if let info = body["info"] as? String { liveInfoLabel.text = info }
         if let toast = body["toast"] as? String { showToast(toast) }
+        if let peek = body["peek"] as? [String: Any], let index = (peek["i"] as? NSNumber)?.intValue {
+            zapPreview.setNow((peek["now"] as? String) ?? "", for: index)
+        }
         if let fav = body["fav"] as? Bool {
             isFav = fav
             refreshFavItem()
@@ -640,11 +650,24 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     }
 
     @objc private func backTapped() {
-        if isLive { zap(-1) } else { seek(by: -10) }
+        if isLive { previewZap(-1) } else { seek(by: -10) }
     }
 
     @objc private func forwardTapped() {
-        if isLive { zap(1) } else { seek(by: 10) }
+        if isLive { previewZap(1) } else { seek(by: 10) }
+    }
+
+    /// Cambio canale con l'anteprima: nome, logo e programma, poi il canale parte.
+    private func previewZap(_ delta: Int) {
+        guard isLive, zapNames.count > 1 else { return }
+        zapPreview.step(delta, from: zapIndex, names: zapNames, logos: zapLogos)
+        scheduleHide()
+    }
+
+    /// Lucchetto: il video continua, ma i tocchi non fanno niente finché non si sblocca.
+    @objc private func lockTapped() {
+        setControls(false)
+        lockView.lock()
     }
 
     private func seek(by seconds: Double) {
@@ -855,9 +878,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
             guard quick, abs(moved) > 60, abs(speed) > 700 else { return }
             // colpo veloce: si torna alla luminosità e al volume di prima e si cambia canale
             if panMode == 1 { UIScreen.main.brightness = CGFloat(panStart) } else { volumeSlider?.value = Float(panStart) }
-            let up = moved < 0
-            showToast(up ? "Canale successivo" : "Canale precedente")
-            zap(up ? 1 : -1)
+            previewZap(moved < 0 ? 1 : -1)
         default:
             panMode = 0
         }
@@ -911,6 +932,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if lockView.isLocked { return false }
         var current = touch.view
         while let v = current {
             if v is UIControl || v === errorBox || v === nextBox { return false }
@@ -920,6 +942,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     }
 
     private func setControls(_ visible: Bool, animated: Bool = true) {
+        if visible && lockView.isLocked { return }
         controlsVisible = visible
         UIView.animate(withDuration: animated ? 0.22 : 0) {
             self.controls.alpha = visible ? 1 : 0
@@ -1110,6 +1133,8 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     }
 
     private func showError(_ title: String, _ message: String) {
+        lockView.unlock()
+        zapPreview.cancel()
         errorTitle.text = title
         errorMessage.text = message
         errorVLCButton.isHidden = url?.isFileURL ?? false
@@ -1348,7 +1373,8 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         multiItem.addTarget(self, action: #selector(multiTapped), for: .touchUpInside)
         numberItem.addTarget(self, action: #selector(numberTapped), for: .touchUpInside)
         skipItem.addTarget(self, action: #selector(skipTapped), for: .touchUpInside)
-        [channelsItem, numberItem, multiItem, skipItem, audioItem, fitItem, speedItem, sleepItem, favItem, vlcItem].forEach { actionBar.addArrangedSubview($0) }
+        lockItem.addTarget(self, action: #selector(lockTapped), for: .touchUpInside)
+        [channelsItem, numberItem, multiItem, skipItem, audioItem, fitItem, speedItem, sleepItem, favItem, vlcItem, lockItem].forEach { actionBar.addArrangedSubview($0) }
         actionBar.axis = .horizontal
         actionBar.distribution = .fillEqually
         actionBar.alignment = .fill
@@ -1475,6 +1501,42 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         longPress.minimumPressDuration = 0.6
         longPress.delegate = self
         view.addGestureRecognizer(longPress)
+
+        // anteprima dello zapping
+        zapPreview.commit = { [weak self] index in
+            guard let self = self else { return }
+            self.host?.player(self, event: "zap", data: ["i": index])
+        }
+        zapPreview.peek = { [weak self] index in
+            guard let self = self else { return }
+            self.host?.player(self, event: "peek", data: ["i": index])
+        }
+        let card = zapPreview.card
+        card.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(card)
+        let cardWidth = card.widthAnchor.constraint(equalToConstant: 340)
+        cardWidth.priority = .defaultHigh
+        NSLayoutConstraint.activate([
+            card.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            card.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 64),
+            card.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, constant: -32),
+            cardWidth
+        ])
+
+        // blocco dello schermo
+        lockView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(lockView)
+        NSLayoutConstraint.activate([
+            lockView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            lockView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            lockView.topAnchor.constraint(equalTo: view.topAnchor),
+            lockView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        lockView.onUnlock = { [weak self] in
+            self?.showToast("Schermo sbloccato")
+            self?.setControls(true)
+        }
+        view.bringSubviewToFront(toastLabel)
     }
 
     private func buildErrorBox() {

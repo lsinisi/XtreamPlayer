@@ -659,6 +659,18 @@ html[data-mode="light"] .dhero.poster .bg{filter:blur(28px) brightness(1.05) sat
 .form input::placeholder{color:var(--faint)}
 #loginBtn{height:52px;border-radius:16px;font-size:17px}
 
+/* proposta di ripresa all'avvio */
+.rsm{display:flex;gap:14px;align-items:center;margin:0 2px 18px}
+.rsm .cimg{position:relative;width:74px;aspect-ratio:2/3;border-radius:12px;overflow:hidden;background:var(--s2);flex:0 0 auto;box-shadow:0 8px 22px rgba(0,0,0,.3)}
+.rsm .cimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rsm .rt{flex:1;min-width:0}
+.rsm em{display:block;font-style:normal;font-size:12.5px;font-weight:600;color:var(--accent);margin-bottom:3px}
+.rsm b{display:block;font:700 19px/1.15 var(--display);letter-spacing:-.02em;overflow-wrap:anywhere}
+.rsm small{display:block;font-size:13.5px;color:var(--muted);margin-top:3px}
+.rsm .cp{display:block;height:4px;border-radius:2px;background:var(--s3);margin-top:10px;overflow:hidden}
+.rsm .cp i{display:block;height:100%;background:var(--accent);border-radius:2px}
+.sheet .drow .btn{height:50px}
+
 /* scelta del tema */
 .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px}
 .mode{display:flex;flex-direction:column;align-items:center;gap:8px;font:600 13px var(--body);color:var(--text2);text-align:center}
@@ -1370,14 +1382,34 @@ function pumpNow(){
     if (c && Date.now() - c.at < 10 * 60000) { paintNow(el, o); continue; }
     nowActive++;
     api('get_short_epg', {stream_id:o.id, limit:4}).then(d => {
-      S.now[o.id] = {at:Date.now(), list:toArr(d && d.epg_listings).map(l => ({title:decB64(l.title), start:Number(l.start_timestamp), end:Number(l.stop_timestamp || l.end_timestamp)}))
-        .filter(p => p.start && p.end > p.start).sort((a, b) => a.start - b.start)};
+      S.now[o.id] = nowFrom(d);
     }).catch(() => { S.now[o.id] = {at:Date.now(), list:[]}; }).finally(() => {
       nowActive--;
       $$(`[data-now="${CSS.escape(o.key)}"]`).forEach(e => paintNow(e, o));
       pumpNow();
     });
   }
+}
+// programmi in onda di un canale, dalla risposta di get_short_epg
+function nowFrom(d){
+  return {at:Date.now(), list:toArr(d && d.epg_listings).map(l => ({title:decB64(l.title), start:Number(l.start_timestamp), end:Number(l.stop_timestamp || l.end_timestamp)}))
+    .filter(p => p.start && p.end > p.start).sort((a, b) => a.start - b.start)};
+}
+// anteprima dello zapping nel player: manda il programma in onda del canale in arrivo
+async function peekChannel(i){
+  const z = S.pl && S.pl.zap, o = z && z.list[i];
+  if (!o) return;
+  const send = () => {
+    if (!S.pl || S.pl.zap !== z) return;
+    const {cur:p, next} = nowNext(o);
+    const now = p ? `Ora: ${p.title} (${hm(p.start)}–${hm(p.end)})` : (next ? `Alle ${hm(next.start)}: ${next.title}` : '');
+    native('player', {cmd:'update', peek:{i, now}});
+  };
+  const c = S.now[o.id];
+  if (c && Date.now() - c.at < 10 * 60000) return send();
+  try { S.now[o.id] = nowFrom(await api('get_short_epg', {stream_id:o.id, limit:4})); }
+  catch(_) { S.now[o.id] = {at:Date.now(), list:[]}; }
+  send();
 }
 function nowNext(o){
   const c = S.now[o.id]; if (!c) return {};
@@ -2141,6 +2173,7 @@ function pSettings(r){
     + `<div class="cap">Riproduzione</div><div class="group">`
     + `<div class="li"><span class="lt"><b>Prossimo episodio automatico</b><span>Alla fine di un episodio parte il successivo</span></span>${tg('autonext', lsGet('xp_autonext', true))}</div>`
     + `<div class="li"><span class="lt"><b>Riapri l'ultimo canale</b><span>All'avvio riparte il canale che guardavi</span></span>${tg('startlast', lsGet('xp_startlast', false))}</div>`
+    + `<div class="li"><span class="lt"><b>Proponi di riprendere</b><span>All'avvio chiede se riprendere il film o l'episodio lasciato a metà</span></span>${tg('resumeask', lsGet('xp_resumeask', true))}</div>`
     + `<div class="li"><span class="lt"><b>Canale di riserva</b><span>Se un canale non parte, provo la sua versione HD o FHD</span></span>${tg('fallback', lsGet('xp_fallback', false))}</div>`
     + `<div class="li"><span class="lt"><b>Video a tutto schermo</b><span>Riempie lo schermo tagliando i bordi</span></span>${tg('fill', fill)}</div>`
     + (HAS_VLC ? `<div class="li"><span class="lt"><b>Usa sempre il player universale</b><span>Anche per film e canali che l'iPhone legge da solo</span></span>${tg('vlcalways', lsGet('xp_vlc_always', false))}</div>` : '') + `</div>`
@@ -2314,7 +2347,7 @@ function openPlayer(cfg){
   const z = cfg.zap;
   const vlcEngine = useVlc(cfg);
   const msg = {cmd:'open', url:vlcEngine ? cfg.url : iosSource(cfg), vlc:cfg.dl ? '' : cfg.url, engine:vlcEngine ? 'vlc' : 'native', title:cfg.title, sub:cfg.sub || '', live:!!cfg.live, catchup:!!cfg.catchup, start,
-    zap:z ? {i:z.i, name:z.name, list:z.list.map(c => ({name:c.name, num:String(c.raw.num ?? '')}))} : null,
+    zap:z ? {i:z.i, name:z.name, list:z.list.map(c => ({name:c.name, num:String(c.raw.num ?? ''), logo:c.img || ''}))} : null,
     next:cfg.next ? {title:nextTitle(cfg.next)} : null, autonext:lsGet('xp_autonext', true),
     fav:cfg.live && cfg.item ? isFav(cfg.item.key) : null, fill:lsGet('xp_fit', 'contain') === 'cover', accent:accentHex(),
     fallback:!!cfg.live && !!lsGet('xp_fallback', false), skip:!!(cfg.meta && cfg.meta.kind === 'ep')};
@@ -2383,6 +2416,7 @@ window.XP = {ev(name, d){
     else if (name === 'downloads') onDownloads(d.items || []);
     else if (name === 'import') { if (d.text) importBackup(d.text); else toast('Non riesco a leggere questo file'); }
     else if (name === 'zap') { const z = S.pl && S.pl.zap; if (z && z.list[d.i]) playLive(z.list[d.i]); }
+    else if (name === 'peek') peekChannel(Number(d.i));
     else if (name === 'prev') {
       // tocco lungo nel player: torna al canale guardato prima (anche se è in un'altra categoria)
       const curKey = S.pl && S.pl.item && S.pl.item.key;
@@ -2757,11 +2791,29 @@ function noteLive(o){
   S.dirty = true;
 }
 async function maybeStartLast(){
-  if (!lsGet('xp_startlast', false)) return;
-  const k = lsGet(ns('lastLive'), null); if (!k) return;
-  try { await ensure('live'); } catch(_) { return; }
+  if (!lsGet('xp_startlast', false)) return maybeOfferResume();
+  const k = lsGet(ns('lastLive'), null); if (!k) return maybeOfferResume();
+  try { await ensure('live'); } catch(_) { return maybeOfferResume(); }
   const o = S.byKey[k];
-  if (o && okItem(o) && !S.pl) playLive(o);
+  if (o && okItem(o) && !S.pl) playLive(o); else maybeOfferResume();
+}
+// all'apertura dell'app: se hai lasciato a metà un film o un episodio, propone di riprenderlo (una volta sola)
+function maybeOfferResume(){
+  if (S.resumeAsked) return;
+  S.resumeAsked = true;
+  if (!lsGet('xp_resumeask', true) || S.pl) return;
+  const p = Object.values(prog).filter(x => x && x.k && x.name && x.t > 60 && x.d > 0 && x.t < x.d - 60 && !(x.lk && parentalOn())
+    && Date.now() - (x.ts || 0) < 14 * 864e5).sort((a, b) => (b.ts || 0) - (a.ts || 0))[0];
+  if (!p) return;
+  const sub = p.kind === 'ep' ? `Stagione ${p.season}, episodio ${p.epnum}` + (p.eptitle ? `: ${p.eptitle}` : '') : 'Film';
+  const pct = Math.max(2, Math.min(100, Math.round(p.t / p.d * 100)));
+  setTimeout(() => {
+    if (S.pl || !$('#sheetbg').classList.contains('hidden')) return;
+    openSheet(`<div class="grab"></div><div class="rsm"><span class="cimg">${p.img ? `<img src="${esc(p.img)}" alt="" onerror="this.remove()">` : ''}</span>`
+      + `<div class="rt"><em>Hai lasciato a metà</em><b>${esc(p.name)}</b><small>${esc(sub)}</small>`
+      + `<small>Fermo a ${fmtTime(p.t)} di ${fmtTime(p.d)}</small><span class="cp"><i style="width:${pct}%"></i></span></div></div>`
+      + `<div class="drow"><button class="btn gray" data-rsm-no>Non ora</button><button class="btn primary" data-rsm-go="${esc(p.k)}">${ICON.play} Riprendi</button></div>`);
+  }, 700);
 }
 
 // ================= tocchi =================
@@ -2811,6 +2863,8 @@ document.addEventListener('click', async e => {
   const ep = t.closest('[data-epg]'); if (ep) return push({v:'epg', key:ep.dataset.epg});
   const pr = t.closest('[data-prog]'); if (pr) return playProg(pr);
   const rs = t.closest('[data-resume]'); if (rs) return resume(rs.dataset.resume);
+  const rg = t.closest('[data-rsm-go]'); if (rg) { closeSheet(); return resume(rg.dataset.rsmGo); }
+  if (t.closest('[data-rsm-no]')) return closeSheet();
   const pl = t.closest('[data-play]');
   if (pl) { const o = S.byKey[pl.dataset.play]; if (o) o.type === 'movie' ? playMovie(o) : push({v:'detail', key:o.key}); return; }
   const k = t.closest('[data-k]');
@@ -2865,7 +2919,7 @@ document.addEventListener('click', async e => {
   if (sw) {
     const id = sw.dataset.set;
     if (id === 'fill') lsSet('xp_fit', lsGet('xp_fit', 'contain') === 'cover' ? 'contain' : 'cover');
-    else { const key = {autonext:'xp_autonext', startlast:'xp_startlast', fallback:'xp_fallback', vlcalways:'xp_vlc_always'}[id]; lsSet(key, !lsGet(key, id === 'autonext')); }
+    else { const key = {autonext:'xp_autonext', startlast:'xp_startlast', fallback:'xp_fallback', vlcalways:'xp_vlc_always', resumeask:'xp_resumeask'}[id]; lsSet(key, !lsGet(key, id === 'autonext' || id === 'resumeask')); }
     sw.classList.toggle('on'); sw.setAttribute('aria-checked', sw.classList.contains('on'));
     return;
   }

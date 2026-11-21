@@ -24,6 +24,13 @@ Novità delle versioni 3.4 e 3.5:
   successivo, verso il basso per quello precedente; tieni il dito premuto sul video per tornare
   al canale che guardavi prima (anche se è in un'altra categoria). Trascinando piano il dito
   su e giù continui a regolare luminosità (a sinistra) e volume (a destra).
+- Anteprima mentre fai zapping: cambiando canale compare una scheda con numero, nome, logo e
+  programma in onda; il canale parte dopo un attimo, così puoi dare altri colpi per andare oltre.
+  Tocca la scheda per andare subito.
+- Ripresa all'avvio: aprendo l'app, se hai lasciato a metà un film o un episodio, ti chiede se
+  riprenderlo (si disattiva in Impostazioni, Riproduzione, "Proponi di riprendere").
+- Blocco dello schermo nel player: pulsante "Blocca" nella fila dei comandi. Il video continua ma
+  i tocchi non fanno niente; tieni premuto il lucchetto in basso per sbloccare.
 Parla direttamente con il server Xtream (non serve il PC acceso).
 
 Novità della versione 3.3:

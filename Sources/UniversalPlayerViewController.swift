@@ -28,6 +28,9 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
     private var nextOff = false
     private var zapIndex = -1
     private var zapNames: [String] = []
+    private var zapLogos: [String] = []
+    private let zapPreview = ZapPreview()
+    private let lockView = PlayerLockView()
     private var zapTitle = "Canali"
     private var fav: Bool?
     private var fill = false
@@ -95,6 +98,7 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
     private lazy var favItem = pill("Preferito", "star")
     private lazy var nextItem = pill("Prossimo episodio", "forward.fill")
     private lazy var pipItem = pill("Mini", "pip.enter")
+    private lazy var lockItem = pill("Blocca", "lock")
 
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask { return .allButUpsideDown }
     override var prefersStatusBarHidden: Bool { return !controlsVisible }
@@ -138,10 +142,13 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
                 if let n = row["num"] as? String, !n.isEmpty { return n + "  " + name }
                 return name
             }
+            zapLogos = list.map { ($0["logo"] as? String) ?? "" }
         } else {
             zapIndex = -1
             zapNames = []
+            zapLogos = []
         }
+        zapPreview.loaded()
         titleLabel.text = (body["title"] as? String) ?? ""
         subLabel.text = (body["sub"] as? String) ?? ""
         speed = 1
@@ -153,6 +160,9 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
 
     func update(_ body: [String: Any]) {
         if let sub = body["sub"] as? String { subLabel.text = sub }
+        if let peek = body["peek"] as? [String: Any], let index = (peek["i"] as? NSNumber)?.intValue {
+            zapPreview.setNow((peek["now"] as? String) ?? "", for: index)
+        }
         if let value = body["fav"] as? Bool { fav = value; paintFav() }
         if let toast = body["toast"] as? String { showToast(toast) }
     }
@@ -578,13 +588,27 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
     }
 
     @objc private func backTapped() {
-        if isLive { zap(-1) } else { seek(by: -10) }
+        if isLive { previewZap(-1) } else { seek(by: -10) }
         scheduleHide()
     }
 
     @objc private func forwardTapped() {
-        if isLive { zap(1) } else { seek(by: 10) }
+        if isLive { previewZap(1) } else { seek(by: 10) }
         scheduleHide()
+    }
+
+    /// Cambio canale con l'anteprima: nome, logo e programma, poi il canale parte.
+    private func previewZap(_ step: Int) {
+        guard isLive, zapNames.count > 1 else { return }
+        zapPreview.step(step, from: zapIndex, names: zapNames, logos: zapLogos)
+        scheduleHide()
+    }
+
+    @objc private func lockTapped() {
+        hideControls()
+        controlsVisible = false
+        UIView.animate(withDuration: 0.2) { self.controls.alpha = 0 }
+        lockView.lock()
     }
 
     private func zap(_ step: Int) {
@@ -700,9 +724,7 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         let moved = gesture.translation(in: view)
         let speed = gesture.velocity(in: view).y
         guard abs(moved.y) > 60, abs(moved.y) > abs(moved.x) * 1.5, abs(speed) > 700 else { return }
-        let up = moved.y < 0
-        showToast(up ? "Canale successivo" : "Canale precedente")
-        zap(up ? 1 : -1)
+        previewZap(moved.y < 0 ? 1 : -1)
     }
 
     @objc private func longPressed(_ gesture: UILongPressGestureRecognizer) {
@@ -719,6 +741,7 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if lockView.isLocked { return false }
         // i tocchi sui pulsanti restano ai pulsanti
         var v: UIView? = touch.view
         while let current = v {
@@ -729,6 +752,7 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
     }
 
     private func showControls() {
+        if lockView.isLocked { return }
         controlsVisible = true
         UIView.animate(withDuration: 0.2) { self.controls.alpha = 1 }
         setNeedsStatusBarAppearanceUpdate()
@@ -765,6 +789,8 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
     }
 
     private func showError(_ title: String, _ message: String) {
+        lockView.unlock()
+        zapPreview.cancel()
         errorTitle.text = title
         errorMessage.text = message
         errorBox.isHidden = false
@@ -862,6 +888,7 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         buildCenter()
         buildBottom()
         buildToastAndError()
+        installZapAndLock()
     }
 
     override func viewDidLayoutSubviews() {
@@ -986,6 +1013,7 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         favItem.addTarget(self, action: #selector(favTapped), for: .touchUpInside)
         nextItem.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
         pipItem.addTarget(self, action: #selector(pipTapped), for: .touchUpInside)
+        lockItem.addTarget(self, action: #selector(lockTapped), for: .touchUpInside)
         pipItem.isHidden = true
         tracksItem.showsMenuAsPrimaryAction = true
         tracksItem.menu = UIMenu(children: [UIDeferredMenuElement.uncached { [weak self] done in done(self?.trackMenuItems() ?? []) }])
@@ -994,7 +1022,7 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         for item in [tracksItem, speedItem] {
             item.addTarget(self, action: #selector(menuOpened), for: .menuActionTriggered)
         }
-        for item in [nextItem, skipItem, pipItem, channelsItem, tracksItem, speedItem, fitItem, favItem] { actions.addArrangedSubview(item) }
+        for item in [nextItem, skipItem, pipItem, channelsItem, tracksItem, speedItem, fitItem, favItem, lockItem] { actions.addArrangedSubview(item) }
         actions.spacing = 8
         actions.alignment = .center
         let scroller = UIScrollView()
@@ -1091,6 +1119,40 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
     }
 
     // MARK: piccoli aiuti
+
+    /// Anteprima dello zapping e blocco dello schermo, sopra a tutto il resto.
+    private func installZapAndLock() {
+        zapPreview.commit = { [weak self] index in
+            guard let self = self else { return }
+            self.host?.universal(self, event: "zap", data: ["i": index])
+        }
+        zapPreview.peek = { [weak self] index in
+            guard let self = self else { return }
+            self.host?.universal(self, event: "peek", data: ["i": index])
+        }
+        let card = zapPreview.card
+        add(card, to: view)
+        let cardWidth = card.widthAnchor.constraint(equalToConstant: 340)
+        cardWidth.priority = .defaultHigh
+        NSLayoutConstraint.activate([
+            card.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            card.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 64),
+            card.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, constant: -32),
+            cardWidth
+        ])
+        add(lockView, to: view)
+        NSLayoutConstraint.activate([
+            lockView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            lockView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            lockView.topAnchor.constraint(equalTo: view.topAnchor),
+            lockView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        lockView.onUnlock = { [weak self] in
+            self?.showToast("Schermo sbloccato")
+            self?.showControls()
+        }
+        view.bringSubviewToFront(toastLabel)
+    }
 
     private func add(_ child: UIView, to parent: UIView) {
         child.translatesAutoresizingMaskIntoConstraints = false
