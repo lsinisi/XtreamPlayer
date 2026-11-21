@@ -375,6 +375,8 @@ extension WebViewController: PlayerHost {
 
     /// Picture in Picture partito (dal pulsante o uscendo dall'app): torna l'interfaccia, il video resta nella finestrina.
     func playerDidStartPictureInPicture(_ player: PlayerViewController) {
+        // il riquadro del video resta nella finestra: senza, il miniplayer si blocca mentre l'audio va avanti
+        if let window = view.window { player.parkVideo(in: window) }
         if player.presentingViewController != nil {
             player.dismiss(animated: true, completion: nil)
         }

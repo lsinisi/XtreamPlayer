@@ -17,6 +17,8 @@ Novità delle versioni 3.4 e 3.5:
   miniplayer) il player se ne accorge e si ripara da solo in pochi secondi, senza tornare
   all'inizio; lo stesso se il video resta fermo a caricare a metà.
 - Miniplayer dopo il blocco dello schermo: allo sblocco l'immagine torna da sola.
+- Miniplayer del player dell'iPhone: l'immagine non si blocca più mentre l'audio va avanti
+  (il riquadro del video ora resta agganciato allo schermo anche quando la schermata del player si chiude).
 - Con lo schermo bloccato mentre guardi nell'app (senza miniplayer) l'audio continua.
 - Se un film si interrompe e riparte da solo, riprende dal punto in cui era (prima tornava all'inizio).
 - Chiudendo il miniplayer del player universale con la X il video si mette in pausa (prima l'audio continuava).

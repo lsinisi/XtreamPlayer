@@ -124,6 +124,8 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     private var playingSince: Date?
     private var hasStarted = false
     private var layerDetached = false
+    /// il riquadro del video "parcheggiato" nella finestra dell'app mentre c'è il miniplayer
+    private var videoParked = false
     private var healthTimer: Timer?
 
     // MARK: interfaccia
@@ -250,6 +252,43 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     }
 
     /// Rimette il video nella vista (non in background: lì il sistema fermerebbe la riproduzione).
+    // MARK: riquadro del video durante il miniplayer
+    //
+    // Il miniplayer mostra il riquadro del video (AVPlayerLayer). Se il riquadro esce dalla finestra
+    // dell'app, iOS smette di aggiornare l'immagine del miniplayer mentre l'audio continua:
+    // per questo, quando la schermata del player si chiude, il riquadro resta nella finestra,
+    // nascosto dietro all'interfaccia, e torna nel player quando lo si riapre.
+
+    /// Sposta il riquadro del video nella finestra dell'app, dietro a tutto.
+    func parkVideo(in window: UIWindow) {
+        guard !videoParked else { return }
+        videoParked = true
+        videoView.translatesAutoresizingMaskIntoConstraints = true
+        videoView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        videoView.frame = window.bounds
+        window.insertSubview(videoView, at: 0)
+    }
+
+    /// Rimette il riquadro del video nella schermata del player.
+    func unparkVideo() {
+        guard videoParked else { return }
+        videoParked = false
+        view.insertSubview(videoView, at: 0)
+        videoView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            videoView.topAnchor.constraint(equalTo: view.topAnchor),
+            videoView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            videoView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            videoView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        view.layoutIfNeeded()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        unparkVideo()
+    }
+
     private func reattachVideo(force: Bool = false) {
         guard layerDetached else { return }
         if !force && UIApplication.shared.applicationState == .background { return }
@@ -371,6 +410,10 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         healthTimer?.invalidate()
         healthTimer = nil
         reattachVideo(force: true)
+        if videoParked {
+            videoParked = false
+            videoView.removeFromSuperview()
+        }
         host?.playerDidClose(self)
     }
 
@@ -999,6 +1042,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
             close(notify: true)
             return
         }
+        if presentingViewController != nil { unparkVideo() }
         setControls(true)
     }
 
