@@ -2383,6 +2383,12 @@ window.XP = {ev(name, d){
     else if (name === 'downloads') onDownloads(d.items || []);
     else if (name === 'import') { if (d.text) importBackup(d.text); else toast('Non riesco a leggere questo file'); }
     else if (name === 'zap') { const z = S.pl && S.pl.zap; if (z && z.list[d.i]) playLive(z.list[d.i]); }
+    else if (name === 'prev') {
+      // tocco lungo nel player: torna al canale guardato prima (anche se è in un'altra categoria)
+      const curKey = S.pl && S.pl.item && S.pl.item.key;
+      const key = lsGet(ns('recentLive'), []).find(k => k !== curKey && S.byKey[k]);
+      if (key) playLive(S.byKey[key]); else native('player', {cmd:'update', toast:'Non hai ancora guardato un altro canale'});
+    }
     else if (name === 'next') { const c = S.pl; if (c && c.next) playEpisode(c.next.o, c.next.season, c.next.ep); }
     else if (name === 'fav') { const o = S.pl && S.pl.item; if (o) { const on = toggleFav(o.key); native('player', {cmd:'update', fav:on}); } }
     else if (name === 'fit') lsSet('xp_fit', d.fill ? 'cover' : 'contain');

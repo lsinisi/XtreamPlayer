@@ -695,6 +695,23 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         if controlsVisible { hideControls() } else { showControls() }
     }
 
+    @objc private func flicked(_ gesture: UIPanGestureRecognizer) {
+        guard gesture.state == .ended, isLive, zapNames.count > 1 else { return }
+        let moved = gesture.translation(in: view)
+        let speed = gesture.velocity(in: view).y
+        guard abs(moved.y) > 60, abs(moved.y) > abs(moved.x) * 1.5, abs(speed) > 700 else { return }
+        let up = moved.y < 0
+        showToast(up ? "Canale successivo" : "Canale precedente")
+        zap(up ? 1 : -1)
+    }
+
+    @objc private func longPressed(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began, isLive else { return }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        showToast("Torno al canale di prima")
+        host?.universal(self, event: "prev", data: [:])
+    }
+
     @objc private func doubleTapped(_ gesture: UITapGestureRecognizer) {
         guard !isLive && !isCatchup else { return }
         let x = gesture.location(in: view).x
@@ -816,6 +833,15 @@ final class UniversalPlayerViewController: UIViewController, UIGestureRecognizer
         doubleTap.delegate = self
         view.addGestureRecognizer(tap)
         view.addGestureRecognizer(doubleTap)
+        // dirette: colpo veloce su o giù per cambiare canale, tocco lungo per tornare a quello di prima
+        let flick = UIPanGestureRecognizer(target: self, action: #selector(flicked(_:)))
+        flick.maximumNumberOfTouches = 1
+        flick.delegate = self
+        view.addGestureRecognizer(flick)
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_:)))
+        longPress.minimumPressDuration = 0.6
+        longPress.delegate = self
+        view.addGestureRecognizer(longPress)
 
         spinner.color = .white
         spinner.hidesWhenStopped = true

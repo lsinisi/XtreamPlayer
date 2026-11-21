@@ -20,6 +20,10 @@ Novità delle versioni 3.4 e 3.5:
 - Con lo schermo bloccato mentre guardi nell'app (senza miniplayer) l'audio continua.
 - Se un film si interrompe e riparte da solo, riprende dal punto in cui era (prima tornava all'inizio).
 - Chiudendo il miniplayer del player universale con la X il video si mette in pausa (prima l'audio continuava).
+- Zapping veloce nelle dirette: nel player dai un colpo veloce verso l'alto per il canale
+  successivo, verso il basso per quello precedente; tieni il dito premuto sul video per tornare
+  al canale che guardavi prima (anche se è in un'altra categoria). Trascinando piano il dito
+  su e giù continui a regolare luminosità (a sinistra) e volume (a destra).
 Parla direttamente con il server Xtream (non serve il PC acceso).
 
 Novità della versione 3.3:

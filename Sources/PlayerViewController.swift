@@ -88,6 +88,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
     private var speed: Float = 1
     private var panMode = 0            // 0 niente, 1 luminosità, 2 volume
     private var panStart: Double = 0
+    private var panBeganAt = Date()
     private var savedBrightness: CGFloat?
     private var doubleTapGesture: UITapGestureRecognizer?
     private let volumeView = MPVolumeView(frame: CGRect(x: -2000, y: -2000, width: 120, height: 40))
@@ -825,6 +826,7 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
             }
             let left = gesture.location(in: view).x < view.bounds.width / 2
             panMode = left ? 1 : 2
+            panBeganAt = Date()
             if left {
                 if savedBrightness == nil { savedBrightness = UIScreen.main.brightness }
                 panStart = Double(UIScreen.main.brightness)
@@ -833,6 +835,8 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
             }
         case .changed:
             guard panMode != 0 else { return }
+            // nelle dirette un colpo veloce cambia canale: luminosità e volume aspettano un attimo
+            if canFlickZap && Date().timeIntervalSince(panBeganAt) < 0.25 { return }
             let travel = max(220, view.bounds.height * 0.55)
             let value = min(1, max(0, panStart - Double(gesture.translation(in: view).y / travel)))
             if panMode == 1 {
@@ -842,9 +846,32 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
                 volumeSlider?.value = Float(value)
                 showToast("Volume \(Int((value * 100).rounded()))%")
             }
+        case .ended:
+            defer { panMode = 0 }
+            guard panMode != 0, canFlickZap else { return }
+            let moved = gesture.translation(in: view).y
+            let speed = gesture.velocity(in: view).y
+            let quick = Date().timeIntervalSince(panBeganAt) < 0.35
+            guard quick, abs(moved) > 60, abs(speed) > 700 else { return }
+            // colpo veloce: si torna alla luminosità e al volume di prima e si cambia canale
+            if panMode == 1 { UIScreen.main.brightness = CGFloat(panStart) } else { volumeSlider?.value = Float(panStart) }
+            let up = moved < 0
+            showToast(up ? "Canale successivo" : "Canale precedente")
+            zap(up ? 1 : -1)
         default:
             panMode = 0
         }
+    }
+
+    /// Lo scorrimento veloce su e giù cambia canale solo nelle dirette con più canali.
+    private var canFlickZap: Bool { return isLive && zapNames.count > 1 }
+
+    /// Tocco lungo sul video (solo dirette): torna al canale guardato prima.
+    @objc private func longPressed(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began, isLive else { return }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        showToast("Torno al canale di prima")
+        host?.player(self, event: "prev", data: [:])
     }
 
     private var volumeSlider: UISlider? {
@@ -1444,6 +1471,10 @@ final class PlayerViewController: UIViewController, AVPictureInPictureController
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(pinched(_:)))
         pinch.delegate = self
         view.addGestureRecognizer(pinch)
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_:)))
+        longPress.minimumPressDuration = 0.6
+        longPress.delegate = self
+        view.addGestureRecognizer(longPress)
     }
 
     private func buildErrorBox() {
